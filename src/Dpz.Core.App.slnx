@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Dpz.Core.App.Service/Dpz.Core.App.Service.csproj" Id="e584607f-6fc7-4c48-97f3-ba873baa003b" />
+  <Project Path="Dpz.Core.App/Dpz.Core.App.csproj" />
+</Solution>
