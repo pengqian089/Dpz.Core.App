@@ -1,9 +1,11 @@
 ﻿using System.Net;
+using AgileConfig.Client;
 using Dpz.Core.App.Service;
 using Dpz.Core.App.Service.Implements;
 using Dpz.Core.App.Service.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using Serilog;
 
 namespace Dpz.Core.App;
 
@@ -11,21 +13,42 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.File(".log", rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+
         var builder = MauiApp.CreateBuilder();
+
         var services = builder.Services;
-        var configuration = builder.Configuration;
+
+        services.AddSerilog();
+
+        // 集成 AgileConfig 到配置系统
+        // AgileConfig 会覆盖或补充现有的配置源
+
+        const string agileConfigServerUrl = "https://config.dpangzi.com";
+        const string appId = "Dpz.Core.App";
+        const string env = "DEV";
+
+        // 注册 ConfigClient 到 DI 容器供应用使用
+        var loggerFactory = new LoggerFactory();
+        var logger = loggerFactory.CreateLogger<ConfigClient>();
+        var configClient = new ConfigClient(appId, "public", agileConfigServerUrl, env, logger);
+        configClient.ConnectAsync().GetAwaiter();
+        services.AddSingleton(configClient);
 
         // 从配置读取 WebAPI 地址
-        var webApiBaseUrl = configuration["WebApi:BaseUrl"] ?? "https://localhost:53381";
+        var webApiBaseUrl = configClient["WebApi:BaseUrl"] ?? "https://localhost:53381";
 
         // 从配置读取 OIDC 配置
-        var clientId = configuration["OIDC:ClientId"];
-        var authority = configuration["OIDC:Authority"];
-        var scopes = (configuration["OIDC:Scopes"] ?? "").Split(' ');
+        var clientId = configClient["OIDC:ClientId"];
+        var authority = configClient["OIDC:Authority"];
+        var scopes = (configClient["OIDC:Scopes"] ?? "").Split(' ');
 
         if (string.IsNullOrWhiteSpace(clientId))
         {
-            
+            Log.Warning("OIDC ClientId 未配置，身份验证将被禁用");
+            // TODO 提示用户
         }
 
         // 注册 MSAL PublicClientApplication（如果配置了 ClientId）
@@ -33,10 +56,9 @@ public static class MauiProgram
         {
             var pca = PublicClientApplicationBuilder
                 .Create(clientId)
-                .WithAuthority(authority ?? "https://login.microsoftonline.com/common")
+                .WithAuthority(authority)
                 .WithRedirectUri($"msal{clientId}://auth")
                 .Build();
-
             services.AddSingleton(pca);
             services.AddSingleton<ITokenProvider, MsalTokenProvider>();
         }
