@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Dpz.Core.App.Client/Dpz.Core.App.Client.csproj" Id="93978c5a-16f6-4e57-a207-91ec3186582b" />
+  <Project Path="Dpz.Core.App.Models/Dpz.Core.App.Models.csproj" Id="8e773c5d-f77c-4ff5-9222-b9a7b22321e1" />
   <Project Path="Dpz.Core.App.Service/Dpz.Core.App.Service.csproj" Id="e584607f-6fc7-4c48-97f3-ba873baa003b" />
-  <Project Path="Dpz.Core.App/Dpz.Core.App.csproj" />
 </Solution>
