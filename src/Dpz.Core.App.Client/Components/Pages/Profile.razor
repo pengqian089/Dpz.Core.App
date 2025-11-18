@@ -1,6 +1,91 @@
 ﻿@page "/profile"
 
-<h3>Profile</h3>
+<div class="page-container">
+    <!-- 用户信息卡片 -->
+    <MudPaper Class="user-header pa-4 mb-4" Elevation="0">
+        <MudStack AlignItems="AlignItems.Center" Spacing="2">
+            <MudAvatar Size="Size.Large" Color="Color.Primary" Style="width: 80px; height: 80px;">
+                <MudText Typo="Typo.h4">用户</MudText>
+            </MudAvatar>
+            <div style="text-align: center;">
+                <MudText Typo="Typo.h6">用户名称</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Tertiary">user@example.com</MudText>
+            </div>
+        </MudStack>
+    </MudPaper>
+
+    <!-- 统计信息 -->
+    <MudStack Row="true" Spacing="2" Class="mb-4">
+        <MudPaper Class="stat-card pa-3" Elevation="1" Style="flex: 1; text-align: center;">
+            <MudText Typo="Typo.h6">12</MudText>
+            <MudText Typo="Typo.caption">文章</MudText>
+        </MudPaper>
+        <MudPaper Class="stat-card pa-3" Elevation="1" Style="flex: 1; text-align: center;">
+            <MudText Typo="Typo.h6">48</MudText>
+            <MudText Typo="Typo.caption">碎碎念</MudText>
+        </MudPaper>
+        <MudPaper Class="stat-card pa-3" Elevation="1" Style="flex: 1; text-align: center;">
+            <MudText Typo="Typo.h6">156</MudText>
+            <MudText Typo="Typo.caption">粉丝</MudText>
+        </MudPaper>
+    </MudStack>
+
+    <!-- 个人信息菜单 -->
+    <MudText Typo="Typo.subtitle2" Class="mb-2">个人信息</MudText>
+    <MudStack Spacing="1" Class="mb-4">
+        <MudButton T="string" Variant="Variant.Text" Color="Color.Inherit" Class="justify-start" StartIcon="@Icons.Material.Filled.Edit" Href="#">
+            编辑资料
+        </MudButton>
+        <MudButton T="string" Variant="Variant.Text" Color="Color.Inherit" Class="justify-start" StartIcon="@Icons.Material.Filled.Settings" Href="#">
+            账户设置
+        </MudButton>
+        <MudButton T="string" Variant="Variant.Text" Color="Color.Inherit" Class="justify-start" StartIcon="@Icons.Material.Filled.Security" Href="#">
+            隐私设置
+        </MudButton>
+    </MudStack>
+
+    <!-- 其他菜单 -->
+    <MudText Typo="Typo.subtitle2" Class="mb-2">其他</MudText>
+    <MudStack Spacing="1">
+        <MudButton T="string" Variant="Variant.Text" Color="Color.Inherit" Class="justify-start" StartIcon="@Icons.Material.Filled.Info" Href="#">
+            关于我们
+        </MudButton>
+        <MudButton T="string" Variant="Variant.Text" Color="Color.Inherit" Class="justify-start" StartIcon="@Icons.Material.Filled.Mail" Href="#">
+            反馈意见
+        </MudButton>
+        <MudButton T="string" Variant="Variant.Text" Color="Color.Inherit" Class="justify-start" StartIcon="@Icons.Material.Filled.Logout" Href="#">
+            退出登录
+        </MudButton>
+    </MudStack>
+</div>
+
+<style>
+    .page-container {
+        padding: 16px;
+    }
+
+    .user-header {
+        background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+        color: white;
+        border-radius: 8px;
+        margin: -16px -16px 16px -16px;
+        padding: 32px 16px !important;
+    }
+
+    .stat-card {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .justify-start {
+        justify-content: flex-start;
+    }
+</style>
 
 @code {
 

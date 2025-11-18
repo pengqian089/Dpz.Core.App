@@ -1,27 +1,69 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Dpz.Core.App.Client</a>
+﻿@using Dpz.Core.App.Client.Services
+@inject NavigationManager NavigationManager
+@inject LayoutService LayoutService
+@implements IAsyncDisposable
+
+<nav class="bottom-navbar">
+    <div class="navbar-container">
+        <!-- 首页 -->
+        <NavLink href="" class="nav-item" Match="NavLinkMatch.All">
+            <span class="nav-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </span>
+            <span class="nav-label">首页</span>
+        </NavLink>
+
+        <!-- 文章 -->
+        <NavLink href="article" class="nav-item" Match="NavLinkMatch.Prefix">
+            <span class="nav-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </span>
+            <span class="nav-label">文章</span>
+        </NavLink>
+
+        <!-- 碎碎念 -->
+        <NavLink href="mumble" class="nav-item" Match="NavLinkMatch.Prefix">
+            <span class="nav-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+            </span>
+            <span class="nav-label">碎碎念</span>
+        </NavLink>
+
+        <!-- 我的 -->
+        <NavLink href="profile" class="nav-item" Match="NavLinkMatch.Prefix">
+            <span class="nav-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </span>
+            <span class="nav-label">我的</span>
+        </NavLink>
     </div>
-</div>
+</nav>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+@code {
+    protected override void OnInitialized()
+    {
+        // 订阅布局服务的变化事件
+        LayoutService.OnNavbarVisibilityChanged += StateHasChanged;
+    }
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        // 取消订阅
+        if (LayoutService != null)
+        {
+            LayoutService.OnNavbarVisibilityChanged -= StateHasChanged;
+        }
+        await Task.CompletedTask;
+    }
+}

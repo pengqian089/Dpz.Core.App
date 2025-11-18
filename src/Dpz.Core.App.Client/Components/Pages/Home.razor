@@ -1,5 +1,91 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+<div class="page-container">
+    <!-- 欢迎横幅 -->
+    <MudPaper Class="welcome-banner pa-4 mb-4" Elevation="0">
+        <MudText Typo="Typo.h5" Class="mb-2">欢迎回来！</MudText>
+        <MudText Typo="Typo.body2">这是一个现代化的 MAUI Blazor 应用示例</MudText>
+    </MudPaper>
 
-Welcome to your new app.
+    <!-- 快速操作 -->
+    <MudText Typo="Typo.subtitle2" Class="mb-2">快速操作</MudText>
+    <MudStack Row="true" Spacing="2" Class="mb-4">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" FullWidth="true">
+            发布文章
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" FullWidth="true">
+            发表碎碎念
+        </MudButton>
+    </MudStack>
+
+    <!-- 最新文章 -->
+    <MudText Typo="Typo.subtitle2" Class="mb-2">最新文章</MudText>
+    <MudStack Spacing="2" Class="mb-4">
+        @for (int i = 1; i <= 3; i++)
+        {
+            <MudCard Class="home-card" Style="cursor: pointer;">
+                <MudCardContent>
+                    <MudText Typo="Typo.subtitle2" Class="mb-1">
+                        文章标题 @i
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mb-2" Color="Color.Tertiary">
+                        这是文章的简短描述，展示最新发布的内容...
+                    </MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Tertiary">
+                        2024年1月@i日
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        }
+    </MudStack>
+
+    <!-- 最新碎碎念 -->
+    <MudText Typo="Typo.subtitle2" Class="mb-2">最新碎碎念</MudText>
+    <MudStack Spacing="2">
+        @for (int i = 1; i <= 3; i++)
+        {
+            <MudCard Class="home-card" Elevation="1">
+                <MudCardContent>
+                    <MudStack Row="true" Spacing="2">
+                        <MudAvatar Size="Size.Small" Color="Color.Primary">@((i % 26) + 65).ToString("C")</MudAvatar>
+                        <div style="flex: 1;">
+                            <MudText Typo="Typo.subtitle2" Class="mb-1">
+                                用户@i
+                            </MudText>
+                            <MudText Typo="Typo.body2" Class="mb-1">
+                                最新的碎碎念内容，分享日常有趣的事物...
+                            </MudText>
+                        </div>
+                    </MudStack>
+                </MudCardContent>
+            </MudCard>
+        }
+    </MudStack>
+</div>
+
+<style>
+    .page-container {
+        padding: 16px;
+    }
+
+    .welcome-banner {
+        background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+        color: white;
+        border-radius: 8px;
+        margin: -16px -16px 16px -16px;
+        padding: 24px 16px;
+    }
+
+    .home-card {
+        transition: all 0.3s ease;
+    }
+
+    .home-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+</style>
+
+@code {
+
+}

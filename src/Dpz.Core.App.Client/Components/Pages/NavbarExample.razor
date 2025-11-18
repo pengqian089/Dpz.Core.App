@@ -1,0 +1,62 @@
+@page "/example-navbar-control"
+@using Dpz.Core.App.Client.Services
+@inject LayoutService LayoutService
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-4">
+    <MudPaper Class="pa-4" Elevation="1">
+        <MudText Typo="Typo.h5" Class="mb-3">导航栏控制示例</MudText>
+        
+        <MudText Class="mb-4">
+            使用 LayoutService 来控制导航栏的显示和隐藏。
+        </MudText>
+
+        <MudStack>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowNavbar">
+                显示导航栏
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HideNavbar">
+                隐藏导航栏
+            </MudButton>
+
+            <MudButton Variant="Variant.Outlined" Color="Color.Tertiary" OnClick="ToggleNavbar">
+                切换导航栏
+            </MudButton>
+
+            <MudDivider Class="my-4" />
+
+            <MudAlert Severity="Severity.Info">
+                当前导航栏状态：@(LayoutService.IsNavbarVisible ? "显示中" : "已隐藏")
+            </MudAlert>
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // 页面加载时显示导航栏
+        LayoutService.ShowNavbar();
+    }
+
+    private void ShowNavbar()
+    {
+        LayoutService.ShowNavbar();
+    }
+
+    private void HideNavbar()
+    {
+        LayoutService.HideNavbar();
+    }
+
+    private void ToggleNavbar()
+    {
+        LayoutService.ToggleNavbar();
+    }
+
+    public void Dispose()
+    {
+        // 页面销毁时恢复导航栏显示
+        LayoutService.ShowNavbar();
+    }
+}

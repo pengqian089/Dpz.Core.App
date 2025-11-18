@@ -1,4 +1,5 @@
 ﻿using AgileConfig.Client;
+using Dpz.Core.App.Client.Services;
 using Dpz.Core.App.Service;
 using Dpz.Core.App.Service.Implements;
 using Dpz.Core.App.Service.Services;
@@ -83,6 +84,9 @@ public static class MauiProgram
             sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerAPI")
         );
 
+
+        // 注册布局服务
+        services.AddScoped<LayoutService>();
 
         builder
             .UseMauiApp<App>()
