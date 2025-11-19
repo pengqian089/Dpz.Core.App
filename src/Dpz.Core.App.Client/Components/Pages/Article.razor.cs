@@ -11,26 +11,25 @@ namespace Dpz.Core.App.Client.Components.Pages;
 
 public partial class Article(IArticleService articleService, IJSRuntime jsRuntime) : IAsyncDisposable
 {
-    // 数据源（实例级）
     private List<VmArticleMini> _source = [];
     private List<string> _tags = [];
-
-    // 选择状态
     private string? _currentTag = null;
     private string? _searchText = null;
 
-    // 分页
     private int _pageIndex = 1;
-    private const int PageSize = 10; // 移动端减少每页数据量，提升首屏速度
+    private const int PageSize = 10;
     private bool _hasMore = true;
 
-    // UI 状态
     private bool _initialLoading = true;
     private bool _isLoadingMore = false;
     private bool _isRefreshing = false;
     private bool _initializedJs = false;
+    private bool _infiniteLock = false;
 
     private DotNetObjectReference<Article>? _dotNetRef;
+    private IJSObjectReference? _module;
+
+    [Inject] private IJSRuntime Js { get; set; } = jsRuntime;
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,22 +44,19 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
             _dotNetRef = DotNetObjectReference.Create(this);
             try
             {
-                await jsRuntime.InvokeVoidAsync("articleInitPullToRefresh", _dotNetRef);
+                var module = await Js.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/Article.razor.js");
+                await module.InvokeVoidAsync("init", _dotNetRef);
+                _module = module;
                 _initializedJs = true;
             }
-            catch
-            {
-                // 忽略 JS 初始化失败（WebView 环境下偶发）
-            }
+            catch { }
         }
     }
 
     private async Task LoadTagsAsync()
     {
         if (_tags.Count == 0)
-        {
             _tags = await articleService.GetTagsAsync();
-        }
     }
 
     private async Task LoadFirstPageAsync()
@@ -94,11 +90,17 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
         _pageIndex = nextPageIndex;
         if (added.Count < PageSize) _hasMore = false;
         _isLoadingMore = false;
+        _infiniteLock = false;
         StateHasChanged();
     }
 
-    [JSInvokable] // 供 JS IntersectionObserver 调用
-    public Task LoadNextPageAsyncJs() => LoadNextPageAsync();
+    [JSInvokable]
+    public Task LoadNextPageAsyncJs()
+    {
+        if (_infiniteLock) return Task.CompletedTask;
+        _infiniteLock = true;
+        return LoadNextPageAsync();
+    }
 
     private async Task OnSelectTagAsync(string? tag)
     {
@@ -115,25 +117,34 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
         StateHasChanged();
     }
 
-    // 供 JS 触发下拉刷新
     [JSInvokable]
-    public async Task OnPullToRefresh()
+    public async Task OnPullToRefresh() => await RefreshAsync();
+
+    private string FormatRelativeTime(DateTime dt)
     {
-        await RefreshAsync();
+        var span = DateTime.UtcNow - dt.ToUniversalTime();
+        if (span.TotalMinutes < 1) return "刚刚";
+        if (span.TotalHours < 1) return $"{(int)span.TotalMinutes}分钟前";
+        if (span.TotalDays < 1) return $"{(int)span.TotalHours}小时前";
+        if (span.TotalDays < 7) return $"{(int)span.TotalDays}天前";
+        return dt.ToString("yyyy-MM-dd");
     }
 
-    // 滚动事件（备用方案：如果没有 MudInfiniteScroll 或 JS Intersection Observer 失败）
-    private async Task OnScrollAsync(ChangeEventArgs args) => await Task.CompletedTask;
+    private void OnOpenArticle(VmArticleMini item) { }
+
+    protected string GetTagCss(string? tag) => _currentTag == tag ? "tag-chip active" : "tag-chip";
 
     public async ValueTask DisposeAsync()
     {
         if (_dotNetRef != null)
-        {
             _dotNetRef.Dispose();
-        }
         try
         {
-            await jsRuntime.InvokeVoidAsync("articleDisposePullToRefresh");
+            if (_module != null)
+            {
+                await _module.InvokeVoidAsync("dispose");
+                await _module.DisposeAsync();
+            }
         }
         catch { }
     }

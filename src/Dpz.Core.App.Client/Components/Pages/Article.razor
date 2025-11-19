@@ -1,19 +1,21 @@
 ﻿@page "/article"
 
 <MudStack Class="article-page" Spacing="2">
-    <!-- 顶部搜索与筛选 -->
-    <MudPaper Class="pa-3" Elevation="1" Square="true" Style="position:sticky;top:0;z-index:5;">
+    <MudPaper Class="top-bar pa-3" Elevation="1" Square="true">
         <MudStack Spacing="2">
-            <MudText Typo="Typo.h6">发现文章</MudText>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h6" Class="page-title">发现文章</MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Primary" Disabled="_isRefreshing || _initialLoading" OnClick="RefreshAsync" />
+            </MudStack>
             <MudTextField @bind-Value="_searchText" Placeholder="搜索标题或内容" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="(()=> OnSearchAsync(_searchText))" OnKeyDown="@(async e=> { if(e.Key=="Enter") await OnSearchAsync(_searchText); })" />
             @if (_tags?.Count > 0)
             {
                 <div class="tags-scroll">
                     <MudChipSet T="string" Mandatory="false" MultiSelection="false" Class="d-flex">
-                        <MudChip T="string" Color="Color.Primary" Variant="Variant.Filled" Selected="@(_currentTag==null)" OnClick="(()=>OnSelectTagAsync(null))">全部</MudChip>
+                        <MudChip T="string" Color="Color.Primary" Variant="Variant.Filled" Class="@(_currentTag==null ? "tag-chip active" : "tag-chip")" OnClick="(()=>OnSelectTagAsync(null))">全部</MudChip>
                         @foreach (var tag in _tags)
                         {
-                            <MudChip T="string" Color="Color.Primary" Variant="Variant.Outlined" Selected="@(_currentTag==tag)" OnClick="(()=>OnSelectTagAsync(tag))">@tag</MudChip>
+                            <MudChip T="string" Color="Color.Primary" Variant="@(_currentTag==tag ? Variant.Filled : Variant.Outlined)" Class="@(_currentTag==tag ? "tag-chip active" : "tag-chip")" OnClick="(()=>OnSelectTagAsync(tag))">@tag</MudChip>
                         }
                     </MudChipSet>
                 </div>
@@ -21,30 +23,33 @@
         </MudStack>
     </MudPaper>
 
-    <!-- 下拉刷新指示条 -->
     @if (_isRefreshing)
     {
-        <MudProgressLinear Style="height:4px;" Color="Color.Primary" Indeterminate="true" />
+        <MudProgressLinear Class="refresh-bar" Color="Color.Primary" Indeterminate="true" />
     }
 
-    <!-- 初始加载骨架屏 -->
     @if (_initialLoading)
     {
         <MudStack Spacing="2" Class="pa-2">
             @for (int i = 0; i < 6; i++)
             {
-                <MudPaper Class="pa-3 skeleton-card" Elevation="0">
-                    <MudSkeleton Width="60%" Height="20px" Class="mb-2" />
-                    <MudSkeleton Width="100%" Height="14px" Class="mb-1" />
-                    <MudSkeleton Width="90%" Height="14px" Class="mb-2" />
-                    <MudSkeleton Width="40%" Height="12px" />
+                <MudPaper Class="article-item skeleton-card" Elevation="0">
+                    <div class="media-wrapper skeleton-media">
+                        <MudSkeleton Width="100%" Height="100%" />
+                    </div>
+                    <div class="content-wrapper pa-3">
+                        <MudSkeleton Width="70%" Height="20px" Class="mb-2" />
+                        <MudSkeleton Width="100%" Height="14px" Class="mb-1" />
+                        <MudSkeleton Width="90%" Height="14px" Class="mb-2" />
+                        <MudSkeleton Width="50%" Height="12px" />
+                    </div>
                 </MudPaper>
             }
         </MudStack>
     }
     else if (_source.Count == 0)
     {
-        <MudPaper Class="pa-6" Elevation="0" Style="text-align:center; margin-top:48px;">
+        <MudPaper Class="empty-block pa-6" Elevation="0">
             <MudStack Spacing="1" AlignItems="AlignItems.Center">
                 <MudIcon Color="Color.Tertiary" Icon="@Icons.Material.Filled.Article" Size="Size.Large" />
                 <MudText Typo="Typo.subtitle1">暂无文章</MudText>
@@ -57,25 +62,74 @@
         <MudStack Spacing="2" Class="article-list" Style="padding:8px;">
             @foreach (var item in _source)
             {
-                <MudPaper Class="article-item pa-3" Elevation="1" @onclick="(()=>{})">
-                    <MudStack Spacing="1">
-                        <MudText Typo="Typo.subtitle1" Class="truncate-2">@item.Title</MudText>
-                        <MudText Typo="Typo.body2" Color="Color.Tertiary" Class="truncate-3">@item.Introduction</MudText>
-                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                            <MudStack Row="true" Spacing="1" Class="tags-inline">
-                                @foreach (var tag in item.Tags ?? [])
+                <MudPaper Class="article-item" Elevation="1" @onclick="(()=>OnOpenArticle(item))">
+                    <div class="media-wrapper">
+                        @if (!string.IsNullOrWhiteSpace(item.MainImage))
+                        {
+                            <img src="@item.MainImage" alt="封面" class="cover-img" loading="lazy" />
+                        }
+                        else if (item.ImagesAddress?.Length > 0)
+                        {
+                            <div class="thumbs-row">
+                                @foreach (var img in item.ImagesAddress.Take(3))
                                 {
-                                    <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small">@tag</MudChip>
+                                    <img src="@img" alt="图" class="thumb-img" loading="lazy" />
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="no-image placeholder-gradient">
+                                <MudIcon Icon="@Icons.Material.Filled.Image" Color="Color.Tertiary" />
+                            </div>
+                        }
+
+                        @if (item.ImagesAddress?.Length > 3)
+                        {
+                            <MudChip T="string" Class="more-images-chip" Color="Color.Dark" Variant="Variant.Filled" Size="Size.Small">+@(item.ImagesAddress.Length - 3)</MudChip>
+                        }
+                    </div>
+
+                    <div class="content-wrapper pa-3">
+                        <MudStack Spacing="1">
+                            <MudText Typo="Typo.subtitle1" Class="title truncate-2">@item.Title</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Tertiary" Class="intro truncate-3">@item.Introduction</MudText>
+
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="meta-row">
+                                <MudStack Row="true" Spacing="1" Class="tags-inline">
+                                    @foreach (var tag in item.Tags ?? [])
+                                    {
+                                        <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small" Class="mini-tag">@tag</MudChip>
+                                    }
+                                </MudStack>
+                                <MudText Typo="Typo.caption" Color="Color.Tertiary">@FormatRelativeTime(item.CreateTime)</MudText>
+                            </MudStack>
+
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart" Class="stats-row" Spacing="2">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="stat">
+                                    <MudIcon Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" />
+                                    <MudText Typo="Typo.caption">@item.ViewCount</MudText>
+                                </MudStack>
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="stat">
+                                    <MudIcon Icon="@Icons.Material.Filled.ChatBubbleOutline" Size="Size.Small" />
+                                    <MudText Typo="Typo.caption">@item.CommentCount</MudText>
+                                </MudStack>
+                                @if (item.Author != null)
+                                {
+                                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="author-block">
+                                        <MudAvatar Size="Size.Small" Color="Color.Primary">
+                                            <MudImage Src="@item.Author.Avatar"></MudImage>
+                                        </MudAvatar>
+                                        <MudText Typo="Typo.caption" Class="author-name truncate-1" >@item.Author?.Name</MudText>
+                                    </MudStack>
                                 }
                             </MudStack>
-                            <MudText Typo="Typo.caption" Color="Color.Tertiary">@item.CreateTime</MudText>
                         </MudStack>
-                    </MudStack>
+                    </div>
                 </MudPaper>
             }
         </MudStack>
 
-        <!-- 加载更多区域 -->
         <div class="load-more-container" id="infinite-scroll-sentinel">
             @if (_isLoadingMore)
             {
@@ -92,44 +146,3 @@
         </div>
     }
 </MudStack>
-
-<style>
-    .article-page { padding-bottom:72px; }
-    .tags-scroll { overflow-x:auto; white-space:nowrap; }
-    .tags-scroll .mud-chip { margin-right:6px; }
-    .article-item { border-radius:14px; cursor:pointer; transition:box-shadow .25s, transform .25s; }
-    .article-item:active { transform:scale(.98); }
-    .article-item:hover { box-shadow:0 4px 14px rgba(0,0,0,.12); }
-    .truncate-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    .truncate-3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-    .load-more-container { display:flex; justify-content:center; align-items:center; padding:16px; }
-    .skeleton-card { border-radius:12px; }
-    .tags-inline { overflow:hidden; max-width:65%; }
-    .tags-inline .mud-chip { padding:0 6px; }
-    .tags-scroll::-webkit-scrollbar { display:none; }
-</style>
-
-@code { }
-
-<script>
-    (function(){
-        let startY = 0, isPulling = false;
-        const threshold = 70;
-        const body = document.body;
-        let dotnetRef;
-        function onTouchStart(e){ if(window.scrollY===0){ startY = e.touches[0].clientY; isPulling = true; } }
-        function onTouchMove(e){ if(!isPulling) return; const diff = e.touches[0].clientY - startY; if(diff>threshold){ triggerRefresh(); isPulling=false; } }
-        function onTouchEnd(){ isPulling=false; }
-        function triggerRefresh(){ if(dotnetRef){ dotnetRef.invokeMethodAsync('OnPullToRefresh'); } }
-        function initInfiniteScroll(){
-            const sentinel = document.getElementById('infinite-scroll-sentinel');
-            if(!sentinel) return;
-            const observer = new IntersectionObserver(entries=>{
-                entries.forEach(entry=>{ if(entry.isIntersecting){ if(dotnetRef){ dotnetRef.invokeMethodAsync('LoadNextPageAsyncJs').catch(()=>{}); } } });
-            },{ root:null, threshold:0.1 });
-            observer.observe(sentinel);
-        }
-        window.articleInitPullToRefresh = (ref)=>{ dotnetRef = ref; body.addEventListener('touchstart', onTouchStart,{passive:true}); body.addEventListener('touchmove', onTouchMove,{passive:true}); body.addEventListener('touchend', onTouchEnd,{passive:true}); initInfiniteScroll(); };
-        window.articleDisposePullToRefresh = ()=>{ body.removeEventListener('touchstart', onTouchStart); body.removeEventListener('touchmove', onTouchMove); body.removeEventListener('touchend', onTouchEnd); };
-    })();
-</script>
