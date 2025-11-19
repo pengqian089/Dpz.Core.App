@@ -42,7 +42,8 @@ public class VmUserInfo
     /// <summary>
     /// 权限
     /// </summary>
-    public int? Permissions { get; set; }
+    [JsonConverter(typeof(EnumNullableConverter<Permissions>))]
+    public Permissions? Permissions { get; set; }
 
     /// <summary>
     /// 是否启用

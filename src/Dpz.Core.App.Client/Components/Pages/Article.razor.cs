@@ -24,7 +24,7 @@ public partial class Article(IArticleService articleService)
         if (_source.Count == 0)
         {
             _source = (
-                await articleService.GetArticlesAsync(_currentTag, null, _pageIndex)
+                await articleService.GetArticlesAsync(_currentTag, null, PageSize, _pageIndex)
             ).ToList();
         }
         if (_tags.Count == 0)
@@ -36,7 +36,12 @@ public partial class Article(IArticleService articleService)
 
     private async Task LoadNextPageAsync()
     {
-        var nextPage = await articleService.GetArticlesAsync(_currentTag, null, _pageIndex + 1);
+        var nextPage = await articleService.GetArticlesAsync(
+            _currentTag,
+            null,
+            PageSize,
+            _pageIndex + 1
+        );
         _source.AddRange(nextPage);
         _pageIndex++;
     }

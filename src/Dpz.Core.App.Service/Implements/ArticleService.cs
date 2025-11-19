@@ -14,8 +14,8 @@ public class ArticleService(IHttpService httpService) : IArticleService
     public async Task<IPagedList<VmArticleMini>> GetArticlesAsync(
         string? tags = null,
         string? title = null,
-        int pageSize = 1,
-        int pageIndex = 20
+        int pageSize = 20,
+        int pageIndex = 1
     )
     {
         var parameters = new Dictionary<string, object?>

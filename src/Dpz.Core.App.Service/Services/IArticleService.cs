@@ -17,8 +17,8 @@ public interface IArticleService
     Task<IPagedList<VmArticleMini>> GetArticlesAsync(
         string? tags = null,
         string? title = null,
-        int pageSize = 1,
-        int pageIndex = 20
+        int pageSize = 20,
+        int pageIndex = 1
     );
 
     /// <summary>

@@ -48,23 +48,41 @@ public class HttpService(HttpClient httpClient) : IHttpService
         var pageIndex = 1;
         var pageSize = 20;
 
-        if (parameters?.TryGetValue("pageIndex", out var pageIndexValue) == true)
+        if (parameters != null)
         {
-            pageIndex = Convert.ToInt32(pageIndexValue);
+            var caseInsensitiveParams = new Dictionary<string, object?>(
+                parameters,
+                StringComparer.OrdinalIgnoreCase
+            );
+
+            if (caseInsensitiveParams.TryGetValue("pageIndex", out var pageIndexValue))
+            {
+                pageIndex = Convert.ToInt32(pageIndexValue);
+            }
+            else
+            {
+                parameters.Add("pageIndex", pageIndex);
+            }
+
+            if (caseInsensitiveParams.TryGetValue("pageSize", out var pageSizeValue))
+            {
+                pageSize = Convert.ToInt32(pageSizeValue);
+            }
+            else
+            {
+                parameters.Add("pageSize", pageSize);
+            }
         }
         else
         {
-            parameters?.Add("pageIndex", pageIndex);
+            parameters = new Dictionary<string, object?>
+            {
+                { "pageIndex", pageIndex },
+                { "pageSize", pageSize },
+            };
         }
-        if (parameters?.TryGetValue("pageSize", out var pageSizeValue) == true)
-        {
-            pageSize = Convert.ToInt32(pageSizeValue);
-        }
-        else
-        {
-            parameters?.Add("pageSize", pageSize);
-        }
-        var query = parameters != null ? BuildQueryString(parameters) : "";
+
+        var query = BuildQueryString(parameters);
         var response = await httpClient.GetAsync($"{endpoint}{query}");
         response.EnsureSuccessStatusCode();
 
