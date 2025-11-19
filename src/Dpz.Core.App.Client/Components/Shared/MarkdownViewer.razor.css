@@ -1,0 +1,89 @@
+::deep.md-viewer { line-height:1.65; font-size:0.95rem; }
+::deep.md-viewer h1, ::deep.md-viewer h2, ::deep.md-viewer h3 {
+    margin-top: 1.4em;
+    margin-bottom: .6em;
+}
+::deep.md-viewer p {
+    margin: .6em 0;
+}
+::deep.md-viewer code {
+    background: #272822;
+    color: #f8f8f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: .85rem;
+}
+::deep.md-viewer pre code {
+    display: block;
+    padding: 12px;
+    overflow: auto;
+}
+::deep.md-viewer img, ::deep.md-viewer .md-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    cursor: pointer;
+}
+::deep.md-viewer blockquote {
+    border-left: 4px solid var(--mud-palette-primary);
+    padding: .4em .8em;
+    background: rgba(0,0,0,.04);
+    border-radius: 4px;
+}
+::deep.md-viewer ul, ::deep.md-viewer ol {
+    padding-left: 2em
+}
+::deep.md-viewer table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0;
+}
+::deep.md-viewer th, ::deep.md-viewer td {
+    border: 1px solid #ddd;
+    padding: 6px 8px;
+}
+::deep.md-viewer tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+/* Õº∆¨‘§¿¿’⁄’÷ */
+::deep.md-img-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+::deep.md-img-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+::deep.md-img-modal .nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,.15);
+    color: #fff;
+    border: none;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+::deep.md-img-modal .prev {
+    left: 24px;
+}
+::deep.md-img-modal .next {
+    right: 24px;
+}
+::deep.md-img-modal .close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: rgba(255,255,255,.15);
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+}

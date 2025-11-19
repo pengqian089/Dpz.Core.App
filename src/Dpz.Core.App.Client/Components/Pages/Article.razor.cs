@@ -2,13 +2,15 @@
 using Dpz.Core.App.Service.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components;
 
 namespace Dpz.Core.App.Client.Components.Pages;
 
 public partial class Article(
     IArticleService articleService,
     IJSRuntime jsRuntime,
-    ILogger<Article> logger
+    ILogger<Article> logger,
+    NavigationManager nav
 ) : IAsyncDisposable
 {
     private List<VmArticleMini> _source = [];
@@ -199,7 +201,11 @@ public partial class Article(
 
     private string FormatFullTime(DateTime dt) => dt.ToString("yyyy-MM-dd HH:mm:ss");
 
-    private void OnOpenArticle(VmArticleMini item) { }
+    private void OnOpenArticle(VmArticleMini item)
+    {
+        if (string.IsNullOrWhiteSpace(item.Id)) return;
+        nav.NavigateTo($"/article/read/{item.Id}");
+    }
 
     protected string GetTagCss(string? tag) => _currentTag == tag ? "tag-chip active" : "tag-chip";
 

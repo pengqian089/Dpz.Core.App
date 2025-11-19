@@ -1,0 +1,32 @@
+@using Markdig
+@namespace Dpz.Core.App.Client.Components.Shared
+@inherits MarkdownViewerBase
+@inject IJSRuntime Js
+
+@if (string.IsNullOrWhiteSpace(Source))
+{
+    <MudText Typo="Typo.caption" Color="Color.Tertiary">(ÎÞÄÚÈÝ)</MudText>
+}
+else if (_renderHtml == null)
+{
+    <MudSkeleton Width="100%" Height="32px" />
+}
+else
+{
+    <div class="md-viewer" @onclick="HandleClick">@((MarkupString)_renderHtml)</div>
+}
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            try
+            {
+                var module = await Js.InvokeAsync<IJSObjectReference>("import", "./Components/Shared/MarkdownViewer.razor.js");
+                await module.InvokeVoidAsync("initMarkdownViewer");
+            }
+            catch { }
+        }
+    }
+}

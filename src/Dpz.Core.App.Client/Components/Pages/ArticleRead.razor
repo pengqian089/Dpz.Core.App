@@ -1,3 +1,173 @@
 ﻿@page "/article/read/{id}"
+@using Dpz.Core.App.Client.Components.Shared
 
-<h3>ArticleRead</h3>
+<MudStack Class="article-read-page" Spacing="2">
+    <MudPaper Class="top-bar pa-3" Elevation="1" Square="true">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Primary" OnClick="BackToList" />
+                @if (_article != null)
+                {
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.subtitle2" Color="Color.Tertiary" Class="publish-time">@FormatFullTime(_article.CreateTime)</MudText>
+                        <MudText Typo="Typo.h6" Class="page-title">@_article.Title</MudText>
+                    </MudStack>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h6" Class="page-title">文章详情</MudText>
+                }
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+
+    @if (_loading)
+    {
+        <MudStack Spacing="2" Class="pa-3">
+            <MudSkeleton Width="60%" Height="28px" Class="mb-2" />
+            <MudSkeleton Width="100%" Height="16px" Class="mb-1" />
+            <MudSkeleton Width="100%" Height="16px" Class="mb-1" />
+            <MudSkeleton Width="90%" Height="16px" Class="mb-2" />
+            <MudSkeleton Width="100%" Height="220px" />
+        </MudStack>
+    }
+    else if (_loadError)
+    {
+        <MudPaper Class="pa-6" Elevation="0" Style="text-align:center;">
+            <MudStack Spacing="1" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Color="Color.Error" Size="Size.Large" />
+                <MudText Typo="Typo.subtitle1" Color="Color.Error">文章加载失败</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync">重试</MudButton>
+            </MudStack>
+        </MudPaper>
+    }
+    else if (_article == null)
+    {
+        <MudText Typo="Typo.subtitle1" Class="pa-4">未找到文章</MudText>
+    }
+    else
+    {
+        <MudStack Spacing="2" Class="article-detail-container pa-3">
+            <MudStack Spacing="1">
+                @if (!string.IsNullOrWhiteSpace(_article.Introduction))
+                {
+                    <MudText Typo="Typo.subtitle2" Color="Color.Tertiary" Class="intro">@_article.Introduction</MudText>
+                }
+                @if (_article.Tags?.Length > 0)
+                {
+                    <MudStack Row="true" Spacing="1" Class="detail-tags">
+                        @foreach (var tag in _article.Tags)
+                        {
+                            <div class="tag-chip-alt">@tag</div>
+                        }
+                    </MudStack>
+                }
+            </MudStack>
+
+            <MudPaper Class="pa-3 stats-block" Elevation="0">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                        @if (_article.Author != null)
+                        {
+                            <MudAvatar Size="Size.Medium" Color="Color.Primary">
+                                <MudImage Src="@_article.Author.Avatar" Alt="头像" />
+                            </MudAvatar>
+                            <MudText Typo="Typo.subtitle2">@_article.Author.Name</MudText>
+                        }
+                    </MudStack>
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="stats-inline">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" />
+                            <MudText Typo="Typo.caption">@_article.ViewCount</MudText>
+                        </MudStack>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@Icons.Material.Filled.ChatBubbleOutline" Size="Size.Small" />
+                            <MudText Typo="Typo.caption">@_article.CommentCount</MudText>
+                        </MudStack>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@Icons.Material.Filled.AccessTime" Size="Size.Small" />
+                            <MudText Typo="Typo.caption">@FormatFullTime(_article.CreateTime)</MudText>
+                        </MudStack>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+
+            <MudPaper Class="content-block pa-3" Elevation="0">
+                <MarkdownViewer Source="@(_article.Markdown ?? _article.HtmlContent)" />
+            </MudPaper>
+
+            <MudStack Row="true" Spacing="1" Justify="Justify.Center" Class="actions-bar">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ThumbUp">点赞</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.BookmarkAdd">收藏</MudButton>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Share">分享</MudButton>
+            </MudStack>
+
+            <MudPaper Class="comments-block pa-3" Elevation="0">
+                <MudStack Spacing="2">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                        <MudText Typo="Typo.subtitle1">评论 (@_comments.Count)</MudText>
+                        <MudIconButton Icon="@Icons.Material.Filled.Refresh" Disabled="_commentsInitialLoading || _commentsLoadingMore" Color="Color.Primary" OnClick="LoadCommentsFirstPageAsync" />
+                    </MudStack>
+
+                    <MudStack Spacing="1" Class="comment-form">
+                        <MudTextField @bind-Value="_nickName" Label="昵称" Variant="Variant.Outlined" Dense="true" />
+                        <MudTextField @bind-Value="_email" Label="邮箱 (可选)" Variant="Variant.Outlined" Dense="true" />
+                        <MudTextField @bind-Value="_commentText" Label="评论内容" Variant="Variant.Outlined" Lines="4" />
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="string.IsNullOrWhiteSpace(_commentText) || _publishing" OnClick="PublishCommentAsync" StartIcon="@Icons.Material.Filled.Send">发送</MudButton>
+                    </MudStack>
+
+                    @if (_commentsInitialLoading)
+                    {
+                        <MudStack Spacing="1">
+                            @for (int i=0;i<3;i++)
+                            {
+                                <MudSkeleton Width="100%" Height="64px" />
+                            }
+                        </MudStack>
+                    }
+                    else if (_comments.Count == 0)
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Tertiary">暂无评论，快来抢沙发~</MudText>
+                    }
+                    else
+                    {
+                        <MudStack Spacing="1" Class="comments-list">
+                            @foreach (var c in _comments)
+                            {
+                                <MudPaper Class="comment-item pa-2" Elevation="0">
+                                    <MudStack Spacing="1">
+                                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                            <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                                <MudAvatar Size="Size.Small" Color="Color.Default">
+                                                    <MudIcon Icon="@Icons.Material.Filled.Person" />
+                                                </MudAvatar>
+                                                <MudText Typo="Typo.subtitle2">@c.Commenter?.NickName</MudText>
+                                            </MudStack>
+                                            <MudText Typo="Typo.caption" Color="Color.Tertiary">@FormatFullTime(c.PublishTime)</MudText>
+                                        </MudStack>
+                                        <MudText Typo="Typo.body2" Class="comment-text">@c.CommentText</MudText>
+                                    </MudStack>
+                                </MudPaper>
+                            }
+                        </MudStack>
+                    }
+
+                    <div id="comments-sentinel" class="comments-sentinel">
+                        @if (_commentsLoadingMore)
+                        {
+                            <MudProgressCircular Indeterminate Color="Color.Primary" Size="Size.Small" />
+                        }
+                        else if (_commentsHasMore)
+                        {
+                            <MudButton Variant="Variant.Text" Disabled="_commentsLoadingMore" OnClick="LoadNextCommentsPageAsync" Color="Color.Primary">加载更多评论</MudButton>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.caption" Color="Color.Tertiary">没有更多评论</MudText>
+                        }
+                    </div>
+                </MudStack>
+            </MudPaper>
+        </MudStack>
+    }
+</MudStack>

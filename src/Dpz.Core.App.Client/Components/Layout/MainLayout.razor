@@ -23,6 +23,16 @@
     private bool _isDarkMode;
     private MudThemeProvider? _mudThemeProvider;
 
+    protected override void OnInitialized()
+    {
+        LayoutService.OnNavbarVisibilityChanged += OnLayoutChanged;
+    }
+
+    private void OnLayoutChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -32,5 +42,10 @@
         }
 
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public void Dispose()
+    {
+        LayoutService.OnNavbarVisibilityChanged -= OnLayoutChanged;
     }
 }
