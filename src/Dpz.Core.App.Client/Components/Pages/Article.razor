@@ -1,50 +1,135 @@
 ﻿@page "/article"
 
-<div class="page-container">
-    <MudPaper Class="pa-4 mb-4" Elevation="1">
-        <MudText Typo="Typo.h5" Class="mb-2">文章列表</MudText>
-        <MudText Typo="Typo.body2" Color="Color.Tertiary">查看所有发布的文章</MudText>
+<MudStack Class="article-page" Spacing="2">
+    <!-- 顶部搜索与筛选 -->
+    <MudPaper Class="pa-3" Elevation="1" Square="true" Style="position:sticky;top:0;z-index:5;">
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.h6">发现文章</MudText>
+            <MudTextField @bind-Value="_searchText" Placeholder="搜索标题或内容" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="(()=> OnSearchAsync(_searchText))" OnKeyDown="@(async e=> { if(e.Key=="Enter") await OnSearchAsync(_searchText); })" />
+            @if (_tags?.Count > 0)
+            {
+                <div class="tags-scroll">
+                    <MudChipSet T="string" Mandatory="false" MultiSelection="false" Class="d-flex">
+                        <MudChip T="string" Color="Color.Primary" Variant="Variant.Filled" Selected="@(_currentTag==null)" OnClick="(()=>OnSelectTagAsync(null))">全部</MudChip>
+                        @foreach (var tag in _tags)
+                        {
+                            <MudChip T="string" Color="Color.Primary" Variant="Variant.Outlined" Selected="@(_currentTag==tag)" OnClick="(()=>OnSelectTagAsync(tag))">@tag</MudChip>
+                        }
+                    </MudChipSet>
+                </div>
+            }
+        </MudStack>
     </MudPaper>
 
-    <MudStack Spacing="2">
-        @foreach(var item in _source)
-        {
-            <MudCard Class="article-card" Style="cursor: pointer;">
-                <MudCardContent>
-                    <MudText Typo="Typo.subtitle1" Class="mb-2">
-                        @item.Title
-                    </MudText>
-                    <MudText Typo="Typo.body2" Class="mb-2">
-                        @item.Introduction
-                    </MudText>
-                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                        @foreach (var tag in item.Tags ?? [])
-                        {
-                            <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small">@tag</MudChip>    
-                        }
-                        <MudText Typo="Typo.caption" Color="Color.Tertiary">@item.CreateTime</MudText>
+    <!-- 下拉刷新指示条 -->
+    @if (_isRefreshing)
+    {
+        <MudProgressLinear Style="height:4px;" Color="Color.Primary" Indeterminate="true" />
+    }
+
+    <!-- 初始加载骨架屏 -->
+    @if (_initialLoading)
+    {
+        <MudStack Spacing="2" Class="pa-2">
+            @for (int i = 0; i < 6; i++)
+            {
+                <MudPaper Class="pa-3 skeleton-card" Elevation="0">
+                    <MudSkeleton Width="60%" Height="20px" Class="mb-2" />
+                    <MudSkeleton Width="100%" Height="14px" Class="mb-1" />
+                    <MudSkeleton Width="90%" Height="14px" Class="mb-2" />
+                    <MudSkeleton Width="40%" Height="12px" />
+                </MudPaper>
+            }
+        </MudStack>
+    }
+    else if (_source.Count == 0)
+    {
+        <MudPaper Class="pa-6" Elevation="0" Style="text-align:center; margin-top:48px;">
+            <MudStack Spacing="1" AlignItems="AlignItems.Center">
+                <MudIcon Color="Color.Tertiary" Icon="@Icons.Material.Filled.Article" Size="Size.Large" />
+                <MudText Typo="Typo.subtitle1">暂无文章</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Tertiary">试试更换标签或关键字</MudText>
+            </MudStack>
+        </MudPaper>
+    }
+    else
+    {
+        <MudStack Spacing="2" Class="article-list" Style="padding:8px;">
+            @foreach (var item in _source)
+            {
+                <MudPaper Class="article-item pa-3" Elevation="1" @onclick="(()=>{})">
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.subtitle1" Class="truncate-2">@item.Title</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Tertiary" Class="truncate-3">@item.Introduction</MudText>
+                        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                            <MudStack Row="true" Spacing="1" Class="tags-inline">
+                                @foreach (var tag in item.Tags ?? [])
+                                {
+                                    <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small">@tag</MudChip>
+                                }
+                            </MudStack>
+                            <MudText Typo="Typo.caption" Color="Color.Tertiary">@item.CreateTime</MudText>
+                        </MudStack>
                     </MudStack>
-                </MudCardContent>
-            </MudCard>
-        }
-    </MudStack>
-</div>
+                </MudPaper>
+            }
+        </MudStack>
+
+        <!-- 加载更多区域 -->
+        <div class="load-more-container" id="infinite-scroll-sentinel">
+            @if (_isLoadingMore)
+            {
+                <MudProgressCircular Color="Color.Primary" Indeterminate Size="Size.Medium" />
+            }
+            else if (_hasMore)
+            {
+                <MudButton Variant="Variant.Text" Disabled="_isLoadingMore" OnClick="LoadNextPageAsync" Color="Color.Primary">加载更多</MudButton>
+            }
+            else
+            {
+                <MudText Typo="Typo.caption" Color="Color.Tertiary">没有更多了</MudText>
+            }
+        </div>
+    }
+</MudStack>
 
 <style>
-    .page-container {
-        padding: 16px;
-    }
-
-    .article-card {
-        transition: all 0.3s ease;
-    }
-
-    .article-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transform: translateY(-2px);
-    }
+    .article-page { padding-bottom:72px; }
+    .tags-scroll { overflow-x:auto; white-space:nowrap; }
+    .tags-scroll .mud-chip { margin-right:6px; }
+    .article-item { border-radius:14px; cursor:pointer; transition:box-shadow .25s, transform .25s; }
+    .article-item:active { transform:scale(.98); }
+    .article-item:hover { box-shadow:0 4px 14px rgba(0,0,0,.12); }
+    .truncate-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .truncate-3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+    .load-more-container { display:flex; justify-content:center; align-items:center; padding:16px; }
+    .skeleton-card { border-radius:12px; }
+    .tags-inline { overflow:hidden; max-width:65%; }
+    .tags-inline .mud-chip { padding:0 6px; }
+    .tags-scroll::-webkit-scrollbar { display:none; }
 </style>
 
-@code {
+@code { }
 
-}
+<script>
+    (function(){
+        let startY = 0, isPulling = false;
+        const threshold = 70;
+        const body = document.body;
+        let dotnetRef;
+        function onTouchStart(e){ if(window.scrollY===0){ startY = e.touches[0].clientY; isPulling = true; } }
+        function onTouchMove(e){ if(!isPulling) return; const diff = e.touches[0].clientY - startY; if(diff>threshold){ triggerRefresh(); isPulling=false; } }
+        function onTouchEnd(){ isPulling=false; }
+        function triggerRefresh(){ if(dotnetRef){ dotnetRef.invokeMethodAsync('OnPullToRefresh'); } }
+        function initInfiniteScroll(){
+            const sentinel = document.getElementById('infinite-scroll-sentinel');
+            if(!sentinel) return;
+            const observer = new IntersectionObserver(entries=>{
+                entries.forEach(entry=>{ if(entry.isIntersecting){ if(dotnetRef){ dotnetRef.invokeMethodAsync('LoadNextPageAsyncJs').catch(()=>{}); } } });
+            },{ root:null, threshold:0.1 });
+            observer.observe(sentinel);
+        }
+        window.articleInitPullToRefresh = (ref)=>{ dotnetRef = ref; body.addEventListener('touchstart', onTouchStart,{passive:true}); body.addEventListener('touchmove', onTouchMove,{passive:true}); body.addEventListener('touchend', onTouchEnd,{passive:true}); initInfiniteScroll(); };
+        window.articleDisposePullToRefresh = ()=>{ body.removeEventListener('touchstart', onTouchStart); body.removeEventListener('touchmove', onTouchMove); body.removeEventListener('touchend', onTouchEnd); };
+    })();
+</script>
