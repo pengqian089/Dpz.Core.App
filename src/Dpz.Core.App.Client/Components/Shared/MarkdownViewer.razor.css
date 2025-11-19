@@ -46,44 +46,4 @@
     background: #f9f9f9;
 }
 
-/* 图片预览遮罩 */
-::deep.md-img-modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-::deep.md-img-modal img {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-}
-::deep.md-img-modal .nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255,255,255,.15);
-    color: #fff;
-    border: none;
-    padding: 12px;
-    cursor: pointer;
-    border-radius: 50%;
-}
-::deep.md-img-modal .prev {
-    left: 24px;
-}
-::deep.md-img-modal .next {
-    right: 24px;
-}
-::deep.md-img-modal .close {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    background: rgba(255,255,255,.15);
-    padding: 10px;
-    border-radius: 50%;
-    cursor: pointer;
-}
+/* 删除了 .md-img-modal 相关的样式 */

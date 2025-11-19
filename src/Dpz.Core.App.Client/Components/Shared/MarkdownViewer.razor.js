@@ -1,40 +1,36 @@
-let currentIndex=-1; let images=[]; let modal;
+let _ref;
+let _observer;
 
-export function initMarkdownViewer(){
-  // 事件代理点击图片
-  document.addEventListener('click', e=>{
-    const img = e.target.closest('.md-img');
-    if(!img) return;
-    images = Array.from(document.querySelectorAll('.md-img'));
-    currentIndex = images.indexOf(img);
-    showModal();
-  });
+export function initMarkdownViewer(ref) {
+    _ref = ref;
+    observeLazyImages();
 }
 
-function showModal(){
-  if(currentIndex<0 || !images.length) return;
-  const src = images[currentIndex].getAttribute('src');
-  modal = document.createElement('div');
-  modal.className='md-img-modal';
-  modal.innerHTML = `
-    <span class="close">?</span>
-    <button class="nav-btn prev">?</button>
-    <img src="${src}" alt="preview" />
-    <button class="nav-btn next">?</button>
-  `;
-  document.body.appendChild(modal);
-  modal.querySelector('.close').onclick=closeModal;
-  modal.querySelector('.prev').onclick=()=>{ navigate(-1); };
-  modal.querySelector('.next').onclick=()=>{ navigate(1); };
-  modal.onclick = e=>{ if(e.target===modal) closeModal(); };
-  window.addEventListener('keydown', onKey);
+export function disposeMarkdownViewer() {
+    if (_observer) {
+        _observer.disconnect();
+        _observer = null;
+    }
+    _ref = null;
 }
-function navigate(dir){
-  currentIndex = (currentIndex + dir + images.length) % images.length;
-  const imgEl = modal.querySelector('img');
-  imgEl.src = images[currentIndex].getAttribute('src');
-}
-function closeModal(){ if(modal){ modal.remove(); modal=null; images=[]; currentIndex=-1; window.removeEventListener('keydown', onKey); } }
-function onKey(e){ if(!modal) return; if(e.key==='Escape') closeModal(); else if(e.key==='ArrowLeft') navigate(-1); else if(e.key==='ArrowRight') navigate(1); }
 
-export function disposeMarkdownViewer(){ closeModal(); }
+function observeLazyImages() {
+    const images = document.querySelectorAll('.markdown-body img[data-src]');
+    if (!images.length) return;
+
+    _observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                const src = img.getAttribute('data-src');
+                img.setAttribute('src', src);
+                img.removeAttribute('data-src');
+                _observer.unobserve(img);
+            }
+        });
+    });
+
+    images.forEach(img => {
+        _observer.observe(img);
+    });
+}

@@ -53,15 +53,6 @@
                 {
                     <MudText Typo="Typo.subtitle2" Color="Color.Tertiary" Class="intro">@_article.Introduction</MudText>
                 }
-                @if (_article.Tags?.Length > 0)
-                {
-                    <MudStack Row="true" Spacing="1" Class="detail-tags">
-                        @foreach (var tag in _article.Tags)
-                        {
-                            <div class="tag-chip-alt">@tag</div>
-                        }
-                    </MudStack>
-                }
             </MudStack>
 
             <MudPaper Class="pa-3 stats-block" Elevation="0">
@@ -96,6 +87,18 @@
                 <MarkdownViewer Source="@(_article.Markdown ?? _article.HtmlContent)" />
             </MudPaper>
 
+            @if (_article.Tags?.Length > 0)
+            {
+                <div class="tags-block">
+                    <MudChipSet T="List<string>">
+                        @foreach (var tag in _article.Tags)
+                        {
+                            <MudChip T="string" Text="@tag" Color="Color.Primary" Variant="Variant.Outlined" />
+                        }
+                    </MudChipSet>
+                </div>
+            }
+
             <MudStack Row="true" Spacing="1" Justify="Justify.Center" Class="actions-bar">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ThumbUp">点赞</MudButton>
                 <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.BookmarkAdd">收藏</MudButton>
@@ -106,7 +109,7 @@
                 <MudStack Spacing="2">
                     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                         <MudText Typo="Typo.subtitle1">评论 (@_comments.Count)</MudText>
-                        <MudIconButton Icon="@Icons.Material.Filled.Refresh" Disabled="_commentsInitialLoading || _commentsLoadingMore" Color="Color.Primary" OnClick="LoadCommentsFirstPageAsync" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Refresh" Disabled="(_commentsInitialLoading || _commentsLoadingMore)" Color="Color.Primary" OnClick="LoadCommentsFirstPageAsync" />
                     </MudStack>
 
                     <MudStack Spacing="1" Class="comment-form">

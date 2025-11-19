@@ -1,4 +1,4 @@
-// JS Isolation for Article page
+ï»¿// JS Isolation for Article page
 let _dotnetRef; let startY=0; let isPulling=false; const threshold=70; const body=document.body; let _observer;
 
 export function init(dotnetRef){
@@ -8,7 +8,7 @@ export function init(dotnetRef){
 }
 
 export function reobserveSentinel(){
-    // ÖØĞÂ¹Û²ì£¨±êÇ©ÇĞ»»»òËÑË÷ºóÁĞ±í±»Ìæ»»£©
+    // é‡æ–°è§‚å¯Ÿï¼ˆæ ‡ç­¾åˆ‡æ¢æˆ–æœç´¢ååˆ—è¡¨è¢«æ›¿æ¢ï¼‰
     if(_observer){ _observer.disconnect(); }
     observeSentinel();
 }

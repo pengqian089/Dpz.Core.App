@@ -1,8 +1,9 @@
-﻿using Dpz.Core.App.Models.Article;
+using Dpz.Core.App.Models.Article;
 using Dpz.Core.App.Service.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace Dpz.Core.App.Client.Components.Pages;
 
@@ -10,6 +11,7 @@ public partial class Article(
     IArticleService articleService,
     IJSRuntime jsRuntime,
     ILogger<Article> logger,
+    ISnackbar snackbar,
     NavigationManager nav
 ) : IAsyncDisposable
 {
@@ -57,7 +59,9 @@ public partial class Article(
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Failed to initialize Article.js");
+                // 初始化 JS 模块失败
+                logger.LogError(e, "初始化 Article.js 失败");
+                snackbar.Add("初始化页面脚本失败", Severity.Error);
             }
         }
 
@@ -70,7 +74,9 @@ public partial class Article(
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Failed to reobserve Article.js sentinel");
+                // 重新绑定哨兵失败
+                logger.LogError(e, "重新观察 Article.js 哨兵元素失败");
+                snackbar.Add("重新绑定滚动监视失败", Severity.Warning);
             }
 
             _pendingReobserve = false;
@@ -81,7 +87,15 @@ public partial class Article(
     {
         if (_tags.Count == 0)
         {
-            _tags = await articleService.GetTagsAsync();
+            try
+            {
+                _tags = await articleService.GetTagsAsync();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "加载标签失败");
+                snackbar.Add("加载标签失败", Severity.Error);
+            }
         }
     }
 
@@ -104,7 +118,9 @@ public partial class Article(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Failed to load articles");
+            // 加载文章列表失败
+            logger.LogError(e, "加载文章失败");
+            snackbar.Add("加载文章失败", Severity.Error);
         }
         if (_source.Count < PageSize)
         {
@@ -156,7 +172,9 @@ public partial class Article(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Failed to load articles");
+            // 加载更多文章失败
+            logger.LogError(e, "加载文章失败");
+            snackbar.Add("加载更多文章失败", Severity.Error);
         }
 
         _isLoadingMore = false;
@@ -226,7 +244,9 @@ public partial class Article(
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Failed to dispose Article.js");
+            // 释放 JS 模块失败
+            logger.LogError(e, "释放 Article.js 失败");
+            snackbar.Add("释放页面脚本失败", Severity.Warning);
         }
     }
 }

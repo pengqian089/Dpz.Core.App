@@ -9,3 +9,10 @@
 .tag-chip-alt { background:var(--mud-palette-primary); color:var(--mud-palette-primary-text); padding:4px 10px; font-size:.7rem; border-radius:16px; margin-right:6px; }
 .tag-chip-alt:last-child { margin-right:0; }
 .time-chip { display:none; }
+.tags-block {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+}

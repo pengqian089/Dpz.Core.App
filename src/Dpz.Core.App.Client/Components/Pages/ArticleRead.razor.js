@@ -1,4 +1,4 @@
-let _ref; let _observer;
+﻿let _ref; let _observer;
 export function initArticleRead(dotnetRef){
   _ref = dotnetRef;
   observeCommentsSentinel();
@@ -14,4 +14,16 @@ function observeCommentsSentinel(){
     entries.forEach(e=>{ if(e.isIntersecting){ _ref.invokeMethodAsync('LoadNextCommentsPageJs').catch(()=>{}); } });
   },{ root:null, threshold:0.25 });
   _observer.observe(sentinel);
+}
+
+export function initViewer(selector) {
+    const element = document.querySelector(selector);
+    if (element) {
+        const viewer = new Viewer(element, {
+            inline: false,
+            url(image) {
+                return image.src;
+            },
+        });
+    }
 }
