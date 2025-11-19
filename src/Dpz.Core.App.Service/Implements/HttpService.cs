@@ -47,6 +47,7 @@ public class HttpService(HttpClient httpClient) : IHttpService
     {
         var pageIndex = 1;
         var pageSize = 20;
+
         if (parameters?.TryGetValue("pageIndex", out var pageIndexValue) == true)
         {
             pageIndex = Convert.ToInt32(pageIndexValue);
@@ -153,13 +154,6 @@ public class HttpService(HttpClient httpClient) : IHttpService
             return (T)value;
         }
 
-        var text = await content.ReadAsStringAsync();
-        if (string.IsNullOrEmpty(text))
-        {
-            return default;
-        }
-
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        return JsonSerializer.Deserialize<T>(text, options);
+        return await content.ReadFromJsonAsync<T>();
     }
 }

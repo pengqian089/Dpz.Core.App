@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Dpz.Core.EnumLibrary" Version="1.0.1.4" />
+  </ItemGroup>
+
 </Project>

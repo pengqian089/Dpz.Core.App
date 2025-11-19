@@ -1,4 +1,5 @@
-﻿using Dpz.Core.App.Service.Services;
+﻿using AgileConfig.Client;
+using Dpz.Core.App.Service.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client;
 
@@ -12,14 +13,10 @@ public class MsalTokenProvider : ITokenProvider
     private readonly IPublicClientApplication _pca;
     private readonly string[] _scopes;
 
-    public MsalTokenProvider(IPublicClientApplication pca, IConfiguration configuration)
+    public MsalTokenProvider(IPublicClientApplication pca, ConfigClient configClient)
     {
         _pca = pca ?? throw new ArgumentNullException(nameof(pca));
-        var scopesConfig = configuration["AzureAd:Scopes"] ?? "";
-        _scopes = scopesConfig.Split(
-            ',',
-            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
-        );
+        _scopes = (configClient["OIDC:Scopes"] ?? "").Split(' ');
     }
 
     public async Task<string?> GetAccessTokenAsync(CancellationToken cancellationToken = default)

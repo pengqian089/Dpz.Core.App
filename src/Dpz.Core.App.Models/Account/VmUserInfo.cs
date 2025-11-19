@@ -1,4 +1,7 @@
-﻿namespace Dpz.Core.App.Models.Account;
+﻿using System.Text.Json.Serialization;
+using Dpz.Core.EnumLibrary;
+
+namespace Dpz.Core.App.Models.Account;
 
 /// <summary>
 /// 用户信息视图模型
@@ -33,7 +36,8 @@ public class VmUserInfo
     /// <summary>
     /// 性别
     /// </summary>
-    public int Sex { get; set; }
+    [JsonConverter(typeof(EnumConverter<Sex>))]
+    public Sex Sex { get; set; }
 
     /// <summary>
     /// 权限

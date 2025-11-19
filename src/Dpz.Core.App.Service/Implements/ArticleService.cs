@@ -14,8 +14,8 @@ public class ArticleService(IHttpService httpService) : IArticleService
     public async Task<IPagedList<VmArticleMini>> GetArticlesAsync(
         string? tags = null,
         string? title = null,
-        int pageSize = 0,
-        int pageIndex = 0
+        int pageSize = 1,
+        int pageIndex = 20
     )
     {
         var parameters = new Dictionary<string, object?>
@@ -49,10 +49,10 @@ public class ArticleService(IHttpService httpService) : IArticleService
         await httpService.DeleteAsync($"{BaseEndpoint}/{id}");
     }
 
-    public async Task<IEnumerable<string>> GetTagsAsync()
+    public async Task<List<string>> GetTagsAsync()
     {
-        var result = await httpService.GetAsync<IEnumerable<string>>($"{BaseEndpoint}/tags/all");
-        return result ?? Enumerable.Empty<string>();
+        var result = await httpService.GetAsync<List<string>>($"{BaseEndpoint}/tags/all");
+        return result ?? [];
     }
 
     public async Task UploadArticleImageAsync(Stream fileStream, string fileName)

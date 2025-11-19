@@ -17,8 +17,8 @@ public interface IArticleService
     Task<IPagedList<VmArticleMini>> GetArticlesAsync(
         string? tags = null,
         string? title = null,
-        int pageSize = 0,
-        int pageIndex = 0
+        int pageSize = 1,
+        int pageIndex = 20
     );
 
     /// <summary>
@@ -44,7 +44,7 @@ public interface IArticleService
     /// <summary>
     /// 获取所有标签
     /// </summary>
-    Task<IEnumerable<string>> GetTagsAsync();
+    Task<List<string>> GetTagsAsync();
 
     /// <summary>
     /// 上传文章相关的图片

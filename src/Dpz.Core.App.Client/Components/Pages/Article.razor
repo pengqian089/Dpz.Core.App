@@ -7,19 +7,22 @@
     </MudPaper>
 
     <MudStack Spacing="2">
-        @for (int i = 1; i <= 5; i++)
+        @foreach(var item in _source)
         {
             <MudCard Class="article-card" Style="cursor: pointer;">
                 <MudCardContent>
                     <MudText Typo="Typo.subtitle1" Class="mb-2">
-                        文章标题 @i
+                        @item.Title
                     </MudText>
                     <MudText Typo="Typo.body2" Class="mb-2">
-                        这是第 @i 篇文章的摘要...
+                        @item.Introduction
                     </MudText>
                     <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
-                        <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small">标签@i</MudChip>
-                        <MudText Typo="Typo.caption" Color="Color.Tertiary">2024年1月@i日</MudText>
+                        @foreach (var tag in item.Tags ?? [])
+                        {
+                            <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small">@tag</MudChip>    
+                        }
+                        <MudText Typo="Typo.caption" Color="Color.Tertiary">@item.CreateTime</MudText>
                     </MudStack>
                 </MudCardContent>
             </MudCard>

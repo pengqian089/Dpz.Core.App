@@ -1,6 +1,7 @@
 ﻿using AgileConfig.Client;
 using Dpz.Core.App.Client.Services;
 using Dpz.Core.App.Service;
+using Dpz.Core.App.Service.Extensions;
 using Dpz.Core.App.Service.Implements;
 using Dpz.Core.App.Service.Services;
 using Microsoft.Extensions.Logging;
@@ -35,12 +36,12 @@ public static class MauiProgram
         services.AddSingleton(configClient);
 
         // 从配置读取 WebAPI 地址
-        var webApiBaseUrl = configClient["WebApi:BaseUrl"];
+        var webApiBaseUrl = configClient["WebApi:BaseAddress"];
 
         // 从配置读取 OIDC 配置
         var clientId = configClient["OIDC:ClientId"];
         var authority = configClient["OIDC:Authority"];
-        var scopes = (configClient["OIDC:Scopes"] ?? "").Split(' ');
+        
 
         if (string.IsNullOrWhiteSpace(clientId))
         {
@@ -57,7 +58,10 @@ public static class MauiProgram
                 .WithRedirectUri($"msal{clientId}://auth")
                 .Build();
             services.AddSingleton(pca);
-            services.AddSingleton<ITokenProvider, MsalTokenProvider>();
+
+            // TODO 后续优化 MsalTokenProvider
+            //services.AddSingleton<ITokenProvider, MsalTokenProvider>();
+            services.AddSingleton<ITokenProvider, NoopTokenProvider>();
         }
         else
         {
@@ -87,6 +91,8 @@ public static class MauiProgram
 
         // 注册布局服务
         services.AddScoped<LayoutService>();
+
+        services.AddApiServices();
 
         builder
             .UseMauiApp<App>()
