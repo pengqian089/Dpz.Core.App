@@ -1,36 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dpz.Core.App.Models.Article;
+﻿using Dpz.Core.App.Models.Article;
 using Dpz.Core.App.Service.Services;
-using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
 namespace Dpz.Core.App.Client.Components.Pages;
 
-public partial class Article(IArticleService articleService, IJSRuntime jsRuntime) : IAsyncDisposable
+public partial class Article(
+    IArticleService articleService,
+    IJSRuntime jsRuntime,
+    ILogger<Article> logger
+) : IAsyncDisposable
 {
     private List<VmArticleMini> _source = [];
     private List<string> _tags = [];
-    private string? _currentTag = null;
-    private string? _searchText = null;
+    private string? _currentTag;
+    private string? _searchText;
 
     private int _pageIndex = 1;
     private const int PageSize = 10;
     private bool _hasMore = true;
 
     private bool _initialLoading = true;
-    private bool _isLoadingMore = false;
-    private bool _isRefreshing = false;
-    private bool _initializedJs = false;
-    private bool _infiniteLock = false;
-    private bool _pendingReobserve = false; // 等待渲染完成后重新绑定哨兵
+    private bool _isLoadingMore;
+    private bool _isRefreshing;
+    private bool _initializedJs;
+    private bool _infiniteLock;
+
+    // 等待渲染完成后重新绑定哨兵
+    private bool _pendingReobserve;
 
     private DotNetObjectReference<Article>? _dotNetRef;
     private IJSObjectReference? _module;
-
-    [Inject] private IJSRuntime Js { get; set; } = jsRuntime;
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,18 +45,32 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
             _dotNetRef = DotNetObjectReference.Create(this);
             try
             {
-                var module = await Js.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/Article.razor.js");
+                var module = await jsRuntime.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    "./Components/Pages/Article.razor.js"
+                );
                 await module.InvokeVoidAsync("init", _dotNetRef);
                 _module = module;
                 _initializedJs = true;
             }
-            catch { }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to initialize Article.js");
+            }
         }
 
         // 渲染后再重新观察哨兵，避免在列表替换前调用导致旧元素被观察
         if (_pendingReobserve && _initializedJs && _module != null)
         {
-            try { await _module.InvokeVoidAsync("reobserveSentinel"); } catch { }
+            try
+            {
+                await _module.InvokeVoidAsync("reobserveSentinel");
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to reobserve Article.js sentinel");
+            }
+
             _pendingReobserve = false;
         }
     }
@@ -64,7 +78,9 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
     private async Task LoadTagsAsync()
     {
         if (_tags.Count == 0)
+        {
             _tags = await articleService.GetTagsAsync();
+        }
     }
 
     private async Task LoadFirstPageAsync()
@@ -72,17 +88,39 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
         _initialLoading = true;
         _pageIndex = 1;
         _hasMore = true;
-        _infiniteLock = false; // 切换标签或搜索后重置锁
-        var list = await articleService.GetArticlesAsync(_currentTag, _searchText, PageSize, _pageIndex);
-        _source = list.ToList();
-        if (_source.Count < PageSize) _hasMore = false;
+        // 切换标签或搜索后重置锁
+        try
+        {
+            _infiniteLock = false;
+            var list = await articleService.GetArticlesAsync(
+                _currentTag,
+                _searchText,
+                PageSize,
+                _pageIndex
+            );
+            _source = list.ToList();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to load articles");
+        }
+        if (_source.Count < PageSize)
+        {
+            _hasMore = false;
+        }
+
         _initialLoading = false;
-        _pendingReobserve = true; // 等待下一次渲染完成后 reobserve
+        // 等待下一次渲染完成后 reobserve
+        _pendingReobserve = true;
     }
 
     private async Task RefreshAsync()
     {
-        if (_isRefreshing) return;
+        if (_isRefreshing)
+        {
+            return;
+        }
+
         _isRefreshing = true;
         await LoadFirstPageAsync();
         _isRefreshing = false;
@@ -91,30 +129,59 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
 
     private async Task LoadNextPageAsync()
     {
-        if (!_hasMore || _isLoadingMore) return;
+        if (!_hasMore || _isLoadingMore)
+        {
+            return;
+        }
+
         _isLoadingMore = true;
         var nextPageIndex = _pageIndex + 1;
-        var nextPage = await articleService.GetArticlesAsync(_currentTag, _searchText, PageSize, nextPageIndex);
-        var added = nextPage.ToList();
-        _source.AddRange(added);
-        _pageIndex = nextPageIndex;
-        if (added.Count < PageSize) _hasMore = false;
+        try
+        {
+            var nextPage = await articleService.GetArticlesAsync(
+                _currentTag,
+                _searchText,
+                PageSize,
+                nextPageIndex
+            );
+            var added = nextPage.ToList();
+            _source.AddRange(added);
+            _pageIndex = nextPageIndex;
+            if (added.Count < PageSize)
+            {
+                _hasMore = false;
+            }
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to load articles");
+        }
+
         _isLoadingMore = false;
-        _infiniteLock = false; // 释放锁，允许下一次触发
+        // 释放锁，允许下一次触发
+        _infiniteLock = false;
         StateHasChanged();
     }
 
     [JSInvokable]
     public Task LoadNextPageAsyncJs()
     {
-        if (_infiniteLock) return Task.CompletedTask;
+        if (_infiniteLock)
+        {
+            return Task.CompletedTask;
+        }
+
         _infiniteLock = true;
         return LoadNextPageAsync();
     }
 
     private async Task OnSelectTagAsync(string? tag)
     {
-        if (_currentTag == tag) return;
+        if (_currentTag == tag)
+        {
+            return;
+        }
+
         _currentTag = tag;
         await LoadFirstPageAsync();
         StateHasChanged();
@@ -139,7 +206,10 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
     public async ValueTask DisposeAsync()
     {
         if (_dotNetRef != null)
+        {
             _dotNetRef.Dispose();
+        }
+
         try
         {
             if (_module != null)
@@ -148,6 +218,9 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
                 await _module.DisposeAsync();
             }
         }
-        catch { }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to dispose Article.js");
+        }
     }
 }

@@ -11,6 +11,14 @@
 .tags-chipset { display:inline-flex; }
 .tag-chip { margin-right:6px; transition:background-color .25s, color .25s, box-shadow .25s; flex:0 0 auto; }
 .tag-chip.active { box-shadow:0 0 0 2px var(--mud-palette-primary); font-weight:600; }
+/* 使用 ::deep 正确覆盖隔离作用域 */
+::deep(.mud-chip.tag-chip.active),
+::deep(.mud-chip.tag-chip.active:hover),
+::deep(.mud-chip.tag-chip.active:focus){
+  background-color: var(--mud-palette-primary) !important;
+  color: var(--mud-palette-primary-text) !important;
+  --mud-ripple-color: var(--mud-palette-primary-text) !important;
+}
 
 /* 纵向卡片布局 */
 .article-item.vertical-layout { display:flex; flex-direction:column; border-radius:16px; overflow:hidden; cursor:pointer; transition:box-shadow .25s, transform .25s; background:var(--mud-palette-surface); }
