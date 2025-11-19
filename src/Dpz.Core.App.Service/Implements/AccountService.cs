@@ -6,12 +6,9 @@ namespace Dpz.Core.App.Service.Implements;
 /// <summary>
 /// 账号服务实现
 /// </summary>
-public class AccountService : BaseApiService, IAccountService
+public class AccountService(IHttpService httpService) : IAccountService
 {
     private const string BaseEndpoint = "/api/Account";
-
-    public AccountService(HttpClient httpClient)
-        : base(httpClient) { }
 
     public async Task<IEnumerable<VmUserInfo>> GetAccountsAsync(
         string? account = null,
@@ -26,33 +23,33 @@ public class AccountService : BaseApiService, IAccountService
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
-        var result = await GetAsync<IEnumerable<VmUserInfo>>(BaseEndpoint, parameters);
-        return result ?? Enumerable.Empty<VmUserInfo>();
+        var result = await httpService.GetAsync<List<VmUserInfo>>(BaseEndpoint, parameters);
+        return result ?? [];
     }
 
     public async Task CreateAccountAsync(AccountCreateDto createDto)
     {
-        await PostAsync(BaseEndpoint, createDto);
+        await httpService.PostAsync(BaseEndpoint, createDto);
     }
 
     public async Task<VmUserInfo?> GetAccountAsync(string id)
     {
-        return await GetAsync<VmUserInfo>($"{BaseEndpoint}/{id}");
+        return await httpService.GetAsync<VmUserInfo>($"{BaseEndpoint}/{id}");
     }
 
     public async Task ToggleAccountStatusAsync(string id)
     {
-        await PatchAsync($"{BaseEndpoint}/{id}", (object?)null);
+        await httpService.PatchAsync($"{BaseEndpoint}/{id}", (object?)null);
     }
 
     public async Task ChangePasswordAsync(AccountChangPasswordDto changePasswordDto)
     {
-        await PatchAsync($"{BaseEndpoint}/change-password", changePasswordDto);
+        await httpService.PatchAsync($"{BaseEndpoint}/change-password", changePasswordDto);
     }
 
     public async Task<bool> CheckAccountExistsAsync(string account)
     {
-        var result = await GetAsync<object?>(
+        var result = await httpService.GetAsync<object?>(
             $"{BaseEndpoint}/exists/{Uri.EscapeDataString(account)}"
         );
         return result != null;
@@ -79,17 +76,17 @@ public class AccountService : BaseApiService, IAccountService
             { "PageSize", pageSize > 0 ? pageSize : null },
         };
 
-        var result = await GetAsync<IEnumerable<AccountLoginHistoryResponse>>(
+        var result = await httpService.GetAsync<List<AccountLoginHistoryResponse>>(
             $"{BaseEndpoint}/history/login",
             parameters
         );
-        return result ?? Enumerable.Empty<AccountLoginHistoryResponse>();
+        return result ?? [];
     }
 
     public async Task<IEnumerable<string>> GetChangedPropertiesAsync()
     {
-        var result = await GetAsync<IEnumerable<string>>($"{BaseEndpoint}/history/properties");
-        return result ?? Enumerable.Empty<string>();
+        var result = await httpService.GetAsync<List<string>>($"{BaseEndpoint}/history/properties");
+        return result ?? [];
     }
 
     public async Task<IEnumerable<UserHistoryResponse>> GetUserHistoryAsync(
@@ -111,10 +108,10 @@ public class AccountService : BaseApiService, IAccountService
             { "PageSize", pageSize > 0 ? pageSize : null },
         };
 
-        var result = await GetAsync<IEnumerable<UserHistoryResponse>>(
+        var result = await httpService.GetAsync<List<UserHistoryResponse>>(
             $"{BaseEndpoint}/history/user",
             parameters
         );
-        return result ?? Enumerable.Empty<UserHistoryResponse>();
+        return result ?? [];
     }
 }

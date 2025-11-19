@@ -6,12 +6,9 @@ namespace Dpz.Core.App.Service.Implements;
 /// <summary>
 /// 弹幕服务实现
 /// </summary>
-public class DanmakuService : BaseApiService, IDanmakuService
+public class DanmakuService(IHttpService httpService) : IDanmakuService
 {
     private const string BaseEndpoint = "/api/Danmaku";
-
-    public DanmakuService(HttpClient httpClient)
-        : base(httpClient) { }
 
     public async Task<IEnumerable<VmBarrage>> GetDanmakusAsync(
         string? text = null,
@@ -28,28 +25,19 @@ public class DanmakuService : BaseApiService, IDanmakuService
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
-        var result = await GetAsync<IEnumerable<VmBarrage>>(BaseEndpoint, parameters);
-        return result ?? Enumerable.Empty<VmBarrage>();
+        var result = await httpService.GetAsync<List<VmBarrage>>(BaseEndpoint, parameters);
+        return result ?? [];
     }
 
     public async Task DeleteDanmakusAsync(string[] ids)
     {
-        var request = new HttpRequestMessage(HttpMethod.Delete, BaseEndpoint)
-        {
-            Content = new StringContent(
-                System.Text.Json.JsonSerializer.Serialize(ids),
-                System.Text.Encoding.UTF8,
-                "application/json"
-            ),
-        };
-        var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        await httpService.DeleteAsync(BaseEndpoint, ids);
     }
 
     public async Task<IEnumerable<string>> GetGroupsAsync()
     {
-        var result = await GetAsync<IEnumerable<string>>($"{BaseEndpoint}/group");
-        return result ?? Enumerable.Empty<string>();
+        var result = await httpService.GetAsync<List<string>>($"{BaseEndpoint}/group");
+        return result ?? [];
     }
 
     public async Task ImportAcfunDanmakuAsync(Stream fileStream, string fileName, string group)
@@ -58,7 +46,10 @@ public class DanmakuService : BaseApiService, IDanmakuService
         using var streamContent = new StreamContent(fileStream);
         content.Add(streamContent, "File", fileName);
         content.Add(new StringContent(group), "Group");
-        var response = await _httpClient.PostAsync($"{BaseEndpoint}/import/acfun", content);
+        var response = await httpService.HttpClient.PostAsync(
+            $"{BaseEndpoint}/import/acfun",
+            content
+        );
         response.EnsureSuccessStatusCode();
     }
 
@@ -68,7 +59,10 @@ public class DanmakuService : BaseApiService, IDanmakuService
         using var streamContent = new StreamContent(fileStream);
         content.Add(streamContent, "File", fileName);
         content.Add(new StringContent(group), "Group");
-        var response = await _httpClient.PostAsync($"{BaseEndpoint}/import/bilibili", content);
+        var response = await httpService.HttpClient.PostAsync(
+            $"{BaseEndpoint}/import/bilibili",
+            content
+        );
         response.EnsureSuccessStatusCode();
     }
 }

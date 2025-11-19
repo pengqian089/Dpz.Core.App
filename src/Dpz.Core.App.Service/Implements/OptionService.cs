@@ -6,31 +6,28 @@ namespace Dpz.Core.App.Service.Implements;
 /// <summary>
 /// 选项服务实现
 /// </summary>
-public class OptionService : BaseApiService, IOptionService
+public class OptionService(IHttpService httpService) : IOptionService
 {
     private const string BaseEndpoint = "/api/Option";
 
-    public OptionService(HttpClient httpClient)
-        : base(httpClient) { }
-
     public async Task<IEnumerable<VmFriends>> GetFriendsAsync()
     {
-        var result = await GetAsync<IEnumerable<VmFriends>>($"{BaseEndpoint}/friends");
-        return result ?? Enumerable.Empty<VmFriends>();
+        var result = await httpService.GetAsync<List<VmFriends>>($"{BaseEndpoint}/friends");
+        return result ?? [];
     }
 
     public async Task AddFriendAsync(FriendSaveDto saveDto)
     {
-        await PostAsync($"{BaseEndpoint}/friends", saveDto);
+        await httpService.PostAsync($"{BaseEndpoint}/friends", saveDto);
     }
 
     public async Task EditFriendAsync(FriendEditDto editDto)
     {
-        await PatchAsync($"{BaseEndpoint}/friends", editDto);
+        await httpService.PatchAsync($"{BaseEndpoint}/friends", editDto);
     }
 
     public async Task DeleteFriendAsync(string id)
     {
-        await DeleteAsync($"{BaseEndpoint}/friends/{id}");
+        await httpService.DeleteAsync($"{BaseEndpoint}/friends/{id}");
     }
 }

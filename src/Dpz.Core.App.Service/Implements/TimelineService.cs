@@ -6,28 +6,25 @@ namespace Dpz.Core.App.Service.Implements;
 /// <summary>
 /// 时间轴服务实现
 /// </summary>
-public class TimelineService : BaseApiService, ITimelineService
+public class TimelineService(IHttpService httpService) : ITimelineService
 {
     private const string BaseEndpoint = "/api/Timeline";
-
-    public TimelineService(HttpClient httpClient)
-        : base(httpClient) { }
 
     public async Task<IEnumerable<VmTimeline>> GetTimelinesAsync(string account = "pengqian")
     {
         var parameters = new Dictionary<string, object?> { { "account", account } };
-        var result = await GetAsync<IEnumerable<VmTimeline>>(BaseEndpoint, parameters);
-        return result ?? Enumerable.Empty<VmTimeline>();
+        var result = await httpService.GetAsync<List<VmTimeline>>(BaseEndpoint, parameters);
+        return result ?? [];
     }
 
     public async Task CreateTimelineAsync(TimelineCreateDto createDto)
     {
-        await PostAsync(BaseEndpoint, createDto);
+        await httpService.PostAsync(BaseEndpoint, createDto);
     }
 
     public async Task EditTimelineAsync(TimelineEditDto editDto)
     {
-        await PatchAsync(BaseEndpoint, editDto);
+        await httpService.PatchAsync(BaseEndpoint, editDto);
     }
 
     public async Task<IEnumerable<VmTimeline>> GetTimelinePageAsync(
@@ -45,23 +42,26 @@ public class TimelineService : BaseApiService, ITimelineService
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
-        var result = await GetAsync<IEnumerable<VmTimeline>>($"{BaseEndpoint}/page", parameters);
-        return result ?? Enumerable.Empty<VmTimeline>();
+        var result = await httpService.GetAsync<List<VmTimeline>>(
+            $"{BaseEndpoint}/page",
+            parameters
+        );
+        return result ?? [];
     }
 
     public async Task<IEnumerable<VmTimeline>> GetTimelineAsync(string id)
     {
-        var result = await GetAsync<IEnumerable<VmTimeline>>($"{BaseEndpoint}/{id}");
-        return result ?? Enumerable.Empty<VmTimeline>();
+        var result = await httpService.GetAsync<List<VmTimeline>>($"{BaseEndpoint}/{id}");
+        return result ?? [];
     }
 
     public async Task DeleteTimelineAsync(string id)
     {
-        await DeleteAsync($"{BaseEndpoint}/{id}");
+        await httpService.DeleteAsync($"{BaseEndpoint}/{id}");
     }
 
     public async Task UploadTimelineImageAsync(Stream fileStream, string fileName)
     {
-        await UploadFileAsync($"{BaseEndpoint}/upload", fileStream, fileName);
+        await httpService.UploadFileAsync($"{BaseEndpoint}/upload", fileStream, fileName);
     }
 }

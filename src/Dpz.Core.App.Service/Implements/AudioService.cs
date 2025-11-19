@@ -6,12 +6,9 @@ namespace Dpz.Core.App.Service.Implements;
 /// <summary>
 /// 音频服务实现
 /// </summary>
-public class AudioService : BaseApiService, IAudioService
+public class AudioService(IHttpService httpService) : IAudioService
 {
     private const string BaseEndpoint = "/api/Audio";
-
-    public AudioService(HttpClient httpClient)
-        : base(httpClient) { }
 
     public async Task<IEnumerable<VmAudio>> GetAudiosAsync(int pageSize = 0, int pageIndex = 0)
     {
@@ -21,13 +18,13 @@ public class AudioService : BaseApiService, IAudioService
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
-        var result = await GetAsync<IEnumerable<VmAudio>>(BaseEndpoint, parameters);
-        return result ?? Enumerable.Empty<VmAudio>();
+        var result = await httpService.GetAsync<List<VmAudio>>(BaseEndpoint, parameters);
+        return result ?? [];
     }
 
     public async Task UploadAudioAsync(Stream fileStream, string fileName)
     {
-        await UploadFileAsync(BaseEndpoint, fileStream, fileName);
+        await httpService.UploadFileAsync(BaseEndpoint, fileStream, fileName);
     }
 
     public async Task<IEnumerable<VmAudio>> GetMyAudiosAsync(int pageSize = 0, int pageIndex = 0)
@@ -38,17 +35,17 @@ public class AudioService : BaseApiService, IAudioService
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
-        var result = await GetAsync<IEnumerable<VmAudio>>($"{BaseEndpoint}/my", parameters);
-        return result ?? Enumerable.Empty<VmAudio>();
+        var result = await httpService.GetAsync<List<VmAudio>>($"{BaseEndpoint}/my", parameters);
+        return result ?? [];
     }
 
     public async Task<VmAudio?> GetAudioAsync(string id)
     {
-        return await GetAsync<VmAudio>($"{BaseEndpoint}/{id}");
+        return await httpService.GetAsync<VmAudio>($"{BaseEndpoint}/{id}");
     }
 
     public async Task DeleteAudioAsync(string id)
     {
-        await DeleteAsync($"{BaseEndpoint}/{id}");
+        await httpService.DeleteAsync($"{BaseEndpoint}/{id}");
     }
 }

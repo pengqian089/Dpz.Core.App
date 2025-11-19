@@ -6,12 +6,9 @@ namespace Dpz.Core.App.Service.Implements;
 /// <summary>
 /// 音乐服务实现
 /// </summary>
-public class MusicService : BaseApiService, IMusicService
+public class MusicService(IHttpService httpService) : IMusicService
 {
     private const string BaseEndpoint = "/api/Music";
-
-    public MusicService(HttpClient httpClient)
-        : base(httpClient) { }
 
     public async Task<IEnumerable<VmMusic>> GetMusicsAsync(
         string? title = null,
@@ -26,8 +23,8 @@ public class MusicService : BaseApiService, IMusicService
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
-        var result = await GetAsync<IEnumerable<VmMusic>>(BaseEndpoint, parameters);
-        return result ?? Enumerable.Empty<VmMusic>();
+        var result = await httpService.GetAsync<List<VmMusic>>(BaseEndpoint, parameters);
+        return result ?? [];
     }
 
     public async Task AddMusicAsync(
@@ -69,29 +66,29 @@ public class MusicService : BaseApiService, IMusicService
             }
         }
 
-        var response = await _httpClient.PostAsync(BaseEndpoint, content);
+        var response = await httpService.HttpClient.PostAsync(BaseEndpoint, content);
         response.EnsureSuccessStatusCode();
     }
 
     public async Task<VmMusic?> GetMusicAsync(string id)
     {
-        return await GetAsync<VmMusic>($"{BaseEndpoint}/{id}");
+        return await httpService.GetAsync<VmMusic>($"{BaseEndpoint}/{id}");
     }
 
     public async Task DeleteMusicAsync(string id)
     {
-        await DeleteAsync($"{BaseEndpoint}/{id}");
+        await httpService.DeleteAsync($"{BaseEndpoint}/{id}");
     }
 
     public async Task<IEnumerable<string>> GetGroupsAsync()
     {
-        var result = await GetAsync<IEnumerable<string>>($"{BaseEndpoint}/groups");
-        return result ?? Enumerable.Empty<string>();
+        var result = await httpService.GetAsync<List<string>>($"{BaseEndpoint}/groups");
+        return result ?? [];
     }
 
     public async Task<string?> GetLyricsAsync(string id)
     {
-        return await GetAsync<string>($"{BaseEndpoint}/lrc/{id}");
+        return await httpService.GetAsync<string>($"{BaseEndpoint}/lrc/{id}");
     }
 
     public async Task UpdateMusicAsync(
@@ -129,7 +126,7 @@ public class MusicService : BaseApiService, IMusicService
         {
             Content = content,
         };
-        var response = await _httpClient.SendAsync(request);
+        var response = await httpService.HttpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
     }
 }

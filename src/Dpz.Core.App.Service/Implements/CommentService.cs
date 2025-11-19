@@ -6,12 +6,9 @@ namespace Dpz.Core.App.Service.Implements;
 /// <summary>
 /// 评论服务实现
 /// </summary>
-public class CommentService : BaseApiService, ICommentService
+public class CommentService(IHttpService httpService) : ICommentService
 {
     private const string BaseEndpoint = "/api/Comment";
-
-    public CommentService(HttpClient httpClient)
-        : base(httpClient) { }
 
     public async Task<IEnumerable<VmCommentFlat>> GetCommentsAsync(
         CommentNode node,
@@ -28,8 +25,8 @@ public class CommentService : BaseApiService, ICommentService
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
-        var result = await GetAsync<IEnumerable<VmCommentFlat>>(BaseEndpoint, parameters);
-        return result ?? Enumerable.Empty<VmCommentFlat>();
+        var result = await httpService.GetAsync<List<VmCommentFlat>>(BaseEndpoint, parameters);
+        return result ?? [];
     }
 
     public async Task<IEnumerable<CommentViewModel>> PublishCommentAsync(
@@ -38,8 +35,8 @@ public class CommentService : BaseApiService, ICommentService
     )
     {
         var parameters = new Dictionary<string, object?> { { "pageSize", pageSize } };
-        var result = await GetAsync<IEnumerable<CommentViewModel>>(BaseEndpoint, parameters);
-        return result ?? Enumerable.Empty<CommentViewModel>();
+        var result = await httpService.GetAsync<List<CommentViewModel>>(BaseEndpoint, parameters);
+        return result ?? [];
     }
 
     public async Task<IEnumerable<CommentViewModel>> GetCommentPagesAsync(
@@ -57,44 +54,44 @@ public class CommentService : BaseApiService, ICommentService
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
-        var result = await GetAsync<IEnumerable<CommentViewModel>>(
+        var result = await httpService.GetAsync<List<CommentViewModel>>(
             $"{BaseEndpoint}/page",
             parameters
         );
-        return result ?? Enumerable.Empty<CommentViewModel>();
+        return result ?? [];
     }
 
     public async Task<IEnumerable<CommentRelationResponse>> GetArticleCommentsAsync()
     {
-        var result = await GetAsync<IEnumerable<CommentRelationResponse>>(
+        var result = await httpService.GetAsync<List<CommentRelationResponse>>(
             $"{BaseEndpoint}/relation/article"
         );
-        return result ?? Enumerable.Empty<CommentRelationResponse>();
+        return result ?? [];
     }
 
     public async Task<IEnumerable<CommentRelationResponse>> GetCodeCommentsAsync()
     {
-        var result = await GetAsync<IEnumerable<CommentRelationResponse>>(
+        var result = await httpService.GetAsync<List<CommentRelationResponse>>(
             $"{BaseEndpoint}/relation/code"
         );
-        return result ?? Enumerable.Empty<CommentRelationResponse>();
+        return result ?? [];
     }
 
     public async Task<IEnumerable<CommentRelationResponse>> GetOtherCommentsAsync()
     {
-        var result = await GetAsync<IEnumerable<CommentRelationResponse>>(
+        var result = await httpService.GetAsync<List<CommentRelationResponse>>(
             $"{BaseEndpoint}/relation/other"
         );
-        return result ?? Enumerable.Empty<CommentRelationResponse>();
+        return result ?? [];
     }
 
     public async Task DeleteCommentAsync(string id)
     {
-        await DeleteAsync($"{BaseEndpoint}/{id}");
+        await httpService.DeleteAsync($"{BaseEndpoint}/{id}");
     }
 
     public async Task PhysicalDeleteCommentAsync(string id)
     {
-        await DeleteAsync($"{BaseEndpoint}/{id}/physical");
+        await httpService.DeleteAsync($"{BaseEndpoint}/{id}/physical");
     }
 }

@@ -6,12 +6,9 @@ namespace Dpz.Core.App.Service.Implements;
 /// <summary>
 /// 书签服务实现
 /// </summary>
-public class BookmarkService : BaseApiService, IBookmarkService
+public class BookmarkService(IHttpService httpService) : IBookmarkService
 {
     private const string BaseEndpoint = "/api/Bookmark";
-
-    public BookmarkService(HttpClient httpClient)
-        : base(httpClient) { }
 
     public async Task<IEnumerable<VmBookmark>> GetBookmarksAsync(
         string? title = null,
@@ -24,24 +21,24 @@ public class BookmarkService : BaseApiService, IBookmarkService
             { "categories", categories },
         };
 
-        var result = await GetAsync<IEnumerable<VmBookmark>>(BaseEndpoint, parameters);
+        var result = await httpService.GetAsync<IEnumerable<VmBookmark>>(BaseEndpoint, parameters);
         return result ?? Enumerable.Empty<VmBookmark>();
     }
 
     public async Task CreateBookmarkAsync(CreateBookmarkDto createDto)
     {
-        await PostAsync(BaseEndpoint, createDto);
+        await httpService.PostAsync(BaseEndpoint, createDto);
     }
 
     public async Task UpdateBookmarkAsync(UpdateBookmarkDto updateDto)
     {
-        await PatchAsync(BaseEndpoint, updateDto);
+        await httpService.PatchAsync(BaseEndpoint, updateDto);
     }
 
     public async Task<IEnumerable<string>> GetCategoriesAsync()
     {
-        var result = await GetAsync<IEnumerable<string>>($"{BaseEndpoint}/categories");
-        return result ?? Enumerable.Empty<string>();
+        var result = await httpService.GetAsync<List<string>>($"{BaseEndpoint}/categories");
+        return result ?? [];
     }
 
     public async Task<IEnumerable<string>> SearchBookmarksAsync(
@@ -55,17 +52,17 @@ public class BookmarkService : BaseApiService, IBookmarkService
             { "categories", categories },
         };
 
-        var result = await GetAsync<IEnumerable<string>>($"{BaseEndpoint}/search", parameters);
-        return result ?? Enumerable.Empty<string>();
+        var result = await httpService.GetAsync<List<string>>($"{BaseEndpoint}/search", parameters);
+        return result ?? [];
     }
 
     public async Task<VmBookmark?> GetBookmarkAsync(string id)
     {
-        return await GetAsync<VmBookmark>($"{BaseEndpoint}/{id}");
+        return await httpService.GetAsync<VmBookmark>($"{BaseEndpoint}/{id}");
     }
 
     public async Task DeleteBookmarkAsync(string id)
     {
-        await DeleteAsync($"{BaseEndpoint}/{id}");
+        await httpService.DeleteAsync($"{BaseEndpoint}/{id}");
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Dpz.Core.App.Models;
 using Dpz.Core.App.Models.Article;
 
 namespace Dpz.Core.App.Service.Services;
@@ -13,7 +14,7 @@ public interface IArticleService
     /// <summary>
     /// 获取文章列表
     /// </summary>
-    Task<IEnumerable<VmArticleMini>> GetArticlesAsync(
+    Task<IPagedList<VmArticleMini>> GetArticlesAsync(
         string? tags = null,
         string? title = null,
         int pageSize = 0,

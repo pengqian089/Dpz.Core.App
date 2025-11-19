@@ -6,37 +6,36 @@ namespace Dpz.Core.App.Service.Implements;
 /// <summary>
 /// 社区服务实现
 /// </summary>
-public class CommunityService : BaseApiService, ICommunityService
+public class CommunityService(IHttpService httpService) : ICommunityService
 {
     private const string BaseEndpoint = "/api/Community";
 
-    public CommunityService(HttpClient httpClient)
-        : base(httpClient) { }
-
     public async Task<IEnumerable<VmPictureRecord>> GetBannersAsync()
     {
-        var result = await GetAsync<IEnumerable<VmPictureRecord>>($"{BaseEndpoint}/getBanners");
-        return result ?? Enumerable.Empty<VmPictureRecord>();
+        var result = await httpService.GetAsync<List<VmPictureRecord>>(
+            $"{BaseEndpoint}/getBanners"
+        );
+        return result ?? [];
     }
 
     public async Task<SummaryInformation?> GetSummaryAsync()
     {
-        return await GetAsync<SummaryInformation>($"{BaseEndpoint}/summary");
+        return await httpService.GetAsync<SummaryInformation>($"{BaseEndpoint}/summary");
     }
 
     public async Task<IEnumerable<Wallpaper>> GetWallpapersAsync()
     {
-        var result = await GetAsync<IEnumerable<Wallpaper>>($"{BaseEndpoint}/wallpaper");
-        return result ?? Enumerable.Empty<Wallpaper>();
+        var result = await httpService.GetAsync<List<Wallpaper>>($"{BaseEndpoint}/wallpaper");
+        return result ?? [];
     }
 
     public async Task<string?> GetFooterAsync()
     {
-        return await GetAsync<string>($"{BaseEndpoint}/footer");
+        return await httpService.GetAsync<string>($"{BaseEndpoint}/footer");
     }
 
     public async Task SaveFooterAsync(SaveFooterDto saveDto)
     {
-        await PostAsync($"{BaseEndpoint}/footer", saveDto);
+        await httpService.PostAsync($"{BaseEndpoint}/footer", saveDto);
     }
 }

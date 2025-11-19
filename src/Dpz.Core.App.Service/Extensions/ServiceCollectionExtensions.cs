@@ -9,6 +9,8 @@ namespace Dpz.Core.App.Service.Extensions;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    private static bool _isHttpServiceRegistered = false;
+
     /// <summary>
     /// 添加所有API服务
     /// </summary>
@@ -17,50 +19,54 @@ public static class ServiceCollectionExtensions
         string? baseAddress = null
     )
     {
-        // 配置 HttpClient
-        services.AddHttpClient<IArticleService, ArticleService>("ServerAPI");
-        services.AddHttpClient<IAccountService, AccountService>("ServerAPI");
-        services.AddHttpClient<IAudioService, AudioService>("ServerAPI");
-        services.AddHttpClient<IBookmarkService, BookmarkService>("ServerAPI");
-        services.AddHttpClient<ICommentService, CommentService>("ServerAPI");
-        services.AddHttpClient<ICodeService, CodeService>("ServerAPI");
-        services.AddHttpClient<ICommunityService, CommunityService>("ServerAPI");
-        services.AddHttpClient<IDanmakuService, DanmakuService>("ServerAPI");
-        services.AddHttpClient<IDynamicPageService, DynamicPageService>("ServerAPI");
-        services.AddHttpClient<IMumbleService, MumbleService>("ServerAPI");
-        services.AddHttpClient<IMusicService, MusicService>("ServerAPI");
-        services.AddHttpClient<IOptionService, OptionService>("ServerAPI");
-        services.AddHttpClient<IPictureService, PictureService>("ServerAPI");
-        services.AddHttpClient<ISysService, SysService>("ServerAPI");
-        services.AddHttpClient<ITimelineService, TimelineService>("ServerAPI");
-        services.AddHttpClient<IVideoService, VideoService>("ServerAPI");
-
-        // 如果提供了基地址，配置HttpClient
-        if (!string.IsNullOrEmpty(baseAddress))
-        {
-            services.ConfigureHttpClientFactory(baseAddress);
-        }
-
+        services.AddHttpService(baseAddress);
+        services.AddArticleService();
+        services.AddAccountService();
+        services.AddAudioService();
+        services.AddBookmarkService();
+        services.AddCommentService();
+        services.AddCodeService();
+        services.AddCommunityService();
+        services.AddDanmakuService();
+        services.AddDynamicPageService();
+        services.AddMumbleService();
+        services.AddMusicService();
+        services.AddOptionService();
+        services.AddPictureService();
+        services.AddSysService();
+        services.AddTimelineService();
+        services.AddVideoService();
         return services;
     }
 
     /// <summary>
-    /// 配置HttpClient工厂
+    /// 添加Http服务
     /// </summary>
-    private static IServiceCollection ConfigureHttpClientFactory(
-        this IServiceCollection services,
-        string baseAddress
-    )
+    public static IServiceCollection AddHttpService(this IServiceCollection services, string? baseAddress = null)
     {
-        services.AddHttpClient(
-            "ServerAPI",
-            client =>
-            {
-                client.BaseAddress = new Uri(baseAddress);
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
-            }
-        );
+        if (_isHttpServiceRegistered)
+            return services;
 
+        if (!string.IsNullOrEmpty(baseAddress))
+        {
+            services.AddHttpClient(
+                "ServerAPI",
+                client =>
+                {
+                    client.BaseAddress = new Uri(baseAddress);
+                    client.DefaultRequestHeaders.Add("Accept", "application/json");
+                }
+            );
+        }
+
+        services.AddScoped<IHttpService, HttpService>(sp =>
+        {
+            var clientFactory = sp.GetRequiredService<IHttpClientFactory>();
+            var httpClient = clientFactory.CreateClient("ServerAPI");
+            return new HttpService(httpClient);
+        });
+
+        _isHttpServiceRegistered = true;
         return services;
     }
 
@@ -69,7 +75,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddArticleService(this IServiceCollection services)
     {
-        services.AddHttpClient<IArticleService, ArticleService>("ServerAPI");
+        services.AddScoped<IArticleService, ArticleService>();
         return services;
     }
 
@@ -78,7 +84,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddAccountService(this IServiceCollection services)
     {
-        services.AddHttpClient<IAccountService, AccountService>("ServerAPI");
+        services.AddScoped<IAccountService, AccountService>();
         return services;
     }
 
@@ -87,7 +93,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddAudioService(this IServiceCollection services)
     {
-        services.AddHttpClient<IAudioService, AudioService>("ServerAPI");
+        services.AddScoped<IAudioService, AudioService>();
         return services;
     }
 
@@ -96,7 +102,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddBookmarkService(this IServiceCollection services)
     {
-        services.AddHttpClient<IBookmarkService, BookmarkService>("ServerAPI");
+        services.AddScoped<IBookmarkService, BookmarkService>();
         return services;
     }
 
@@ -105,7 +111,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddCommentService(this IServiceCollection services)
     {
-        services.AddHttpClient<ICommentService, CommentService>("ServerAPI");
+        services.AddScoped<ICommentService, CommentService>();
         return services;
     }
 
@@ -114,7 +120,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddCodeService(this IServiceCollection services)
     {
-        services.AddHttpClient<ICodeService, CodeService>("ServerAPI");
+        services.AddScoped<ICodeService, CodeService>();
         return services;
     }
 
@@ -123,7 +129,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddCommunityService(this IServiceCollection services)
     {
-        services.AddHttpClient<ICommunityService, CommunityService>("ServerAPI");
+        services.AddScoped<ICommunityService, CommunityService>();
         return services;
     }
 
@@ -132,7 +138,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddDanmakuService(this IServiceCollection services)
     {
-        services.AddHttpClient<IDanmakuService, DanmakuService>("ServerAPI");
+        services.AddScoped<IDanmakuService, DanmakuService>();
         return services;
     }
 
@@ -141,7 +147,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddDynamicPageService(this IServiceCollection services)
     {
-        services.AddHttpClient<IDynamicPageService, DynamicPageService>("ServerAPI");
+        services.AddScoped<IDynamicPageService, DynamicPageService>();
         return services;
     }
 
@@ -150,7 +156,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddMumbleService(this IServiceCollection services)
     {
-        services.AddHttpClient<IMumbleService, MumbleService>("ServerAPI");
+        services.AddScoped<IMumbleService, MumbleService>();
         return services;
     }
 
@@ -159,7 +165,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddMusicService(this IServiceCollection services)
     {
-        services.AddHttpClient<IMusicService, MusicService>("ServerAPI");
+        services.AddScoped<IMusicService, MusicService>();
         return services;
     }
 
@@ -168,7 +174,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddOptionService(this IServiceCollection services)
     {
-        services.AddHttpClient<IOptionService, OptionService>("ServerAPI");
+        services.AddScoped<IOptionService, OptionService>();
         return services;
     }
 
@@ -177,7 +183,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddPictureService(this IServiceCollection services)
     {
-        services.AddHttpClient<IPictureService, PictureService>("ServerAPI");
+        services.AddScoped<IPictureService, PictureService>();
         return services;
     }
 
@@ -186,7 +192,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddSysService(this IServiceCollection services)
     {
-        services.AddHttpClient<ISysService, SysService>("ServerAPI");
+        services.AddScoped<ISysService, SysService>();
         return services;
     }
 
@@ -195,7 +201,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddTimelineService(this IServiceCollection services)
     {
-        services.AddHttpClient<ITimelineService, TimelineService>("ServerAPI");
+        services.AddScoped<ITimelineService, TimelineService>();
         return services;
     }
 
@@ -204,7 +210,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static IServiceCollection AddVideoService(this IServiceCollection services)
     {
-        services.AddHttpClient<IVideoService, VideoService>("ServerAPI");
+        services.AddScoped<IVideoService, VideoService>();
         return services;
     }
 }

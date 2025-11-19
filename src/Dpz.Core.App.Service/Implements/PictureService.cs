@@ -6,12 +6,9 @@ namespace Dpz.Core.App.Service.Implements;
 /// <summary>
 /// 图片服务实现
 /// </summary>
-public class PictureService : BaseApiService, IPictureService
+public class PictureService(IHttpService httpService) : IPictureService
 {
     private const string BaseEndpoint = "/api/Picture";
-
-    public PictureService(HttpClient httpClient)
-        : base(httpClient) { }
 
     public async Task<IEnumerable<VmPictureRecord>> GetPicturesAsync(
         string? tag = null,
@@ -30,8 +27,8 @@ public class PictureService : BaseApiService, IPictureService
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
-        var result = await GetAsync<IEnumerable<VmPictureRecord>>(BaseEndpoint, parameters);
-        return result ?? Enumerable.Empty<VmPictureRecord>();
+        var result = await httpService.GetAsync<List<VmPictureRecord>>(BaseEndpoint, parameters);
+        return result ?? [];
     }
 
     public async Task UploadPictureAsync(
@@ -59,28 +56,28 @@ public class PictureService : BaseApiService, IPictureService
             content.Add(new StringContent(description), "Description");
         }
 
-        var response = await _httpClient.PostAsync(BaseEndpoint, content);
+        var response = await httpService.HttpClient.PostAsync(BaseEndpoint, content);
         response.EnsureSuccessStatusCode();
     }
 
     public async Task EditPictureAsync(PictureEditDto editDto)
     {
-        await PatchAsync(BaseEndpoint, editDto);
+        await httpService.PatchAsync(BaseEndpoint, editDto);
     }
 
     public async Task<VmPictureRecord?> GetPictureAsync(string id)
     {
-        return await GetAsync<VmPictureRecord>($"{BaseEndpoint}/{id}");
+        return await httpService.GetAsync<VmPictureRecord>($"{BaseEndpoint}/{id}");
     }
 
     public async Task DeletePictureAsync(string id)
     {
-        await DeleteAsync($"{BaseEndpoint}/{id}");
+        await httpService.DeleteAsync($"{BaseEndpoint}/{id}");
     }
 
     public async Task<IEnumerable<string>> GetTagsAsync()
     {
-        var result = await GetAsync<IEnumerable<string>>($"{BaseEndpoint}/tags");
-        return result ?? Enumerable.Empty<string>();
+        var result = await httpService.GetAsync<List<string>>($"{BaseEndpoint}/tags");
+        return result ?? [];
     }
 }
