@@ -1,17 +1,17 @@
-namespace Dpz.Core.App.Service.Services;
+ï»¿namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// ÏµÍ³·şÎñ½Ó¿Ú
+/// ç³»ç»ŸæœåŠ¡æ¥å£
 /// </summary>
 public interface ISysService
 {
     /// <summary>
-    /// »¹Ô­×îĞÂÊı¾İ
+    /// è¿˜åŸæœ€æ–°æ•°æ®
     /// </summary>
     Task RestoreDataAsync(string connectionString, string database);
 
     /// <summary>
-    /// ½ÓÊÕÔ¤´¦Àí»Øµ÷
+    /// æ¥æ”¶é¢„å¤„ç†å›è°ƒ
     /// </summary>
     Task ReceiveUpyunNotifyAsync();
 }

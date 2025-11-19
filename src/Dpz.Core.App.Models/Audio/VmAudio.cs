@@ -1,34 +1,34 @@
-namespace Dpz.Core.App.Models.Audio;
+ï»¿namespace Dpz.Core.App.Models.Audio;
 
 /// <summary>
-/// ÒôÆµÊÓÍ¼Ä£ĞÍ
+/// éŸ³é¢‘è§†å›¾æ¨¡å‹
 /// </summary>
 public class VmAudio
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ·ÃÎÊµØÖ·
+    /// è®¿é—®åœ°å€
     /// </summary>
     public string? AccessUrl { get; set; }
 
     /// <summary>
-    /// ÎÄ¼ş´óĞ¡
+    /// æ–‡ä»¶å¤§å°
     /// </summary>
     public long Size { get; set; }
 
     /// <summary>
-    /// Ê±³¤
+    /// æ—¶é•¿
     /// </summary>
     public string? Duration { get; set; }
 
     /// <summary>
-    /// ÉÏ´«Ê±¼ä
+    /// ä¸Šä¼ æ—¶é—´
     /// </summary>
     public DateTime UploadTime { get; set; }
 
     /// <summary>
-    /// ÉÏ´«ÈË
+    /// ä¸Šä¼ äºº
     /// </summary>
     public Account.VmUserInfo? Uploader { get; set; }
 }

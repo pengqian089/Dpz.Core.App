@@ -1,20 +1,23 @@
-using Microsoft.Extensions.DependencyInjection;
+ï»¿using Dpz.Core.App.Service.Implements;
 using Dpz.Core.App.Service.Services;
-using Dpz.Core.App.Service.Implements;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dpz.Core.App.Service.Extensions;
 
 /// <summary>
-/// ·şÎñÀ©Õ¹·½·¨
+/// æœåŠ¡æ‰©å±•æ–¹æ³•
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Ìí¼ÓËùÓĞAPI·şÎñ
+    /// æ·»åŠ æ‰€æœ‰APIæœåŠ¡
     /// </summary>
-    public static IServiceCollection AddApiServices(this IServiceCollection services, string? baseAddress = null)
+    public static IServiceCollection AddApiServices(
+        this IServiceCollection services,
+        string? baseAddress = null
+    )
     {
-        // ÅäÖÃ HttpClient
+        // é…ç½® HttpClient
         services.AddHttpClient<IArticleService, ArticleService>("ServerAPI");
         services.AddHttpClient<IAccountService, AccountService>("ServerAPI");
         services.AddHttpClient<IAudioService, AudioService>("ServerAPI");
@@ -32,7 +35,7 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<ITimelineService, TimelineService>("ServerAPI");
         services.AddHttpClient<IVideoService, VideoService>("ServerAPI");
 
-        // Èç¹ûÌá¹©ÁË»ùµØÖ·£¬ÅäÖÃHttpClient
+        // å¦‚æœæä¾›äº†åŸºåœ°å€ï¼Œé…ç½®HttpClient
         if (!string.IsNullOrEmpty(baseAddress))
         {
             services.ConfigureHttpClientFactory(baseAddress);
@@ -42,21 +45,27 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// ÅäÖÃHttpClient¹¤³§
+    /// é…ç½®HttpClientå·¥å‚
     /// </summary>
-    private static IServiceCollection ConfigureHttpClientFactory(this IServiceCollection services, string baseAddress)
+    private static IServiceCollection ConfigureHttpClientFactory(
+        this IServiceCollection services,
+        string baseAddress
+    )
     {
-        services.AddHttpClient("ServerAPI", client =>
-        {
-            client.BaseAddress = new Uri(baseAddress);
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
-        });
+        services.AddHttpClient(
+            "ServerAPI",
+            client =>
+            {
+                client.BaseAddress = new Uri(baseAddress);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            }
+        );
 
         return services;
     }
 
     /// <summary>
-    /// Ìí¼ÓÖ¸¶¨µÄ·şÎñ
+    /// æ·»åŠ æŒ‡å®šçš„æœåŠ¡
     /// </summary>
     public static IServiceCollection AddArticleService(this IServiceCollection services)
     {
@@ -65,7 +74,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÕËºÅ·şÎñ
+    /// æ·»åŠ è´¦å·æœåŠ¡
     /// </summary>
     public static IServiceCollection AddAccountService(this IServiceCollection services)
     {
@@ -74,7 +83,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÒôÆµ·şÎñ
+    /// æ·»åŠ éŸ³é¢‘æœåŠ¡
     /// </summary>
     public static IServiceCollection AddAudioService(this IServiceCollection services)
     {
@@ -83,7 +92,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÊéÇ©·şÎñ
+    /// æ·»åŠ ä¹¦ç­¾æœåŠ¡
     /// </summary>
     public static IServiceCollection AddBookmarkService(this IServiceCollection services)
     {
@@ -92,7 +101,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÆÀÂÛ·şÎñ
+    /// æ·»åŠ è¯„è®ºæœåŠ¡
     /// </summary>
     public static IServiceCollection AddCommentService(this IServiceCollection services)
     {
@@ -101,7 +110,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÔ´Âë·şÎñ
+    /// æ·»åŠ æºç æœåŠ¡
     /// </summary>
     public static IServiceCollection AddCodeService(this IServiceCollection services)
     {
@@ -110,7 +119,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÉçÇø·şÎñ
+    /// æ·»åŠ ç¤¾åŒºæœåŠ¡
     /// </summary>
     public static IServiceCollection AddCommunityService(this IServiceCollection services)
     {
@@ -119,7 +128,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼Óµ¯Ä»·şÎñ
+    /// æ·»åŠ å¼¹å¹•æœåŠ¡
     /// </summary>
     public static IServiceCollection AddDanmakuService(this IServiceCollection services)
     {
@@ -128,7 +137,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼Ó¶¯Ì¬Ò³Ãæ·şÎñ
+    /// æ·»åŠ åŠ¨æ€é¡µé¢æœåŠ¡
     /// </summary>
     public static IServiceCollection AddDynamicPageService(this IServiceCollection services)
     {
@@ -137,7 +146,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓËéËéÄî·şÎñ
+    /// æ·»åŠ ç¢ç¢å¿µæœåŠ¡
     /// </summary>
     public static IServiceCollection AddMumbleService(this IServiceCollection services)
     {
@@ -146,7 +155,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÒôÀÖ·şÎñ
+    /// æ·»åŠ éŸ³ä¹æœåŠ¡
     /// </summary>
     public static IServiceCollection AddMusicService(this IServiceCollection services)
     {
@@ -155,7 +164,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÑ¡Ïî·şÎñ
+    /// æ·»åŠ é€‰é¡¹æœåŠ¡
     /// </summary>
     public static IServiceCollection AddOptionService(this IServiceCollection services)
     {
@@ -164,7 +173,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÍ¼Æ¬·şÎñ
+    /// æ·»åŠ å›¾ç‰‡æœåŠ¡
     /// </summary>
     public static IServiceCollection AddPictureService(this IServiceCollection services)
     {
@@ -173,7 +182,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÏµÍ³·şÎñ
+    /// æ·»åŠ ç³»ç»ŸæœåŠ¡
     /// </summary>
     public static IServiceCollection AddSysService(this IServiceCollection services)
     {
@@ -182,7 +191,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÊ±¼äÖá·şÎñ
+    /// æ·»åŠ æ—¶é—´è½´æœåŠ¡
     /// </summary>
     public static IServiceCollection AddTimelineService(this IServiceCollection services)
     {
@@ -191,7 +200,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ìí¼ÓÊÓÆµ·şÎñ
+    /// æ·»åŠ è§†é¢‘æœåŠ¡
     /// </summary>
     public static IServiceCollection AddVideoService(this IServiceCollection services)
     {

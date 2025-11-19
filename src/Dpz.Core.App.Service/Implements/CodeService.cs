@@ -1,25 +1,21 @@
-using Dpz.Core.App.Models.Code;
+锘縰sing Dpz.Core.App.Models.Code;
 using Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// 源码服务实现
+/// 婧愮爜鏈嶅姟瀹炵幇
 /// </summary>
 public class CodeService : BaseApiService, ICodeService
 {
     private const string BaseEndpoint = "/api/Code";
 
-    public CodeService(HttpClient httpClient) : base(httpClient)
-    {
-    }
+    public CodeService(HttpClient httpClient)
+        : base(httpClient) { }
 
     public async Task<CodeNoteTree?> GetCodeTreeAsync(string[]? path = null)
     {
-        var parameters = new Dictionary<string, object?>
-        {
-            { "path", path }
-        };
+        var parameters = new Dictionary<string, object?> { { "path", path } };
 
         return await GetAsync<CodeNoteTree>(BaseEndpoint, parameters);
     }
@@ -28,7 +24,12 @@ public class CodeService : BaseApiService, ICodeService
     {
         var response = await _httpClient.PostAsync(
             BaseEndpoint,
-            new StringContent(System.Text.Json.JsonSerializer.Serialize(saveDto), System.Text.Encoding.UTF8, "application/json"));
+            new StringContent(
+                System.Text.Json.JsonSerializer.Serialize(saveDto),
+                System.Text.Encoding.UTF8,
+                "application/json"
+            )
+        );
         response.EnsureSuccessStatusCode();
         return await ReadAsAsync<CodeNoteTree>(response.Content);
     }

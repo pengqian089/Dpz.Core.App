@@ -1,92 +1,92 @@
-namespace Dpz.Core.App.Models.Video;
+ï»¿namespace Dpz.Core.App.Models.Video;
 
 /// <summary>
-/// ÊÓÆµÔªÊı¾İÏìÓ¦
+/// è§†é¢‘å…ƒæ•°æ®å“åº”
 /// </summary>
 public class VideoMetaDataResponse
 {
     /// <summary>
-    /// ÊÓÆµÊ±³¤
+    /// è§†é¢‘æ—¶é•¿
     /// </summary>
     public double Duration { get; set; }
 
     /// <summary>
-    /// ·ÖÆ¬Ê±³¤
+    /// åˆ†ç‰‡æ—¶é•¿
     /// </summary>
     public double[]? Points { get; set; }
 }
 
 /// <summary>
-/// ÉèÖÃÊÓÆµ½ØÍ¼Èë²Î
+/// è®¾ç½®è§†é¢‘æˆªå›¾å…¥å‚
 /// </summary>
 public class ScreenshotRequest
 {
     /// <summary>
-    /// ÉèÖÃÊÓÆµ½ØÍ¼ËùÔÚµÄÊ±¼äµã£¨Ãë£©
+    /// è®¾ç½®è§†é¢‘æˆªå›¾æ‰€åœ¨çš„æ—¶é—´ç‚¹ï¼ˆç§’ï¼‰
     /// </summary>
     public double Seconds { get; set; }
 }
 
 /// <summary>
-/// ÊÓÆµÊÓÍ¼Ä£ĞÍ
+/// è§†é¢‘è§†å›¾æ¨¡å‹
 /// </summary>
 public class VmVideo
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÎÄ¼ş¼Ğ¡¢Ä¿Â¼ Ãû³Æ
-    /// ÊÓÆµÎ»ÓÚÔÆ´¢´æÖĞËùÔÚµÄÎÄ¼ş¼ĞÃû³Æ
+    /// æ–‡ä»¶å¤¹ã€ç›®å½• åç§°
+    /// è§†é¢‘ä½äºäº‘å‚¨å­˜ä¸­æ‰€åœ¨çš„æ–‡ä»¶å¤¹åç§°
     /// </summary>
     public string? Title { get; set; }
 
     /// <summary>
-    /// Ãû³Æ ·½±ãµ¯Ä»¹ÜÀíÓÑºÃÃû³Æ
+    /// åç§° æ–¹ä¾¿å¼¹å¹•ç®¡ç†å‹å¥½åç§°
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// ÊÓÆµ±êÌâ
+    /// è§†é¢‘æ ‡é¢˜
     /// </summary>
     public string? VideoTitle { get; set; }
 
     /// <summary>
-    /// ÊÓÆµ¸±±êÌâ
+    /// è§†é¢‘å‰¯æ ‡é¢˜
     /// </summary>
     public string? SubTitle { get; set; }
 
     /// <summary>
-    /// ÊÓÆµÃèÊö
+    /// è§†é¢‘æè¿°
     /// </summary>
     public string? Description { get; set; }
 
     /// <summary>
-    /// ÊÓÆµ±êÇ©
+    /// è§†é¢‘æ ‡ç­¾
     /// </summary>
     public string[]? Tags { get; set; }
 
     /// <summary>
-    /// ²¥·Å´ÎÊı
+    /// æ’­æ”¾æ¬¡æ•°
     /// </summary>
     public int PlayCount { get; set; }
 
     /// <summary>
-    /// µ¯Ä»×ÜÊı
+    /// å¼¹å¹•æ€»æ•°
     /// </summary>
     public int DanmakuCount { get; set; }
 
     /// <summary>
-    /// ÆÀÂÛ×ÜÊı
+    /// è¯„è®ºæ€»æ•°
     /// </summary>
     public int CommentCount { get; set; }
 
     /// <summary>
-    /// ·âÃæ
+    /// å°é¢
     /// </summary>
     public string? Cover { get; set; }
 
     /// <summary>
-    /// m3u8 µØÖ·
+    /// m3u8 åœ°å€
     /// </summary>
     public string? M3u8 { get; set; }
 }

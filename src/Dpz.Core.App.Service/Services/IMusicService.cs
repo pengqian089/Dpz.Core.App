@@ -1,44 +1,60 @@
-using Dpz.Core.App.Models.Music;
+ï»¿using Dpz.Core.App.Models.Music;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// ÒôÀÖ·şÎñ½Ó¿Ú
+/// éŸ³ä¹æœåŠ¡æ¥å£
 /// </summary>
 public interface IMusicService
 {
     /// <summary>
-    /// »ñÈ¡ÒôÀÖÁĞ±í
+    /// è·å–éŸ³ä¹åˆ—è¡¨
     /// </summary>
-    Task<IEnumerable<VmMusic>> GetMusicsAsync(string? title = null, int pageSize = 0, int pageIndex = 0);
+    Task<IEnumerable<VmMusic>> GetMusicsAsync(
+        string? title = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    );
 
     /// <summary>
-    /// Ìí¼ÓÒôÀÖ
+    /// æ·»åŠ éŸ³ä¹
     /// </summary>
-    Task AddMusicAsync(Stream musicStream, Stream? lyricStream, Stream? coverStream, string musicFileName, string? from = null, string[]? group = null);
+    Task AddMusicAsync(
+        Stream musicStream,
+        Stream? lyricStream,
+        Stream? coverStream,
+        string musicFileName,
+        string? from = null,
+        string[]? group = null
+    );
 
     /// <summary>
-    /// »ñÈ¡µ¥¸öÒôÀÖ
+    /// è·å–å•ä¸ªéŸ³ä¹
     /// </summary>
     Task<VmMusic?> GetMusicAsync(string id);
 
     /// <summary>
-    /// É¾³ıÒôÀÖ
+    /// åˆ é™¤éŸ³ä¹
     /// </summary>
     Task DeleteMusicAsync(string id);
 
     /// <summary>
-    /// »ñÈ¡ËùÓĞ·Ö×é
+    /// è·å–æ‰€æœ‰åˆ†ç»„
     /// </summary>
     Task<IEnumerable<string>> GetGroupsAsync();
 
     /// <summary>
-    /// »ñÈ¡¸è´Ê
+    /// è·å–æ­Œè¯
     /// </summary>
     Task<string?> GetLyricsAsync(string id);
 
     /// <summary>
-    /// ¸üĞÂÒôÀÖĞÅÏ¢
+    /// æ›´æ–°éŸ³ä¹ä¿¡æ¯
     /// </summary>
-    Task UpdateMusicAsync(string id, Stream? lyricStream, Stream? coverStream, string[]? group = null);
+    Task UpdateMusicAsync(
+        string id,
+        Stream? lyricStream,
+        Stream? coverStream,
+        string[]? group = null
+    );
 }

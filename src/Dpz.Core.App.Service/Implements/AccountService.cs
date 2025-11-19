@@ -1,26 +1,29 @@
-using Dpz.Core.App.Models.Account;
+锘縰sing Dpz.Core.App.Models.Account;
 using Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// 账号服务实现
+/// 璐﹀彿鏈嶅姟瀹炵幇
 /// </summary>
 public class AccountService : BaseApiService, IAccountService
 {
     private const string BaseEndpoint = "/api/Account";
 
-    public AccountService(HttpClient httpClient) : base(httpClient)
-    {
-    }
+    public AccountService(HttpClient httpClient)
+        : base(httpClient) { }
 
-    public async Task<IEnumerable<VmUserInfo>> GetAccountsAsync(string? account = null, int pageSize = 0, int pageIndex = 0)
+    public async Task<IEnumerable<VmUserInfo>> GetAccountsAsync(
+        string? account = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    )
     {
         var parameters = new Dictionary<string, object?>
         {
             { "Account", account },
             { "PageSize", pageSize > 0 ? pageSize : null },
-            { "PageIndex", pageIndex > 0 ? pageIndex : null }
+            { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
         var result = await GetAsync<IEnumerable<VmUserInfo>>(BaseEndpoint, parameters);
@@ -49,7 +52,9 @@ public class AccountService : BaseApiService, IAccountService
 
     public async Task<bool> CheckAccountExistsAsync(string account)
     {
-        var result = await GetAsync<object?>($"{BaseEndpoint}/exists/{Uri.EscapeDataString(account)}");
+        var result = await GetAsync<object?>(
+            $"{BaseEndpoint}/exists/{Uri.EscapeDataString(account)}"
+        );
         return result != null;
     }
 
@@ -60,7 +65,8 @@ public class AccountService : BaseApiService, IAccountService
         DateTime? startTime = null,
         DateTime? endTime = null,
         int pageIndex = 0,
-        int pageSize = 0)
+        int pageSize = 0
+    )
     {
         var parameters = new Dictionary<string, object?>
         {
@@ -70,10 +76,13 @@ public class AccountService : BaseApiService, IAccountService
             { "StartTime", startTime },
             { "EndTime", endTime },
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
-            { "PageSize", pageSize > 0 ? pageSize : null }
+            { "PageSize", pageSize > 0 ? pageSize : null },
         };
 
-        var result = await GetAsync<IEnumerable<AccountLoginHistoryResponse>>($"{BaseEndpoint}/history/login", parameters);
+        var result = await GetAsync<IEnumerable<AccountLoginHistoryResponse>>(
+            $"{BaseEndpoint}/history/login",
+            parameters
+        );
         return result ?? Enumerable.Empty<AccountLoginHistoryResponse>();
     }
 
@@ -89,7 +98,8 @@ public class AccountService : BaseApiService, IAccountService
         DateTime? changeTimeEnd = null,
         string? changeProperty = null,
         int pageIndex = 0,
-        int pageSize = 0)
+        int pageSize = 0
+    )
     {
         var parameters = new Dictionary<string, object?>
         {
@@ -98,10 +108,13 @@ public class AccountService : BaseApiService, IAccountService
             { "ChangeTimeEnd", changeTimeEnd },
             { "ChangeProperty", changeProperty },
             { "PageIndex", pageIndex > 0 ? pageIndex : null },
-            { "PageSize", pageSize > 0 ? pageSize : null }
+            { "PageSize", pageSize > 0 ? pageSize : null },
         };
 
-        var result = await GetAsync<IEnumerable<UserHistoryResponse>>($"{BaseEndpoint}/history/user", parameters);
+        var result = await GetAsync<IEnumerable<UserHistoryResponse>>(
+            $"{BaseEndpoint}/history/user",
+            parameters
+        );
         return result ?? Enumerable.Empty<UserHistoryResponse>();
     }
 }

@@ -1,34 +1,34 @@
-using Dpz.Core.App.Models.Community;
+ï»¿using Dpz.Core.App.Models.Community;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// ÉçÇø·şÎñ½Ó¿Ú
+/// ç¤¾åŒºæœåŠ¡æ¥å£
 /// </summary>
 public interface ICommunityService
 {
     /// <summary>
-    /// »ñÈ¡banner
+    /// è·å–banner
     /// </summary>
     Task<IEnumerable<VmPictureRecord>> GetBannersAsync();
 
     /// <summary>
-    /// »ñÈ¡»ã×ÜĞÅÏ¢
+    /// è·å–æ±‡æ€»ä¿¡æ¯
     /// </summary>
     Task<SummaryInformation?> GetSummaryAsync();
 
     /// <summary>
-    /// »ñÈ¡±ÚÖ½ÁĞ±í
+    /// è·å–å£çº¸åˆ—è¡¨
     /// </summary>
     Task<IEnumerable<Wallpaper>> GetWallpapersAsync();
 
     /// <summary>
-    /// »ñÈ¡Ò³½ÅÄÚÈİ
+    /// è·å–é¡µè„šå†…å®¹
     /// </summary>
     Task<string?> GetFooterAsync();
 
     /// <summary>
-    /// ±£´æÒ³½ÅÄÚÈİ
+    /// ä¿å­˜é¡µè„šå†…å®¹
     /// </summary>
     Task SaveFooterAsync(SaveFooterDto saveDto);
 }

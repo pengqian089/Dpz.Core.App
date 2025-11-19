@@ -1,17 +1,17 @@
-namespace Dpz.Core.App.Models.Account;
+ï»¿namespace Dpz.Core.App.Models.Account;
 
 /// <summary>
-/// ĞŞ¸ÄÃÜÂëDTO
+/// ä¿®æ”¹å¯†ç DTO
 /// </summary>
 public class AccountChangPasswordDto
 {
     /// <summary>
-    /// ÕËºÅ
+    /// è´¦å·
     /// </summary>
     public string? Account { get; set; }
 
     /// <summary>
-    /// ÃÜÂë
+    /// å¯†ç 
     /// </summary>
     public string? Password { get; set; }
 }

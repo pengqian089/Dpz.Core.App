@@ -1,29 +1,29 @@
-using Dpz.Core.App.Models.Community;
+锘縰sing Dpz.Core.App.Models.Community;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// 选项服务接口
+/// 閫夐」鏈嶅姟鎺ュ彛
 /// </summary>
 public interface IOptionService
 {
     /// <summary>
-    /// 获取友情链接列表
+    /// 鑾峰彇鍙嬫儏閾炬帴鍒楄〃
     /// </summary>
     Task<IEnumerable<VmFriends>> GetFriendsAsync();
 
     /// <summary>
-    /// 添加友情链接
+    /// 娣诲姞鍙嬫儏閾炬帴
     /// </summary>
     Task AddFriendAsync(FriendSaveDto saveDto);
 
     /// <summary>
-    /// 编辑友情链接
+    /// 缂栬緫鍙嬫儏閾炬帴
     /// </summary>
     Task EditFriendAsync(FriendEditDto editDto);
 
     /// <summary>
-    /// 删除友情链接
+    /// 鍒犻櫎鍙嬫儏閾炬帴
     /// </summary>
     Task DeleteFriendAsync(string id);
 }

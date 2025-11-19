@@ -1,9 +1,9 @@
-using System.Text.Json;
+ï»¿using System.Text.Json;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// »ù´¡API·şÎñÊµÏÖÀà
+/// åŸºç¡€APIæœåŠ¡å®ç°ç±»
 /// </summary>
 public abstract class BaseApiService
 {
@@ -15,7 +15,7 @@ public abstract class BaseApiService
     }
 
     /// <summary>
-    /// ¹¹½¨²éÑ¯×Ö·û´®
+    /// æ„å»ºæŸ¥è¯¢å­—ç¬¦ä¸²
     /// </summary>
     protected string BuildQueryString(Dictionary<string, object?> parameters)
     {
@@ -25,7 +25,10 @@ public abstract class BaseApiService
             {
                 if (x.Value is string[] array)
                 {
-                    return string.Join("&", array.Select(item => $"{x.Key}={Uri.EscapeDataString(item)}"));
+                    return string.Join(
+                        "&",
+                        array.Select(item => $"{x.Key}={Uri.EscapeDataString(item)}")
+                    );
                 }
                 return $"{x.Key}={Uri.EscapeDataString(x.Value.ToString()!)}";
             });
@@ -35,9 +38,12 @@ public abstract class BaseApiService
     }
 
     /// <summary>
-    /// GET ÇëÇó
+    /// GET è¯·æ±‚
     /// </summary>
-    protected async Task<T?> GetAsync<T>(string endpoint, Dictionary<string, object?>? parameters = null)
+    protected async Task<T?> GetAsync<T>(
+        string endpoint,
+        Dictionary<string, object?>? parameters = null
+    )
     {
         var query = parameters != null ? BuildQueryString(parameters) : "";
         var response = await _httpClient.GetAsync($"{endpoint}{query}");
@@ -47,17 +53,25 @@ public abstract class BaseApiService
     }
 
     /// <summary>
-    /// POST ÇëÇó
+    /// POST è¯·æ±‚
     /// </summary>
-    protected async Task PostAsync<T>(string endpoint, T? data) where T : class
+    protected async Task PostAsync<T>(string endpoint, T? data)
+        where T : class
     {
-        var content = data != null ? new StringContent(JsonSerializer.Serialize(data), System.Text.Encoding.UTF8, "application/json") : null;
+        var content =
+            data != null
+                ? new StringContent(
+                    JsonSerializer.Serialize(data),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                )
+                : null;
         var response = await _httpClient.PostAsync(endpoint, content);
         response.EnsureSuccessStatusCode();
     }
 
     /// <summary>
-    /// POST ÇëÇó£¨ÎŞÊı¾İ£©
+    /// POST è¯·æ±‚ï¼ˆæ— æ•°æ®ï¼‰
     /// </summary>
     protected async Task PostAsync(string endpoint)
     {
@@ -66,18 +80,29 @@ public abstract class BaseApiService
     }
 
     /// <summary>
-    /// PATCH ÇëÇó
+    /// PATCH è¯·æ±‚
     /// </summary>
-    protected async Task PatchAsync<T>(string endpoint, T? data) where T : class
+    protected async Task PatchAsync<T>(string endpoint, T? data)
+        where T : class
     {
-        var content = data != null ? new StringContent(JsonSerializer.Serialize(data), System.Text.Encoding.UTF8, "application/json") : null;
-        var request = new HttpRequestMessage(new HttpMethod("PATCH"), endpoint) { Content = content };
+        var content =
+            data != null
+                ? new StringContent(
+                    JsonSerializer.Serialize(data),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                )
+                : null;
+        var request = new HttpRequestMessage(new HttpMethod("PATCH"), endpoint)
+        {
+            Content = content,
+        };
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
     }
 
     /// <summary>
-    /// DELETE ÇëÇó
+    /// DELETE è¯·æ±‚
     /// </summary>
     protected async Task DeleteAsync(string endpoint)
     {
@@ -86,7 +111,7 @@ public abstract class BaseApiService
     }
 
     /// <summary>
-    /// ÉÏ´«ÎÄ¼ş
+    /// ä¸Šä¼ æ–‡ä»¶
     /// </summary>
     protected async Task UploadFileAsync(string endpoint, Stream fileStream, string fileName)
     {
@@ -98,7 +123,7 @@ public abstract class BaseApiService
     }
 
     /// <summary>
-    /// ¶ÁÈ¡ÏìÓ¦ÄÚÈİ
+    /// è¯»å–å“åº”å†…å®¹
     /// </summary>
     protected async Task<T?> ReadAsAsync<T>(HttpContent content)
     {

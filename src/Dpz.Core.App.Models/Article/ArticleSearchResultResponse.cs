@@ -1,115 +1,115 @@
-namespace Dpz.Core.App.Models.Article;
+ï»¿namespace Dpz.Core.App.Models.Article;
 
 /// <summary>
-/// ÎÄÕÂËÑË÷½á¹û
+/// æ–‡ç« æœç´¢ç»“æœ
 /// </summary>
 public class SearchResult
 {
     /// <summary>
-    /// ¹Ø¼ü×ÖËùÔÚĞĞ
+    /// å…³é”®å­—æ‰€åœ¨è¡Œ
     /// </summary>
     public int LineNumber { get; set; }
 
     /// <summary>
-    /// ¹Ø¼ü×ÖËùÔÚĞĞµÄÆğÊ¼Ë÷Òı
+    /// å…³é”®å­—æ‰€åœ¨è¡Œçš„èµ·å§‹ç´¢å¼•
     /// </summary>
     public int StartIndex { get; set; }
 
     /// <summary>
-    /// ¹Ø¼ü×ÖËùÔÚĞĞµÄ½áÊøË÷Òı
+    /// å…³é”®å­—æ‰€åœ¨è¡Œçš„ç»“æŸç´¢å¼•
     /// </summary>
     public int EndIndex { get; set; }
 
     /// <summary>
-    /// Æ¥ÅäÎÄ±¾
+    /// åŒ¹é…æ–‡æœ¬
     /// </summary>
     public string? MatchedText { get; set; }
 }
 
 /// <summary>
-/// ÎÄÕÂËÑË÷½á¹ûÏìÓ¦
+/// æ–‡ç« æœç´¢ç»“æœå“åº”
 /// </summary>
 public class ArticleSearchResultResponse
 {
     /// <summary>
-    /// ±êÌâËÑË÷½á¹û
+    /// æ ‡é¢˜æœç´¢ç»“æœ
     /// </summary>
     public SearchResult[]? TitleSearchResult { get; set; }
 
     /// <summary>
-    /// ÄÚÈİËÑË÷½á¹û (Markdown)
+    /// å†…å®¹æœç´¢ç»“æœ (Markdown)
     /// </summary>
     public SearchResult[]? ContentSearchResult { get; set; }
 
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÎÄÕÂ±êÌâ
+    /// æ–‡ç« æ ‡é¢˜
     /// </summary>
     public string? Title { get; set; }
 
     /// <summary>
-    /// ¼ò½é
+    /// ç®€ä»‹
     /// </summary>
     public string? Introduction { get; set; }
 
     /// <summary>
-    /// HtmlÄÚÈİ
+    /// Htmlå†…å®¹
     /// </summary>
     public string? HtmlContent { get; set; }
 
     /// <summary>
-    /// Markdown ÄÚÈİ
+    /// Markdown å†…å®¹
     /// </summary>
     public string? Markdown { get; set; }
 
     /// <summary>
-    /// Ö÷Í¼Æ¬
+    /// ä¸»å›¾ç‰‡
     /// </summary>
     public string? MainImage { get; set; }
 
     /// <summary>
-    /// »Ø¸´Á¿
+    /// å›å¤é‡
     /// </summary>
     public int CommentCount { get; set; }
 
     /// <summary>
-    /// ²é¿´Á¿
+    /// æŸ¥çœ‹é‡
     /// </summary>
     public int ViewCount { get; set; }
 
     /// <summary>
-    /// ÎÄÕÂÏà¹ØÍ¼Æ¬µØÖ·
+    /// æ–‡ç« ç›¸å…³å›¾ç‰‡åœ°å€
     /// </summary>
     public string[]? ImagesAddress { get; set; }
 
     /// <summary>
-    /// ±êÇ©
+    /// æ ‡ç­¾
     /// </summary>
     public string[]? Tags { get; set; }
 
     /// <summary>
-    /// ×÷Õß
+    /// ä½œè€…
     /// </summary>
     public Account.VmUserInfo? Author { get; set; }
 
     /// <summary>
-    /// À´Ô´
+    /// æ¥æº
     /// </summary>
     public string? From { get; set; }
 
     /// <summary>
-    /// ·¢±íÊ±¼ä
+    /// å‘è¡¨æ—¶é—´
     /// </summary>
     public DateTime CreateTime { get; set; }
 
     /// <summary>
-    /// ×îºóĞŞ¸ÄÊ±¼ä
+    /// æœ€åä¿®æ”¹æ—¶é—´
     /// </summary>
     public DateTime LastUpdateTime { get; set; }
 
     /// <summary>
-    /// ¹ã¸æ¸ÅÂÊÈ¨ÖØ
+    /// å¹¿å‘Šæ¦‚ç‡æƒé‡
     /// </summary>
     public double AdWeight { get; set; }
 }

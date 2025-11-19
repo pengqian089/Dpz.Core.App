@@ -1,19 +1,18 @@
+锘縰sing Dpz.Core.App.Models.Danmaku;
 using Dpz.Core.App.Models.Video;
-using Dpz.Core.App.Models.Danmaku;
 using Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// 视频服务实现
+/// 瑙嗛鏈嶅姟瀹炵幇
 /// </summary>
 public class VideoService : BaseApiService, IVideoService
 {
     private const string BaseEndpoint = "/api/Video";
 
-    public VideoService(HttpClient httpClient) : base(httpClient)
-    {
-    }
+    public VideoService(HttpClient httpClient)
+        : base(httpClient) { }
 
     public async Task<IEnumerable<VmVideo>> GetVideosAsync()
     {
@@ -30,7 +29,12 @@ public class VideoService : BaseApiService, IVideoService
     {
         var response = await _httpClient.PostAsync(
             $"{BaseEndpoint}/danmaku/v3",
-            new StringContent(System.Text.Json.JsonSerializer.Serialize(danmakuDto), System.Text.Encoding.UTF8, "application/json"));
+            new StringContent(
+                System.Text.Json.JsonSerializer.Serialize(danmakuDto),
+                System.Text.Encoding.UTF8,
+                "application/json"
+            )
+        );
         response.EnsureSuccessStatusCode();
         return await ReadAsAsync<VideoDanmakuDto>(response.Content);
     }
@@ -61,7 +65,12 @@ public class VideoService : BaseApiService, IVideoService
     {
         var response = await _httpClient.PatchAsync(
             $"{BaseEndpoint}/screenshot/{id}",
-            new StringContent(System.Text.Json.JsonSerializer.Serialize(request), System.Text.Encoding.UTF8, "application/json"));
+            new StringContent(
+                System.Text.Json.JsonSerializer.Serialize(request),
+                System.Text.Encoding.UTF8,
+                "application/json"
+            )
+        );
         response.EnsureSuccessStatusCode();
         return await ReadAsAsync<string>(response.Content);
     }

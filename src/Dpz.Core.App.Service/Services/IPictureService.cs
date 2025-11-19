@@ -1,39 +1,50 @@
-using Dpz.Core.App.Models.Picture;
+ï»¿using Dpz.Core.App.Models.Picture;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// Í¼Æ¬·şÎñ½Ó¿Ú
+/// å›¾ç‰‡æœåŠ¡æ¥å£
 /// </summary>
 public interface IPictureService
 {
     /// <summary>
-    /// »ñÈ¡Í¼Æ¬ÁĞ±í
+    /// è·å–å›¾ç‰‡åˆ—è¡¨
     /// </summary>
-    Task<IEnumerable<VmPictureRecord>> GetPicturesAsync(string? tag = null, string? description = null, PictureType? type = null, int pageSize = 0, int pageIndex = 0);
+    Task<IEnumerable<VmPictureRecord>> GetPicturesAsync(
+        string? tag = null,
+        string? description = null,
+        PictureType? type = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    );
 
     /// <summary>
-    /// ÉÏ´«Í¼Æ¬
+    /// ä¸Šä¼ å›¾ç‰‡
     /// </summary>
-    Task UploadPictureAsync(Stream imageStream, string fileName, string[]? tags = null, string? description = null);
+    Task UploadPictureAsync(
+        Stream imageStream,
+        string fileName,
+        string[]? tags = null,
+        string? description = null
+    );
 
     /// <summary>
-    /// ĞŞ¸ÄÍ¼ÏñºÍÍ¼ÏñĞÅÏ¢
+    /// ä¿®æ”¹å›¾åƒå’Œå›¾åƒä¿¡æ¯
     /// </summary>
     Task EditPictureAsync(PictureEditDto editDto);
 
     /// <summary>
-    /// »ñÈ¡Í¼Æ¬ĞÅÏ¢
+    /// è·å–å›¾ç‰‡ä¿¡æ¯
     /// </summary>
     Task<VmPictureRecord?> GetPictureAsync(string id);
 
     /// <summary>
-    /// É¾³ıÍ¼Ïñ
+    /// åˆ é™¤å›¾åƒ
     /// </summary>
     Task DeletePictureAsync(string id);
 
     /// <summary>
-    /// »ñÈ¡ËùÓĞ±êÇ©
+    /// è·å–æ‰€æœ‰æ ‡ç­¾
     /// </summary>
     Task<IEnumerable<string>> GetTagsAsync();
 }

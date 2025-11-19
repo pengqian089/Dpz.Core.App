@@ -1,7 +1,7 @@
-namespace Dpz.Core.App.Models.DynamicPage;
+ï»¿namespace Dpz.Core.App.Models.DynamicPage;
 
 /// <summary>
-/// Content-Type ÀàĞÍ
+/// Content-Type ç±»å‹
 /// </summary>
 public enum PageContentType
 {
@@ -11,17 +11,17 @@ public enum PageContentType
 }
 
 /// <summary>
-/// HTMLÄÚÈİ
+/// HTMLå†…å®¹
 /// </summary>
 public class HtmlContent
 {
     /// <summary>
-    /// Ò³ÃæÃû³Æ
+    /// é¡µé¢åç§°
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// ÄÚÈİ
+    /// å†…å®¹
     /// </summary>
     public string? Content { get; set; }
 
@@ -31,23 +31,23 @@ public class HtmlContent
     public PageContentType ContentType { get; set; }
 
     /// <summary>
-    /// Content-Type ×Ö·û´®
+    /// Content-Type å­—ç¬¦ä¸²
     /// </summary>
     public string? ContentTypeStr { get; set; }
 }
 
 /// <summary>
-/// ÑùÊ½ÄÚÈİ
+/// æ ·å¼å†…å®¹
 /// </summary>
 public class StyleContent
 {
     /// <summary>
-    /// Ò³ÃæÃû³Æ
+    /// é¡µé¢åç§°
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// ÄÚÈİ
+    /// å†…å®¹
     /// </summary>
     public string? Content { get; set; }
 
@@ -57,23 +57,23 @@ public class StyleContent
     public PageContentType ContentType { get; set; }
 
     /// <summary>
-    /// Content-Type ×Ö·û´®
+    /// Content-Type å­—ç¬¦ä¸²
     /// </summary>
     public string? ContentTypeStr { get; set; }
 }
 
 /// <summary>
-/// ½Å±¾ÄÚÈİ
+/// è„šæœ¬å†…å®¹
 /// </summary>
 public class ScriptContent
 {
     /// <summary>
-    /// Ò³ÃæÃû³Æ
+    /// é¡µé¢åç§°
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// ÄÚÈİ
+    /// å†…å®¹
     /// </summary>
     public string? Content { get; set; }
 
@@ -83,30 +83,30 @@ public class ScriptContent
     public PageContentType ContentType { get; set; }
 
     /// <summary>
-    /// Content-Type ×Ö·û´®
+    /// Content-Type å­—ç¬¦ä¸²
     /// </summary>
     public string? ContentTypeStr { get; set; }
 }
 
 /// <summary>
-/// ×Ô¶¨ÒåÒ³
+/// è‡ªå®šä¹‰é¡µ
 /// </summary>
 public class VmDynamicPage
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÄÚÈİ
+    /// å†…å®¹
     /// </summary>
     public string? Content { get; set; }
 
     /// <summary>
-    /// ½Å±¾ µØÖ·
+    /// è„šæœ¬ åœ°å€
     /// </summary>
     public Dictionary<string, string>? Scripts { get; set; }
 
     /// <summary>
-    /// ÑùÊ½ µØÖ·
+    /// æ ·å¼ åœ°å€
     /// </summary>
     public Dictionary<string, string>? Styles { get; set; }
 
@@ -116,45 +116,45 @@ public class VmDynamicPage
     public PageContentType? ContentType { get; set; }
 
     /// <summary>
-    /// Content-Type ×Ö·û´®
+    /// Content-Type å­—ç¬¦ä¸²
     /// </summary>
     public string? ContentTypeStr { get; set; }
 
     /// <summary>
-    /// ´´½¨Õß
+    /// åˆ›å»ºè€…
     /// </summary>
     public Account.VmUserInfo? Creator { get; set; }
 
     /// <summary>
-    /// ´´½¨Ê±¼ä
+    /// åˆ›å»ºæ—¶é—´
     /// </summary>
     public DateTime CreateTime { get; set; }
 
     /// <summary>
-    /// ×îºóĞŞ¸ÄÊ±¼ä
+    /// æœ€åä¿®æ”¹æ—¶é—´
     /// </summary>
     public DateTime LastUpdateTime { get; set; }
 }
 
 /// <summary>
-/// ×Ô¶¨ÒåÒ³ÏêÇé
+/// è‡ªå®šä¹‰é¡µè¯¦æƒ…
 /// </summary>
 public class VmDynamicPageDetail
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÄÚÈİ
+    /// å†…å®¹
     /// </summary>
     public string? Content { get; set; }
 
     /// <summary>
-    /// ½Å±¾ µØÖ·
+    /// è„šæœ¬ åœ°å€
     /// </summary>
     public ScriptContent[]? Scripts { get; set; }
 
     /// <summary>
-    /// ÑùÊ½ µØÖ·
+    /// æ ·å¼ åœ°å€
     /// </summary>
     public StyleContent[]? Styles { get; set; }
 
@@ -164,75 +164,75 @@ public class VmDynamicPageDetail
     public PageContentType? ContentType { get; set; }
 
     /// <summary>
-    /// Content-Type ×Ö·û´®
+    /// Content-Type å­—ç¬¦ä¸²
     /// </summary>
     public string? ContentTypeStr { get; set; }
 
     /// <summary>
-    /// ´´½¨Õß
+    /// åˆ›å»ºè€…
     /// </summary>
     public Account.VmUserInfo? Creator { get; set; }
 
     /// <summary>
-    /// ´´½¨Ê±¼ä
+    /// åˆ›å»ºæ—¶é—´
     /// </summary>
     public DateTime CreateTime { get; set; }
 
     /// <summary>
-    /// ×îºóĞŞ¸ÄÊ±¼ä
+    /// æœ€åä¿®æ”¹æ—¶é—´
     /// </summary>
     public DateTime LastUpdateTime { get; set; }
 }
 
 /// <summary>
-/// ´´½¨×Ô¶¨ÒåÒ³DTO
+/// åˆ›å»ºè‡ªå®šä¹‰é¡µDTO
 /// </summary>
 public class VmCreateDynamicPage
 {
     /// <summary>
-    /// HTML ÄÚÈİ
+    /// HTML å†…å®¹
     /// </summary>
     public HtmlContent? HtmlContent { get; set; }
 
     /// <summary>
-    /// ÑùÊ½ ÄÚÈİ
+    /// æ ·å¼ å†…å®¹
     /// </summary>
     public Dictionary<string, StyleContent>? StyleContents { get; set; }
 
     /// <summary>
-    /// ½Å±¾ ÄÚÈİ
+    /// è„šæœ¬ å†…å®¹
     /// </summary>
     public Dictionary<string, ScriptContent>? ScriptContents { get; set; }
 }
 
 /// <summary>
-/// ĞŞ¸Ä×Ô¶¨ÒåÒ³DTO
+/// ä¿®æ”¹è‡ªå®šä¹‰é¡µDTO
 /// </summary>
 public class VmEditDynamicPage
 {
     /// <summary>
-    /// HTML ÄÚÈİ
+    /// HTML å†…å®¹
     /// </summary>
     public HtmlContent? HtmlContent { get; set; }
 
     /// <summary>
-    /// ÑùÊ½ ÄÚÈİ
+    /// æ ·å¼ å†…å®¹
     /// </summary>
     public Dictionary<string, StyleContent>? StyleContents { get; set; }
 
     /// <summary>
-    /// ½Å±¾ ÄÚÈİ
+    /// è„šæœ¬ å†…å®¹
     /// </summary>
     public Dictionary<string, ScriptContent>? ScriptContents { get; set; }
 }
 
 /// <summary>
-/// ĞŞ¸ÄÄÚÈİÇëÇó
+/// ä¿®æ”¹å†…å®¹è¯·æ±‚
 /// </summary>
 public class EditContentRequest
 {
     /// <summary>
-    /// ÄÚÈİ
+    /// å†…å®¹
     /// </summary>
     public string? Content { get; set; }
 }

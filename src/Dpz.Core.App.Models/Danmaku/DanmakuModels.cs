@@ -1,7 +1,7 @@
-namespace Dpz.Core.App.Models.Danmaku;
+ï»¿namespace Dpz.Core.App.Models.Danmaku;
 
 /// <summary>
-/// µ¯Ä»ÀàĞÍ
+/// å¼¹å¹•ç±»å‹
 /// </summary>
 public enum DanmakuType
 {
@@ -11,50 +11,50 @@ public enum DanmakuType
 }
 
 /// <summary>
-/// µ¯Ä»ÊÓÍ¼Ä£ĞÍ
+/// å¼¹å¹•è§†å›¾æ¨¡å‹
 /// </summary>
 public class VmBarrage
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// µ¯Ä»ÄÚÈİ
+    /// å¼¹å¹•å†…å®¹
     /// </summary>
     public string? Text { get; set; }
 
     /// <summary>
-    /// ·Ö×é
+    /// åˆ†ç»„
     /// </summary>
     public string? Group { get; set; }
 
     /// <summary>
-    /// µ¯Ä»ÑÕÉ«
+    /// å¼¹å¹•é¢œè‰²
     /// </summary>
     public string? Color { get; set; }
 
     /// <summary>
-    /// 0Îª¹ö¶¯ 1Îª¶¥²¿ 2Îªµ×²¿
+    /// 0ä¸ºæ»šåŠ¨ 1ä¸ºé¡¶éƒ¨ 2ä¸ºåº•éƒ¨
     /// </summary>
     public int Position { get; set; }
 
     /// <summary>
-    /// 0ÎªĞ¡×Ö 1Îª´ó×Ö
+    /// 0ä¸ºå°å­— 1ä¸ºå¤§å­—
     /// </summary>
     public int Size { get; set; }
 
     /// <summary>
-    /// µ¯Ä»Ëù³öÏÖµÄÊ±¼ä¡£µ¥Î»Îª·ÖÃë£¨Ê®·ÖÖ®Ò»Ãë£©
+    /// å¼¹å¹•æ‰€å‡ºç°çš„æ—¶é—´ã€‚å•ä½ä¸ºåˆ†ç§’ï¼ˆååˆ†ä¹‹ä¸€ç§’ï¼‰
     /// </summary>
     public double Time { get; set; }
 
     /// <summary>
-    /// ·¢ËÍÊ±¼ä
+    /// å‘é€æ—¶é—´
     /// </summary>
     public DateTime SendTime { get; set; }
 }
 
 /// <summary>
-/// ÊÓÆµµ¯Ä»DTO
+/// è§†é¢‘å¼¹å¹•DTO
 /// </summary>
 public class VideoDanmakuDto
 {
@@ -64,27 +64,27 @@ public class VideoDanmakuDto
     public string? Id { get; set; }
 
     /// <summary>
-    /// µ¯Ä»ÎÄ±¾
+    /// å¼¹å¹•æ–‡æœ¬
     /// </summary>
     public string? Text { get; set; }
 
     /// <summary>
-    /// ·¢ËÍÈË
+    /// å‘é€äºº
     /// </summary>
     public string? Author { get; set; }
 
     /// <summary>
-    /// ÑÕÉ«
+    /// é¢œè‰²
     /// </summary>
     public int Color { get; set; }
 
     /// <summary>
-    /// µ¯Ä»³öÏÖÊ±¼ä
+    /// å¼¹å¹•å‡ºç°æ—¶é—´
     /// </summary>
     public double Time { get; set; }
 
     /// <summary>
-    /// µ¯Ä»Î»ÖÃ
+    /// å¼¹å¹•ä½ç½®
     /// </summary>
     public DanmakuType Type { get; set; }
 }

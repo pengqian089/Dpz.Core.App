@@ -1,52 +1,52 @@
-namespace Dpz.Core.App.Models.Article;
+ï»¿namespace Dpz.Core.App.Models.Article;
 
 /// <summary>
-/// ´´½¨ÎÄÕÂV4 DTO
+/// åˆ›å»ºæ–‡ç« V4 DTO
 /// </summary>
 public class VmCreateArticleV4
 {
     /// <summary>
-    /// ±êÌâ
+    /// æ ‡é¢˜
     /// </summary>
     public string? Title { get; set; }
 
     /// <summary>
-    /// ÎÄÕÂÄÚÈİ Markdown
+    /// æ–‡ç« å†…å®¹ Markdown
     /// </summary>
     public string? Markdown { get; set; }
 
     /// <summary>
-    /// ÎÄÕÂÄÚÈİ MarkdownäÖÈ¾µÄHTML
+    /// æ–‡ç« å†…å®¹ Markdownæ¸²æŸ“çš„HTML
     /// </summary>
     public string? Content { get; set; }
 
     /// <summary>
-    /// ±êÇ©
+    /// æ ‡ç­¾
     /// </summary>
     public string[]? Tags { get; set; }
 
     /// <summary>
-    /// ¼ò½é
+    /// ç®€ä»‹
     /// </summary>
     public string? Introduction { get; set; }
 
     /// <summary>
-    /// À´Ô´
+    /// æ¥æº
     /// </summary>
     public string? From { get; set; }
 
     /// <summary>
-    /// ·¢²¼Ê±¼ä
+    /// å‘å¸ƒæ—¶é—´
     /// </summary>
     public DateTime? PublishTime { get; set; }
 
     /// <summary>
-    /// ·ÖÀà
+    /// åˆ†ç±»
     /// </summary>
     public string[]? Categories { get; set; }
 
     /// <summary>
-    /// ¹ã¸æÈ¨ÖØ
+    /// å¹¿å‘Šæƒé‡
     /// </summary>
     public double? AdWeight { get; set; }
 }

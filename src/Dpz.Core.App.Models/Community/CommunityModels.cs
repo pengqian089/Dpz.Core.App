@@ -1,54 +1,54 @@
-namespace Dpz.Core.App.Models.Community;
+ï»¿namespace Dpz.Core.App.Models.Community;
 
 /// <summary>
-/// Í¼Æ¬¼ÇÂ¼ÊÓÍ¼Ä£ĞÍ
+/// å›¾ç‰‡è®°å½•è§†å›¾æ¨¡å‹
 /// </summary>
 public class VmPictureRecord
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÉÏ´«ÈË
+    /// ä¸Šä¼ äºº
     /// </summary>
     public Account.VmUserInfo? Creator { get; set; }
 
     /// <summary>
-    /// ÉÏ´«Ê±¼ä
+    /// ä¸Šä¼ æ—¶é—´
     /// </summary>
     public DateTime UploadTime { get; set; }
 
     /// <summary>
-    /// ±êÇ©
+    /// æ ‡ç­¾
     /// </summary>
     public string[]? Tags { get; set; }
 
     /// <summary>
-    /// Í¼Æ¬ÃèÊö
+    /// å›¾ç‰‡æè¿°
     /// </summary>
     public string? Description { get; set; }
 
     /// <summary>
-    /// Í¼ÏñÀàĞÍ
+    /// å›¾åƒç±»å‹
     /// </summary>
     public int Category { get; set; }
 
     /// <summary>
-    /// Í¼Æ¬¿í¶È
+    /// å›¾ç‰‡å®½åº¦
     /// </summary>
     public int Width { get; set; }
 
     /// <summary>
-    /// Í¼Æ¬¸ß¶È
+    /// å›¾ç‰‡é«˜åº¦
     /// </summary>
     public int Height { get; set; }
 
     /// <summary>
-    /// ·ÃÎÊµØÖ·
+    /// è®¿é—®åœ°å€
     /// </summary>
     public string? AccessUrl { get; set; }
 
     /// <summary>
-    /// Í¼Æ¬´óĞ¡
+    /// å›¾ç‰‡å¤§å°
     /// </summary>
     public long Length { get; set; }
 
@@ -58,13 +58,13 @@ public class VmPictureRecord
     public string? Md5 { get; set; }
 
     /// <summary>
-    /// ÔÆ´¢´æÉÏ´«Ê±¼ä
+    /// äº‘å‚¨å­˜ä¸Šä¼ æ—¶é—´
     /// </summary>
     public DateTime ObjectStorageUploadTime { get; set; }
 }
 
 /// <summary>
-/// ±ÚÖ½
+/// å£çº¸
 /// </summary>
 public class Wallpaper
 {
@@ -76,22 +76,22 @@ public class Wallpaper
 }
 
 /// <summary>
-/// »ã×ÜĞÅÏ¢
+/// æ±‡æ€»ä¿¡æ¯
 /// </summary>
 public class SummaryInformation
 {
     /// <summary>
-    /// ×îĞÂÈÕÖ¾
+    /// æœ€æ–°æ—¥å¿—
     /// </summary>
     public string? LatestLogs { get; set; }
 
     /// <summary>
-    /// ÎÄÕÂ×ÜÊı
+    /// æ–‡ç« æ€»æ•°
     /// </summary>
     public int ArticleTotalCount { get; set; }
 
     /// <summary>
-    /// ½ñÈÕÎÄÕÂÊıÁ¿
+    /// ä»Šæ—¥æ–‡ç« æ•°é‡
     /// </summary>
     public int TodayArticleCount { get; set; }
 
@@ -101,23 +101,23 @@ public class SummaryInformation
     public VmPictureRecord[]? Banner { get; set; }
 
     /// <summary>
-    /// ×îĞÂÎÄÕÂ
+    /// æœ€æ–°æ–‡ç« 
     /// </summary>
     public Article.VmArticleMini[]? LatestArticles { get; set; }
 
     /// <summary>
-    /// ½ñÈÕ·ÃÎÊ¼ÇÂ¼
+    /// ä»Šæ—¥è®¿é—®è®°å½•
     /// </summary>
     public AccessSummary[]? TodayAccessNumber { get; set; }
 
     /// <summary>
-    /// ½ü7Ìì·ÃÎÊ¼ÇÂ¼
+    /// è¿‘7å¤©è®¿é—®è®°å½•
     /// </summary>
     public AccessSummary[]? WeekAccessNumber { get; set; }
 }
 
 /// <summary>
-/// ·ÃÎÊ»ã×Ü
+/// è®¿é—®æ±‡æ€»
 /// </summary>
 public class AccessSummary
 {
@@ -127,18 +127,18 @@ public class AccessSummary
 }
 
 /// <summary>
-/// ±£´æÒ³½ÅDTO
+/// ä¿å­˜é¡µè„šDTO
 /// </summary>
 public class SaveFooterDto
 {
     /// <summary>
-    /// ÄÚÈİ
+    /// å†…å®¹
     /// </summary>
     public string? Content { get; set; }
 }
 
 /// <summary>
-/// ÓÑÇéÁ´½Ó
+/// å‹æƒ…é“¾æ¥
 /// </summary>
 public class VmFriends
 {
@@ -160,33 +160,33 @@ public class VmFriends
 }
 
 /// <summary>
-/// Ìí¼ÓÓÑÇéÁ´½ÓDTO
+/// æ·»åŠ å‹æƒ…é“¾æ¥DTO
 /// </summary>
 public class FriendSaveDto
 {
     /// <summary>
-    /// Ãû³Æ
+    /// åç§°
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// Í¼±ê
+    /// å›¾æ ‡
     /// </summary>
     public string? Avatar { get; set; }
 
     /// <summary>
-    /// Á´½Ó
+    /// é“¾æ¥
     /// </summary>
     public string? Link { get; set; }
 
     /// <summary>
-    /// ÃèÊö
+    /// æè¿°
     /// </summary>
     public string? Description { get; set; }
 }
 
 /// <summary>
-/// ±à¼­ÓÑÇéÁ´½ÓDTO
+/// ç¼–è¾‘å‹æƒ…é“¾æ¥DTO
 /// </summary>
 public class FriendEditDto
 {
@@ -196,22 +196,22 @@ public class FriendEditDto
     public string? Id { get; set; }
 
     /// <summary>
-    /// Ãû³Æ
+    /// åç§°
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// Í¼±ê
+    /// å›¾æ ‡
     /// </summary>
     public string? Avatar { get; set; }
 
     /// <summary>
-    /// Á´½Ó
+    /// é“¾æ¥
     /// </summary>
     public string? Link { get; set; }
 
     /// <summary>
-    /// ÃèÊö
+    /// æè¿°
     /// </summary>
     public string? Description { get; set; }
 }

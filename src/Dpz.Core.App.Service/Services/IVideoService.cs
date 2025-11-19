@@ -1,50 +1,50 @@
+ï»¿using Dpz.Core.App.Models.Danmaku;
 using Dpz.Core.App.Models.Video;
-using Dpz.Core.App.Models.Danmaku;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// ÊÓÆµ·şÎñ½Ó¿Ú
+/// è§†é¢‘æœåŠ¡æ¥å£
 /// </summary>
 public interface IVideoService
 {
     /// <summary>
-    /// »ñÈ¡ÊÓÆµÁĞ±í
+    /// è·å–è§†é¢‘åˆ—è¡¨
     /// </summary>
     Task<IEnumerable<VmVideo>> GetVideosAsync();
 
     /// <summary>
-    /// ±£´æÊÓÆµĞÅÏ¢
+    /// ä¿å­˜è§†é¢‘ä¿¡æ¯
     /// </summary>
     Task SaveVideoAsync(VmVideo video);
 
     /// <summary>
-    /// ·¢ËÍÊÓÆµµ¯Ä»
+    /// å‘é€è§†é¢‘å¼¹å¹•
     /// </summary>
     Task<VideoDanmakuDto?> SendDanmakuAsync(VideoDanmakuDto danmakuDto);
 
     /// <summary>
-    /// »ñÈ¡ÊÓÆµµ¯Ä»
+    /// è·å–è§†é¢‘å¼¹å¹•
     /// </summary>
     Task<object?> GetDanmakuAsync(string? id = null);
 
     /// <summary>
-    /// »ñÈ¡ÊÓÆµÏêÇéÁĞ±í
+    /// è·å–è§†é¢‘è¯¦æƒ…åˆ—è¡¨
     /// </summary>
     Task<IEnumerable<VmVideo>> GetVideoDetailsAsync();
 
     /// <summary>
-    /// Ìí¼ÓÒ»´Î²¥·Å´ÎÊı
+    /// æ·»åŠ ä¸€æ¬¡æ’­æ”¾æ¬¡æ•°
     /// </summary>
     Task PlayVideoAsync(string id);
 
     /// <summary>
-    /// »ñÈ¡ÊÓÆµÔªÊı¾İ
+    /// è·å–è§†é¢‘å…ƒæ•°æ®
     /// </summary>
     Task<VideoMetaDataResponse?> GetVideoMetaDataAsync(string id);
 
     /// <summary>
-    /// ÉèÖÃÊÓÆµËõÂÔÍ¼
+    /// è®¾ç½®è§†é¢‘ç¼©ç•¥å›¾
     /// </summary>
     Task<string?> SetVideoScreenshotAsync(string id, ScreenshotRequest request);
 }

@@ -13,7 +13,12 @@ public interface IArticleService
     /// <summary>
     /// 获取文章列表
     /// </summary>
-    Task<IEnumerable<VmArticleMini>> GetArticlesAsync(string? tags = null, string? title = null, int pageSize = 0, int pageIndex = 0);
+    Task<IEnumerable<VmArticleMini>> GetArticlesAsync(
+        string? tags = null,
+        string? title = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    );
 
     /// <summary>
     /// 创建文章

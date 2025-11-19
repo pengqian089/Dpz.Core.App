@@ -1,57 +1,57 @@
-namespace Dpz.Core.App.Models.Account;
+ï»¿namespace Dpz.Core.App.Models.Account;
 
 /// <summary>
-/// ÓÃ»§ĞÅÏ¢ÊÓÍ¼Ä£ĞÍ
+/// ç”¨æˆ·ä¿¡æ¯è§†å›¾æ¨¡å‹
 /// </summary>
 public class VmUserInfo
 {
     /// <summary>
-    /// ÕËºÅ
+    /// è´¦å·
     /// </summary>
     public string? Id { get; set; }
 
     /// <summary>
-    /// êÇ³Æ
+    /// æ˜µç§°
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// ×îºó·ÃÎÊÊ±¼ä
+    /// æœ€åè®¿é—®æ—¶é—´
     /// </summary>
     public DateTime? LastAccessTime { get; set; }
 
     /// <summary>
-    /// ¸öĞÔÇ©Ãû
+    /// ä¸ªæ€§ç­¾å
     /// </summary>
     public string? Sign { get; set; }
 
     /// <summary>
-    /// Í·Ïñ
+    /// å¤´åƒ
     /// </summary>
     public string? Avatar { get; set; }
 
     /// <summary>
-    /// ĞÔ±ğ
+    /// æ€§åˆ«
     /// </summary>
     public int Sex { get; set; }
 
     /// <summary>
-    /// È¨ÏŞ
+    /// æƒé™
     /// </summary>
     public int? Permissions { get; set; }
 
     /// <summary>
-    /// ÊÇ·ñÆôÓÃ
+    /// æ˜¯å¦å¯ç”¨
     /// </summary>
     public bool? Enable { get; set; }
 
     /// <summary>
-    /// Î¨Ò» key£¬µ±ÃÜÂëĞŞ¸ÄÊ±£¬Õâ¸ökey½«»á¸Ä±ä
+    /// å”¯ä¸€ keyï¼Œå½“å¯†ç ä¿®æ”¹æ—¶ï¼Œè¿™ä¸ªkeyå°†ä¼šæ”¹å˜
     /// </summary>
     public string? Key { get; set; }
 
     /// <summary>
-    /// ÓÊÏä
+    /// é‚®ç®±
     /// </summary>
     public string? Email { get; set; }
 }

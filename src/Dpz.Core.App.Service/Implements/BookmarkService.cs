@@ -1,25 +1,27 @@
-using Dpz.Core.App.Models.Bookmark;
+锘縰sing Dpz.Core.App.Models.Bookmark;
 using Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// 书签服务实现
+/// 涔︾鏈嶅姟瀹炵幇
 /// </summary>
 public class BookmarkService : BaseApiService, IBookmarkService
 {
     private const string BaseEndpoint = "/api/Bookmark";
 
-    public BookmarkService(HttpClient httpClient) : base(httpClient)
-    {
-    }
+    public BookmarkService(HttpClient httpClient)
+        : base(httpClient) { }
 
-    public async Task<IEnumerable<VmBookmark>> GetBookmarksAsync(string? title = null, string[]? categories = null)
+    public async Task<IEnumerable<VmBookmark>> GetBookmarksAsync(
+        string? title = null,
+        string[]? categories = null
+    )
     {
         var parameters = new Dictionary<string, object?>
         {
             { "title", title },
-            { "categories", categories }
+            { "categories", categories },
         };
 
         var result = await GetAsync<IEnumerable<VmBookmark>>(BaseEndpoint, parameters);
@@ -42,12 +44,15 @@ public class BookmarkService : BaseApiService, IBookmarkService
         return result ?? Enumerable.Empty<string>();
     }
 
-    public async Task<IEnumerable<string>> SearchBookmarksAsync(string? title = null, string[]? categories = null)
+    public async Task<IEnumerable<string>> SearchBookmarksAsync(
+        string? title = null,
+        string[]? categories = null
+    )
     {
         var parameters = new Dictionary<string, object?>
         {
             { "title", title },
-            { "categories", categories }
+            { "categories", categories },
         };
 
         var result = await GetAsync<IEnumerable<string>>($"{BaseEndpoint}/search", parameters);

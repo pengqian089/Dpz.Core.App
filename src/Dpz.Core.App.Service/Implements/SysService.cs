@@ -1,17 +1,16 @@
-using Dpz.Core.App.Service.Services;
+锘縰sing Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// 系统服务实现
+/// 绯荤粺鏈嶅姟瀹炵幇
 /// </summary>
 public class SysService : BaseApiService, ISysService
 {
     private const string BaseEndpoint = "/api/Sys";
 
-    public SysService(HttpClient httpClient) : base(httpClient)
-    {
-    }
+    public SysService(HttpClient httpClient)
+        : base(httpClient) { }
 
     public async Task RestoreDataAsync(string connectionString, string database)
     {

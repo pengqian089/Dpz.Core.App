@@ -1,18 +1,17 @@
-using Dpz.Core.App.Models.Community;
+锘縰sing Dpz.Core.App.Models.Community;
 using Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// 社区服务实现
+/// 绀惧尯鏈嶅姟瀹炵幇
 /// </summary>
 public class CommunityService : BaseApiService, ICommunityService
 {
     private const string BaseEndpoint = "/api/Community";
 
-    public CommunityService(HttpClient httpClient) : base(httpClient)
-    {
-    }
+    public CommunityService(HttpClient httpClient)
+        : base(httpClient) { }
 
     public async Task<IEnumerable<VmPictureRecord>> GetBannersAsync()
     {

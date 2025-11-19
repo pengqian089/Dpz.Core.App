@@ -1,34 +1,39 @@
-using Dpz.Core.App.Models.Danmaku;
+ï»¿using Dpz.Core.App.Models.Danmaku;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// µ¯Ä»·şÎñ½Ó¿Ú
+/// å¼¹å¹•æœåŠ¡æ¥å£
 /// </summary>
 public interface IDanmakuService
 {
     /// <summary>
-    /// »ñÈ¡µ¯Ä»ÁĞ±í
+    /// è·å–å¼¹å¹•åˆ—è¡¨
     /// </summary>
-    Task<IEnumerable<VmBarrage>> GetDanmakusAsync(string? text = null, string? group = null, int pageSize = 0, int pageIndex = 0);
+    Task<IEnumerable<VmBarrage>> GetDanmakusAsync(
+        string? text = null,
+        string? group = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    );
 
     /// <summary>
-    /// É¾³ıµ¯Ä»
+    /// åˆ é™¤å¼¹å¹•
     /// </summary>
     Task DeleteDanmakusAsync(string[] ids);
 
     /// <summary>
-    /// »ñÈ¡µ¯Ä»·Ö×éÁĞ±í
+    /// è·å–å¼¹å¹•åˆ†ç»„åˆ—è¡¨
     /// </summary>
     Task<IEnumerable<string>> GetGroupsAsync();
 
     /// <summary>
-    /// µ¼ÈëAÕ¾µ¯Ä»
+    /// å¯¼å…¥Aç«™å¼¹å¹•
     /// </summary>
     Task ImportAcfunDanmakuAsync(Stream fileStream, string fileName, string group);
 
     /// <summary>
-    /// µ¼ÈëBÕ¾µ¯Ä»
+    /// å¯¼å…¥Bç«™å¼¹å¹•
     /// </summary>
     Task ImportBilibiliDanmakuAsync(Stream fileStream, string fileName, string group);
 }

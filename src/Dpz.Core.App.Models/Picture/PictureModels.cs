@@ -1,7 +1,7 @@
-namespace Dpz.Core.App.Models.Picture;
+ï»¿namespace Dpz.Core.App.Models.Picture;
 
 /// <summary>
-/// Í¼ÏñÀàĞÍ
+/// å›¾åƒç±»å‹
 /// </summary>
 public enum PictureType
 {
@@ -11,54 +11,54 @@ public enum PictureType
 }
 
 /// <summary>
-/// Í¼Æ¬¼ÇÂ¼ÊÓÍ¼Ä£ĞÍ
+/// å›¾ç‰‡è®°å½•è§†å›¾æ¨¡å‹
 /// </summary>
 public class VmPictureRecord
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÉÏ´«ÈË
+    /// ä¸Šä¼ äºº
     /// </summary>
     public Account.VmUserInfo? Creator { get; set; }
 
     /// <summary>
-    /// ÉÏ´«Ê±¼ä
+    /// ä¸Šä¼ æ—¶é—´
     /// </summary>
     public DateTime UploadTime { get; set; }
 
     /// <summary>
-    /// ±êÇ©
+    /// æ ‡ç­¾
     /// </summary>
     public string[]? Tags { get; set; }
 
     /// <summary>
-    /// Í¼Æ¬ÃèÊö
+    /// å›¾ç‰‡æè¿°
     /// </summary>
     public string? Description { get; set; }
 
     /// <summary>
-    /// Í¼ÏñÀàĞÍ
+    /// å›¾åƒç±»å‹
     /// </summary>
     public int Category { get; set; }
 
     /// <summary>
-    /// Í¼Æ¬¿í¶È
+    /// å›¾ç‰‡å®½åº¦
     /// </summary>
     public int Width { get; set; }
 
     /// <summary>
-    /// Í¼Æ¬¸ß¶È
+    /// å›¾ç‰‡é«˜åº¦
     /// </summary>
     public int Height { get; set; }
 
     /// <summary>
-    /// ·ÃÎÊµØÖ·
+    /// è®¿é—®åœ°å€
     /// </summary>
     public string? AccessUrl { get; set; }
 
     /// <summary>
-    /// Í¼Æ¬´óĞ¡
+    /// å›¾ç‰‡å¤§å°
     /// </summary>
     public long Length { get; set; }
 
@@ -68,25 +68,25 @@ public class VmPictureRecord
     public string? Md5 { get; set; }
 
     /// <summary>
-    /// ÔÆ´¢´æÉÏ´«Ê±¼ä
+    /// äº‘å‚¨å­˜ä¸Šä¼ æ—¶é—´
     /// </summary>
     public DateTime ObjectStorageUploadTime { get; set; }
 }
 
 /// <summary>
-/// ĞŞ¸ÄÍ¼Ïñ¡¢Í¼ÏñĞÅÏ¢DTO
+/// ä¿®æ”¹å›¾åƒã€å›¾åƒä¿¡æ¯DTO
 /// </summary>
 public class PictureEditDto
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ±êÇ©
+    /// æ ‡ç­¾
     /// </summary>
     public string[]? Tags { get; set; }
 
     /// <summary>
-    /// ÃèÊö
+    /// æè¿°
     /// </summary>
     public string? Description { get; set; }
 }

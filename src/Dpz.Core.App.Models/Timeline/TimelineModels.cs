@@ -1,98 +1,98 @@
-namespace Dpz.Core.App.Models.Timeline;
+ï»¿namespace Dpz.Core.App.Models.Timeline;
 
 /// <summary>
-/// Ê±¼äÖáÊÓÍ¼Ä£ĞÍ
+/// æ—¶é—´è½´è§†å›¾æ¨¡å‹
 /// </summary>
 public class VmTimeline
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// Ê±¼äÖá±êÌâ
+    /// æ—¶é—´è½´æ ‡é¢˜
     /// </summary>
     public string? Title { get; set; }
 
     /// <summary>
-    /// Ê±¼äÖáÄÚÈİ
+    /// æ—¶é—´è½´å†…å®¹
     /// </summary>
     public string? Content { get; set; }
 
     /// <summary>
-    /// Ê±¼äÖá½ÚµãÈÕÆÚ
+    /// æ—¶é—´è½´èŠ‚ç‚¹æ—¥æœŸ
     /// </summary>
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// Á´½Ó
+    /// é“¾æ¥
     /// </summary>
     public string? More { get; set; }
 
     /// <summary>
-    /// ×÷Õß
+    /// ä½œè€…
     /// </summary>
     public Account.VmUserInfo? Author { get; set; }
 
     /// <summary>
-    /// ´´½¨Ê±¼ä
+    /// åˆ›å»ºæ—¶é—´
     /// </summary>
     public DateTime CreateTime { get; set; }
 
     /// <summary>
-    /// ×îºóĞŞ¸ÄÊ±¼ä
+    /// æœ€åä¿®æ”¹æ—¶é—´
     /// </summary>
     public DateTime LastUpdateTime { get; set; }
 }
 
 /// <summary>
-/// Ê±¼äÖáĞÂÔö²ÎÊı
+/// æ—¶é—´è½´æ–°å¢å‚æ•°
 /// </summary>
 public class TimelineCreateDto
 {
     /// <summary>
-    /// Ê±¼äÖá±êÌâ
+    /// æ—¶é—´è½´æ ‡é¢˜
     /// </summary>
     public string? Title { get; set; }
 
     /// <summary>
-    /// Ê±¼äÖáÄÚÈİ
+    /// æ—¶é—´è½´å†…å®¹
     /// </summary>
     public string? Content { get; set; }
 
     /// <summary>
-    /// Ê±¼äÖá½ÚµãÈÕÆÚ
+    /// æ—¶é—´è½´èŠ‚ç‚¹æ—¥æœŸ
     /// </summary>
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// Á´½Ó
+    /// é“¾æ¥
     /// </summary>
     public string? More { get; set; }
 }
 
 /// <summary>
-/// Ê±¼äÖá±à¼­²ÎÊı
+/// æ—¶é—´è½´ç¼–è¾‘å‚æ•°
 /// </summary>
 public class TimelineEditDto
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// Ê±¼äÖá±êÌâ
+    /// æ—¶é—´è½´æ ‡é¢˜
     /// </summary>
     public string? Title { get; set; }
 
     /// <summary>
-    /// Ê±¼äÖáÄÚÈİ
+    /// æ—¶é—´è½´å†…å®¹
     /// </summary>
     public string? Content { get; set; }
 
     /// <summary>
-    /// Ê±¼äÖá½ÚµãÈÕÆÚ
+    /// æ—¶é—´è½´èŠ‚ç‚¹æ—¥æœŸ
     /// </summary>
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// Á´½Ó
+    /// é“¾æ¥
     /// </summary>
     public string? More { get; set; }
 }

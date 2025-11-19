@@ -1,49 +1,62 @@
-using Dpz.Core.App.Models.Comment;
+ï»¿using Dpz.Core.App.Models.Comment;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// ÆÀÂÛ·şÎñ½Ó¿Ú
+/// è¯„è®ºæœåŠ¡æ¥å£
 /// </summary>
 public interface ICommentService
 {
     /// <summary>
-    /// »ñÈ¡ÆÀÂÛÁĞ±í
+    /// è·å–è¯„è®ºåˆ—è¡¨
     /// </summary>
-    Task<IEnumerable<VmCommentFlat>> GetCommentsAsync(CommentNode node, string? relation = null, int pageSize = 0, int pageIndex = 0);
+    Task<IEnumerable<VmCommentFlat>> GetCommentsAsync(
+        CommentNode node,
+        string? relation = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    );
 
     /// <summary>
-    /// ÄäÃû·¢ËÍÆÀÂÛ
+    /// åŒ¿åå‘é€è¯„è®º
     /// </summary>
-    Task<IEnumerable<CommentViewModel>> PublishCommentAsync(VmPublishComment publishDto, int pageSize = 5);
+    Task<IEnumerable<CommentViewModel>> PublishCommentAsync(
+        VmPublishComment publishDto,
+        int pageSize = 5
+    );
 
     /// <summary>
-    /// »ñÈ¡ÆÀÂÛ·ÖÒ³ĞÅÏ¢
+    /// è·å–è¯„è®ºåˆ†é¡µä¿¡æ¯
     /// </summary>
-    Task<IEnumerable<CommentViewModel>> GetCommentPagesAsync(CommentNode node, string? relation = null, int pageSize = 0, int pageIndex = 0);
+    Task<IEnumerable<CommentViewModel>> GetCommentPagesAsync(
+        CommentNode node,
+        string? relation = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    );
 
     /// <summary>
-    /// »ñÈ¡ÎÄÕÂ¹ØÁªµÄÆÀÂÛ
+    /// è·å–æ–‡ç« å…³è”çš„è¯„è®º
     /// </summary>
     Task<IEnumerable<CommentRelationResponse>> GetArticleCommentsAsync();
 
     /// <summary>
-    /// »ñÈ¡Ô´Âë¹ØÁªµÄÆÀÂÛ
+    /// è·å–æºç å…³è”çš„è¯„è®º
     /// </summary>
     Task<IEnumerable<CommentRelationResponse>> GetCodeCommentsAsync();
 
     /// <summary>
-    /// »ñÈ¡ÆäËû¹ØÁªµÄÆÀÂÛ
+    /// è·å–å…¶ä»–å…³è”çš„è¯„è®º
     /// </summary>
     Task<IEnumerable<CommentRelationResponse>> GetOtherCommentsAsync();
 
     /// <summary>
-    /// Âß¼­É¾³ıÆÀÂÛ
+    /// é€»è¾‘åˆ é™¤è¯„è®º
     /// </summary>
     Task DeleteCommentAsync(string id);
 
     /// <summary>
-    /// ÎïÀíÉ¾³ıÆÀÂÛ
+    /// ç‰©ç†åˆ é™¤è¯„è®º
     /// </summary>
     Task PhysicalDeleteCommentAsync(string id);
 }

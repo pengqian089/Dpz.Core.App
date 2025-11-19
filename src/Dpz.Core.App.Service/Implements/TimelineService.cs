@@ -1,18 +1,17 @@
-using Dpz.Core.App.Models.Timeline;
+Ôªøusing Dpz.Core.App.Models.Timeline;
 using Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-///  ±º‰÷·∑˛ŒÒ µœ÷
+/// Êó∂Èó¥ËΩ¥ÊúçÂä°ÂÆûÁé∞
 /// </summary>
 public class TimelineService : BaseApiService, ITimelineService
 {
     private const string BaseEndpoint = "/api/Timeline";
 
-    public TimelineService(HttpClient httpClient) : base(httpClient)
-    {
-    }
+    public TimelineService(HttpClient httpClient)
+        : base(httpClient) { }
 
     public async Task<IEnumerable<VmTimeline>> GetTimelinesAsync(string account = "pengqian")
     {
@@ -31,14 +30,19 @@ public class TimelineService : BaseApiService, ITimelineService
         await PatchAsync(BaseEndpoint, editDto);
     }
 
-    public async Task<IEnumerable<VmTimeline>> GetTimelinePageAsync(string? content = null, string? account = null, int pageSize = 0, int pageIndex = 0)
+    public async Task<IEnumerable<VmTimeline>> GetTimelinePageAsync(
+        string? content = null,
+        string? account = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    )
     {
         var parameters = new Dictionary<string, object?>
         {
             { "Content", content },
             { "Account", account },
             { "PageSize", pageSize > 0 ? pageSize : null },
-            { "PageIndex", pageIndex > 0 ? pageIndex : null }
+            { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
         var result = await GetAsync<IEnumerable<VmTimeline>>($"{BaseEndpoint}/page", parameters);

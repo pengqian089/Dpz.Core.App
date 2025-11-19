@@ -1,44 +1,48 @@
-using Dpz.Core.App.Models.DynamicPage;
+ï»¿using Dpz.Core.App.Models.DynamicPage;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// ¶¯Ì¬Ò³Ãæ·şÎñ½Ó¿Ú
+/// åŠ¨æ€é¡µé¢æœåŠ¡æ¥å£
 /// </summary>
 public interface IDynamicPageService
 {
     /// <summary>
-    /// »ñÈ¡×Ô¶¨ÒåÒ³ÁĞ±í
+    /// è·å–è‡ªå®šä¹‰é¡µåˆ—è¡¨
     /// </summary>
-    Task<IEnumerable<VmDynamicPage>> GetDynamicPagesAsync(string? id = null, int pageSize = 0, int pageIndex = 0);
+    Task<IEnumerable<VmDynamicPage>> GetDynamicPagesAsync(
+        string? id = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    );
 
     /// <summary>
-    /// ´´½¨×Ô¶¨ÒåÒ³
+    /// åˆ›å»ºè‡ªå®šä¹‰é¡µ
     /// </summary>
     Task CreateDynamicPageAsync(VmCreateDynamicPage createDto);
 
     /// <summary>
-    /// ĞŞ¸Ä×Ô¶¨ÒåÒ³
+    /// ä¿®æ”¹è‡ªå®šä¹‰é¡µ
     /// </summary>
     Task EditDynamicPageAsync(VmEditDynamicPage editDto);
 
     /// <summary>
-    /// »ñÈ¡×Ô¶¨ÒåÒ³ÏêÇé
+    /// è·å–è‡ªå®šä¹‰é¡µè¯¦æƒ…
     /// </summary>
     Task<VmDynamicPageDetail?> GetDynamicPageAsync(string id);
 
     /// <summary>
-    /// É¾³ı¶¯Ì¬Ò³
+    /// åˆ é™¤åŠ¨æ€é¡µ
     /// </summary>
     Task DeleteDynamicPageAsync(string id);
 
     /// <summary>
-    /// ¼ì²é×Ô¶¨ÒåÒ³ÊÇ·ñ´æÔÚ
+    /// æ£€æŸ¥è‡ªå®šä¹‰é¡µæ˜¯å¦å­˜åœ¨
     /// </summary>
     Task<bool> CheckDynamicPageExistsAsync(string id);
 
     /// <summary>
-    /// ĞŞ¸ÄÒ³ÃæÄÚÈİ
+    /// ä¿®æ”¹é¡µé¢å†…å®¹
     /// </summary>
     Task EditPageContentAsync(string id, EditContentRequest request);
 }

@@ -1,79 +1,79 @@
-namespace Dpz.Core.App.Models.Article;
+ï»¿namespace Dpz.Core.App.Models.Article;
 
 /// <summary>
-/// ÎÄÕÂÊÓÍ¼Ä£ĞÍ
+/// æ–‡ç« è§†å›¾æ¨¡å‹
 /// </summary>
 public class VmArticle
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÎÄÕÂ±êÌâ
+    /// æ–‡ç« æ ‡é¢˜
     /// </summary>
     public string? Title { get; set; }
 
     /// <summary>
-    /// ¼ò½é
+    /// ç®€ä»‹
     /// </summary>
     public string? Introduction { get; set; }
 
     /// <summary>
-    /// HtmlÄÚÈİ
+    /// Htmlå†…å®¹
     /// </summary>
     public string? HtmlContent { get; set; }
 
     /// <summary>
-    /// Markdown ÄÚÈİ
+    /// Markdown å†…å®¹
     /// </summary>
     public string? Markdown { get; set; }
 
     /// <summary>
-    /// Ö÷Í¼Æ¬
+    /// ä¸»å›¾ç‰‡
     /// </summary>
     public string? MainImage { get; set; }
 
     /// <summary>
-    /// »Ø¸´Á¿
+    /// å›å¤é‡
     /// </summary>
     public int CommentCount { get; set; }
 
     /// <summary>
-    /// ²é¿´Á¿
+    /// æŸ¥çœ‹é‡
     /// </summary>
     public int ViewCount { get; set; }
 
     /// <summary>
-    /// ÎÄÕÂÏà¹ØÍ¼Æ¬µØÖ·
+    /// æ–‡ç« ç›¸å…³å›¾ç‰‡åœ°å€
     /// </summary>
     public string[]? ImagesAddress { get; set; }
 
     /// <summary>
-    /// ±êÇ©
+    /// æ ‡ç­¾
     /// </summary>
     public string[]? Tags { get; set; }
 
     /// <summary>
-    /// ×÷Õß
+    /// ä½œè€…
     /// </summary>
     public Account.VmUserInfo? Author { get; set; }
 
     /// <summary>
-    /// À´Ô´
+    /// æ¥æº
     /// </summary>
     public string? From { get; set; }
 
     /// <summary>
-    /// ·¢±íÊ±¼ä
+    /// å‘è¡¨æ—¶é—´
     /// </summary>
     public DateTime CreateTime { get; set; }
 
     /// <summary>
-    /// ×îºóĞŞ¸ÄÊ±¼ä
+    /// æœ€åä¿®æ”¹æ—¶é—´
     /// </summary>
     public DateTime LastUpdateTime { get; set; }
 
     /// <summary>
-    /// ¹ã¸æ¸ÅÂÊÈ¨ÖØ
+    /// å¹¿å‘Šæ¦‚ç‡æƒé‡
     /// </summary>
     public double AdWeight { get; set; }
 }

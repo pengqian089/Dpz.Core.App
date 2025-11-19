@@ -1,26 +1,29 @@
-using Dpz.Core.App.Models.DynamicPage;
+ï»¿using Dpz.Core.App.Models.DynamicPage;
 using Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// ¶¯Ì¬Ò³Ãæ·şÎñÊµÏÖ
+/// åŠ¨æ€é¡µé¢æœåŠ¡å®ç°
 /// </summary>
 public class DynamicPageService : BaseApiService, IDynamicPageService
 {
     private const string BaseEndpoint = "/api/DynamicPage";
 
-    public DynamicPageService(HttpClient httpClient) : base(httpClient)
-    {
-    }
+    public DynamicPageService(HttpClient httpClient)
+        : base(httpClient) { }
 
-    public async Task<IEnumerable<VmDynamicPage>> GetDynamicPagesAsync(string? id = null, int pageSize = 0, int pageIndex = 0)
+    public async Task<IEnumerable<VmDynamicPage>> GetDynamicPagesAsync(
+        string? id = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    )
     {
         var parameters = new Dictionary<string, object?>
         {
             { "Id", id },
             { "PageSize", pageSize > 0 ? pageSize : null },
-            { "PageIndex", pageIndex > 0 ? pageIndex : null }
+            { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
         var result = await GetAsync<IEnumerable<VmDynamicPage>>(BaseEndpoint, parameters);

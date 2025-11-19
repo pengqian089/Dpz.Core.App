@@ -1,7 +1,7 @@
-namespace Dpz.Core.App.Models.Mumble;
+ï»¿namespace Dpz.Core.App.Models.Mumble;
 
 /// <summary>
-/// ËéËéÄîÊÓÍ¼Ä£ĞÍ
+/// ç¢ç¢å¿µè§†å›¾æ¨¡å‹
 /// </summary>
 public class VmMumble
 {
@@ -13,38 +13,38 @@ public class VmMumble
     public string? Markdown { get; set; }
 
     /// <summary>
-    /// HTMLÄÚÈİ
+    /// HTMLå†…å®¹
     /// </summary>
     public string? HtmlContent { get; set; }
 
     /// <summary>
-    /// ·¢±íÊ±¼ä
+    /// å‘è¡¨æ—¶é—´
     /// </summary>
     public DateTime CreateTime { get; set; }
 
     /// <summary>
-    /// ×îºóĞŞ¸ÄÊ±¼ä
+    /// æœ€åä¿®æ”¹æ—¶é—´
     /// </summary>
     public DateTime LastUpdateTime { get; set; }
 
     /// <summary>
-    /// µãÔŞÊı
+    /// ç‚¹èµæ•°
     /// </summary>
     public int Like { get; set; }
 
     /// <summary>
-    /// ÆÀÂÛÊı
+    /// è¯„è®ºæ•°
     /// </summary>
     public int CommentCount { get; set; }
 
     /// <summary>
-    /// ×÷Õß
+    /// ä½œè€…
     /// </summary>
     public Account.VmUserInfo? Author { get; set; }
 }
 
 /// <summary>
-/// ´´½¨ËéËéÄîDTO
+/// åˆ›å»ºç¢ç¢å¿µDTO
 /// </summary>
 public class MumbleCreateDto
 {
@@ -54,13 +54,13 @@ public class MumbleCreateDto
     public string? Markdown { get; set; }
 
     /// <summary>
-    /// HTMLÄÚÈİ
+    /// HTMLå†…å®¹
     /// </summary>
     public string? HtmlContent { get; set; }
 }
 
 /// <summary>
-/// ĞŞ¸ÄËéËéÄîDTO
+/// ä¿®æ”¹ç¢ç¢å¿µDTO
 /// </summary>
 public class MumbleEditContentDto
 {
@@ -75,7 +75,7 @@ public class MumbleEditContentDto
     public string? Markdown { get; set; }
 
     /// <summary>
-    /// HTMLÄÚÈİ
+    /// HTMLå†…å®¹
     /// </summary>
     public string? HtmlContent { get; set; }
 }

@@ -1,19 +1,19 @@
-namespace Dpz.Core.App.Models.Account;
+ï»¿namespace Dpz.Core.App.Models.Account;
 
 /// <summary>
-/// ÕËºÅµÇÂ¼ÀúÊ·¼ÇÂ¼
+/// è´¦å·ç™»å½•å†å²è®°å½•
 /// </summary>
 public class AccountLoginHistoryResponse
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÕËºÅ
+    /// è´¦å·
     /// </summary>
     public string? Account { get; set; }
 
     /// <summary>
-    /// IPµØÖ·
+    /// IPåœ°å€
     /// </summary>
     public string? IpAddress { get; set; }
 
@@ -28,22 +28,22 @@ public class AccountLoginHistoryResponse
     public string? SessionId { get; set; }
 
     /// <summary>
-    /// µÇÂ¼·½Ê½
+    /// ç™»å½•æ–¹å¼
     /// </summary>
     public int Method { get; set; }
 
     /// <summary>
-    /// µÇÂ¼×´Ì¬
+    /// ç™»å½•çŠ¶æ€
     /// </summary>
     public int Status { get; set; }
 
     /// <summary>
-    /// ´´½¨Ê±¼ä
+    /// åˆ›å»ºæ—¶é—´
     /// </summary>
     public DateTime CreateTime { get; set; }
 
     /// <summary>
-    /// ×îºó¸üĞÂÊ±¼ä
+    /// æœ€åæ›´æ–°æ—¶é—´
     /// </summary>
     public DateTime LastUpdateTime { get; set; }
 }

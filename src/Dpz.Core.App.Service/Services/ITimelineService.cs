@@ -1,44 +1,49 @@
-using Dpz.Core.App.Models.Timeline;
+ï»¿using Dpz.Core.App.Models.Timeline;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// Ê±¼äÖá·şÎñ½Ó¿Ú
+/// æ—¶é—´è½´æœåŠ¡æ¥å£
 /// </summary>
 public interface ITimelineService
 {
     /// <summary>
-    /// »ñÈ¡Ê±¼äÖáÁĞ±í
+    /// è·å–æ—¶é—´è½´åˆ—è¡¨
     /// </summary>
     Task<IEnumerable<VmTimeline>> GetTimelinesAsync(string account = "pengqian");
 
     /// <summary>
-    /// ´´½¨Ê±¼äÖá½Úµã
+    /// åˆ›å»ºæ—¶é—´è½´èŠ‚ç‚¹
     /// </summary>
     Task CreateTimelineAsync(TimelineCreateDto createDto);
 
     /// <summary>
-    /// ĞŞ¸ÄÊ±¼äÖá
+    /// ä¿®æ”¹æ—¶é—´è½´
     /// </summary>
     Task EditTimelineAsync(TimelineEditDto editDto);
 
     /// <summary>
-    /// »ñÈ¡Ê±¼äÖá·ÖÒ³ĞÅÏ¢
+    /// è·å–æ—¶é—´è½´åˆ†é¡µä¿¡æ¯
     /// </summary>
-    Task<IEnumerable<VmTimeline>> GetTimelinePageAsync(string? content = null, string? account = null, int pageSize = 0, int pageIndex = 0);
+    Task<IEnumerable<VmTimeline>> GetTimelinePageAsync(
+        string? content = null,
+        string? account = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    );
 
     /// <summary>
-    /// »ñÈ¡Ö¸¶¨IDµÄÊ±¼äÖá
+    /// è·å–æŒ‡å®šIDçš„æ—¶é—´è½´
     /// </summary>
     Task<IEnumerable<VmTimeline>> GetTimelineAsync(string id);
 
     /// <summary>
-    /// É¾³ıÊ±¼äÖá
+    /// åˆ é™¤æ—¶é—´è½´
     /// </summary>
     Task DeleteTimelineAsync(string id);
 
     /// <summary>
-    /// ÉÏ´«Ê±¼äÖáÏà¹ØµÄÍ¼Æ¬
+    /// ä¸Šä¼ æ—¶é—´è½´ç›¸å…³çš„å›¾ç‰‡
     /// </summary>
     Task UploadTimelineImageAsync(Stream fileStream, string fileName);
 }

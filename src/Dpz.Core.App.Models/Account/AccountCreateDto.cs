@@ -1,22 +1,22 @@
-namespace Dpz.Core.App.Models.Account;
+锘縩amespace Dpz.Core.App.Models.Account;
 
 /// <summary>
-/// 创建账号DTO
+/// 鍒涘缓璐﹀彿DTO
 /// </summary>
 public class AccountCreateDto
 {
     /// <summary>
-    /// 账号
+    /// 璐﹀彿
     /// </summary>
     public string? Account { get; set; }
 
     /// <summary>
-    /// 昵称
+    /// 鏄电О
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// 不输入默认为 123456
+    /// 涓嶈緭鍏ラ粯璁や负 123456
     /// </summary>
     public string? Password { get; set; }
 }

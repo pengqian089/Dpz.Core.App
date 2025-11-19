@@ -1,24 +1,24 @@
-using Dpz.Core.App.Models.Code;
+ï»¿using Dpz.Core.App.Models.Code;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// Ô´Âë·şÎñ½Ó¿Ú
+/// æºç æœåŠ¡æ¥å£
 /// </summary>
 public interface ICodeService
 {
     /// <summary>
-    /// »ñÈ¡Ô´ÂëÊ÷½Úµã
+    /// è·å–æºç æ ‘èŠ‚ç‚¹
     /// </summary>
     Task<CodeNoteTree?> GetCodeTreeAsync(string[]? path = null);
 
     /// <summary>
-    /// ±£´æÔ´ÂëËµÃ÷
+    /// ä¿å­˜æºç è¯´æ˜
     /// </summary>
     Task<CodeNoteTree?> SaveCodeAsync(CodeSaveDto saveDto);
 
     /// <summary>
-    /// ËÑË÷Ô´Âë
+    /// æœç´¢æºç 
     /// </summary>
     Task<CodeNoteTree?> SearchCodeAsync(string keyword);
 }

@@ -1,10 +1,10 @@
-using Dpz.Core.App.Models.Mumble;
+ï»¿using Dpz.Core.App.Models.Mumble;
 using Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// ËéËéÄî·şÎñÊµÏÖ
+/// ç¢ç¢å¿µæœåŠ¡å®ç°
 /// </summary>
 public class MumbleService : BaseApiService, IMumbleService
 {

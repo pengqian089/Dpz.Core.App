@@ -1,18 +1,17 @@
-using Dpz.Core.App.Models.Community;
+锘縰sing Dpz.Core.App.Models.Community;
 using Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// 选项服务实现
+/// 閫夐」鏈嶅姟瀹炵幇
 /// </summary>
 public class OptionService : BaseApiService, IOptionService
 {
     private const string BaseEndpoint = "/api/Option";
 
-    public OptionService(HttpClient httpClient) : base(httpClient)
-    {
-    }
+    public OptionService(HttpClient httpClient)
+        : base(httpClient) { }
 
     public async Task<IEnumerable<VmFriends>> GetFriendsAsync()
     {

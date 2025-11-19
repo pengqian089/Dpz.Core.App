@@ -1,25 +1,24 @@
-using Dpz.Core.App.Models.Audio;
+锘縰sing Dpz.Core.App.Models.Audio;
 using Dpz.Core.App.Service.Services;
 
 namespace Dpz.Core.App.Service.Implements;
 
 /// <summary>
-/// 音频服务实现
+/// 闊抽鏈嶅姟瀹炵幇
 /// </summary>
 public class AudioService : BaseApiService, IAudioService
 {
     private const string BaseEndpoint = "/api/Audio";
 
-    public AudioService(HttpClient httpClient) : base(httpClient)
-    {
-    }
+    public AudioService(HttpClient httpClient)
+        : base(httpClient) { }
 
     public async Task<IEnumerable<VmAudio>> GetAudiosAsync(int pageSize = 0, int pageIndex = 0)
     {
         var parameters = new Dictionary<string, object?>
         {
             { "PageSize", pageSize > 0 ? pageSize : null },
-            { "PageIndex", pageIndex > 0 ? pageIndex : null }
+            { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
         var result = await GetAsync<IEnumerable<VmAudio>>(BaseEndpoint, parameters);
@@ -36,7 +35,7 @@ public class AudioService : BaseApiService, IAudioService
         var parameters = new Dictionary<string, object?>
         {
             { "PageSize", pageSize > 0 ? pageSize : null },
-            { "PageIndex", pageIndex > 0 ? pageIndex : null }
+            { "PageIndex", pageIndex > 0 ? pageIndex : null },
         };
 
         var result = await GetAsync<IEnumerable<VmAudio>>($"{BaseEndpoint}/my", parameters);

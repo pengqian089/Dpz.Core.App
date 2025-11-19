@@ -1,74 +1,74 @@
-namespace Dpz.Core.App.Models.Music;
+ï»¿namespace Dpz.Core.App.Models.Music;
 
 /// <summary>
-/// ÒôÀÖÊÓÍ¼Ä£ĞÍ
+/// éŸ³ä¹è§†å›¾æ¨¡å‹
 /// </summary>
 public class VmMusic
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÒôÀÖURL
+    /// éŸ³ä¹URL
     /// </summary>
     public string? MusicUrl { get; set; }
 
     /// <summary>
-    /// ¸è´ÊURL
+    /// æ­Œè¯URL
     /// </summary>
     public string? LyricUrl { get; set; }
 
     /// <summary>
-    /// ¸è´ÊÄÚÈİ
+    /// æ­Œè¯å†…å®¹
     /// </summary>
     public string? LyricContent { get; set; }
 
     /// <summary>
-    /// ÒôÀÖÔ´ÎÄ¼şÃû
+    /// éŸ³ä¹æºæ–‡ä»¶å
     /// </summary>
     public string? FileName { get; set; }
 
     /// <summary>
-    /// ÒôÀÖ±êÌâ
+    /// éŸ³ä¹æ ‡é¢˜
     /// </summary>
     public string? Title { get; set; }
 
     /// <summary>
-    /// ÒôÀÖÊ±³¤
+    /// éŸ³ä¹æ—¶é•¿
     /// </summary>
     public string? Duration { get; set; }
 
     /// <summary>
-    /// ÒôÀÖ´óĞ¡
+    /// éŸ³ä¹å¤§å°
     /// </summary>
     public long MusicLength { get; set; }
 
     /// <summary>
-    /// ÒÕÊõ¼Ò
+    /// è‰ºæœ¯å®¶
     /// </summary>
     public string? Artist { get; set; }
 
     /// <summary>
-    /// ÉÏ´«Ê±¼ä
+    /// ä¸Šä¼ æ—¶é—´
     /// </summary>
     public DateTime UploadTime { get; set; }
 
     /// <summary>
-    /// ×îºóĞŞ¸ÄÊ±¼ä
+    /// æœ€åä¿®æ”¹æ—¶é—´
     /// </summary>
     public DateTime LastUpdateTime { get; set; }
 
     /// <summary>
-    /// ·âÃæID
+    /// å°é¢ID
     /// </summary>
     public string? CoverUrl { get; set; }
 
     /// <summary>
-    /// À´Ô´
+    /// æ¥æº
     /// </summary>
     public string? From { get; set; }
 
     /// <summary>
-    /// ·Ö×é
+    /// åˆ†ç»„
     /// </summary>
     public string[]? Group { get; set; }
 }

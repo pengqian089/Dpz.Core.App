@@ -1,44 +1,50 @@
-using Dpz.Core.App.Models.Bookmark;
+ï»¿using Dpz.Core.App.Models.Bookmark;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// ÊéÇ©·şÎñ½Ó¿Ú
+/// ä¹¦ç­¾æœåŠ¡æ¥å£
 /// </summary>
 public interface IBookmarkService
 {
     /// <summary>
-    /// »ñÈ¡ÊéÇ©ÁĞ±í
+    /// è·å–ä¹¦ç­¾åˆ—è¡¨
     /// </summary>
-    Task<IEnumerable<VmBookmark>> GetBookmarksAsync(string? title = null, string[]? categories = null);
+    Task<IEnumerable<VmBookmark>> GetBookmarksAsync(
+        string? title = null,
+        string[]? categories = null
+    );
 
     /// <summary>
-    /// ´´½¨ÊéÇ©
+    /// åˆ›å»ºä¹¦ç­¾
     /// </summary>
     Task CreateBookmarkAsync(CreateBookmarkDto createDto);
 
     /// <summary>
-    /// ¸üĞÂÊéÇ©
+    /// æ›´æ–°ä¹¦ç­¾
     /// </summary>
     Task UpdateBookmarkAsync(UpdateBookmarkDto updateDto);
 
     /// <summary>
-    /// »ñÈ¡ËùÓĞ·ÖÀà
+    /// è·å–æ‰€æœ‰åˆ†ç±»
     /// </summary>
     Task<IEnumerable<string>> GetCategoriesAsync();
 
     /// <summary>
-    /// ËÑË÷ÊéÇ©
+    /// æœç´¢ä¹¦ç­¾
     /// </summary>
-    Task<IEnumerable<string>> SearchBookmarksAsync(string? title = null, string[]? categories = null);
+    Task<IEnumerable<string>> SearchBookmarksAsync(
+        string? title = null,
+        string[]? categories = null
+    );
 
     /// <summary>
-    /// »ñÈ¡ÊéÇ©ÏêÇé
+    /// è·å–ä¹¦ç­¾è¯¦æƒ…
     /// </summary>
     Task<VmBookmark?> GetBookmarkAsync(string id);
 
     /// <summary>
-    /// É¾³ıÊéÇ©
+    /// åˆ é™¤ä¹¦ç­¾
     /// </summary>
     Task DeleteBookmarkAsync(string id);
 }

@@ -1,34 +1,34 @@
-using Dpz.Core.App.Models.Audio;
+锘縰sing Dpz.Core.App.Models.Audio;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// 音频服务接口
+/// 闊抽鏈嶅姟鎺ュ彛
 /// </summary>
 public interface IAudioService
 {
     /// <summary>
-    /// 获取音频列表
+    /// 鑾峰彇闊抽鍒楄〃
     /// </summary>
     Task<IEnumerable<VmAudio>> GetAudiosAsync(int pageSize = 0, int pageIndex = 0);
 
     /// <summary>
-    /// 上传音频
+    /// 涓婁紶闊抽
     /// </summary>
     Task UploadAudioAsync(Stream fileStream, string fileName);
 
     /// <summary>
-    /// 获取我的音频列表
+    /// 鑾峰彇鎴戠殑闊抽鍒楄〃
     /// </summary>
     Task<IEnumerable<VmAudio>> GetMyAudiosAsync(int pageSize = 0, int pageIndex = 0);
 
     /// <summary>
-    /// 获取单个音频
+    /// 鑾峰彇鍗曚釜闊抽
     /// </summary>
     Task<VmAudio?> GetAudioAsync(string id);
 
     /// <summary>
-    /// 删除音频
+    /// 鍒犻櫎闊抽
     /// </summary>
     Task DeleteAudioAsync(string id);
 }

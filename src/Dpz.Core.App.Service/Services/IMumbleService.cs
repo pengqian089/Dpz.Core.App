@@ -1,44 +1,48 @@
-using Dpz.Core.App.Models.Mumble;
+ï»¿using Dpz.Core.App.Models.Mumble;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// ËéËéÄî·şÎñ½Ó¿Ú
+/// ç¢ç¢å¿µæœåŠ¡æ¥å£
 /// </summary>
 public interface IMumbleService
 {
     /// <summary>
-    /// »ñÈ¡ËéËéÄîÁĞ±í
+    /// è·å–ç¢ç¢å¿µåˆ—è¡¨
     /// </summary>
-    Task<IEnumerable<VmMumble>> GetMumblesAsync(string? content = null, int pageSize = 0, int pageIndex = 0);
+    Task<IEnumerable<VmMumble>> GetMumblesAsync(
+        string? content = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    );
 
     /// <summary>
-    /// ´´½¨ËéËéÄî
+    /// åˆ›å»ºç¢ç¢å¿µ
     /// </summary>
     Task CreateMumbleAsync(MumbleCreateDto createDto);
 
     /// <summary>
-    /// ±à¼­ËéËéÄîÄÚÈİ
+    /// ç¼–è¾‘ç¢ç¢å¿µå†…å®¹
     /// </summary>
     Task EditMumbleAsync(MumbleEditContentDto editDto);
 
     /// <summary>
-    /// ¸ù¾İID»ñÈ¡ËéËéÄî
+    /// æ ¹æ®IDè·å–ç¢ç¢å¿µ
     /// </summary>
     Task<VmMumble?> GetMumbleAsync(string id);
 
     /// <summary>
-    /// É¾³ıËéËéÄî
+    /// åˆ é™¤ç¢ç¢å¿µ
     /// </summary>
     Task DeleteMumbleAsync(string id);
 
     /// <summary>
-    /// µãÔŞËéËéÄî
+    /// ç‚¹èµç¢ç¢å¿µ
     /// </summary>
     Task LikeMumbleAsync(string id);
 
     /// <summary>
-    /// ÉÏ´«ËéËéÄîÏà¹ØµÄÍ¼Æ¬
+    /// ä¸Šä¼ ç¢ç¢å¿µç›¸å…³çš„å›¾ç‰‡
     /// </summary>
     Task UploadMumbleImageAsync(Stream fileStream, string fileName);
 }

@@ -1,7 +1,7 @@
-namespace Dpz.Core.App.Models.Code;
+ï»¿namespace Dpz.Core.App.Models.Code;
 
 /// <summary>
-/// ÎÄ¼şÏµÍ³ÀàĞÍ
+/// æ–‡ä»¶ç³»ç»Ÿç±»å‹
 /// </summary>
 public enum FileSystemType
 {
@@ -10,130 +10,130 @@ public enum FileSystemType
 }
 
 /// <summary>
-/// ´úÂëÈİÆ÷
+/// ä»£ç å®¹å™¨
 /// </summary>
 public class CodeContainer
 {
     /// <summary>
-    /// ´úÂëÓïÑÔ
+    /// ä»£ç è¯­è¨€
     /// </summary>
     public string? Language { get; set; }
 
     /// <summary>
-    /// ´úÂëÄÚÈİ
+    /// ä»£ç å†…å®¹
     /// </summary>
     public string? CodeContent { get; set; }
 
     /// <summary>
-    /// ÄÜ·ñÔ¤ÀÀ
+    /// èƒ½å¦é¢„è§ˆ
     /// </summary>
     public bool IsPreview { get; set; }
 
     /// <summary>
-    /// AI·ÖÎö½á¹û
+    /// AIåˆ†æç»“æœ
     /// </summary>
     public string? AiAnalyzeResult { get; set; }
 }
 
 /// <summary>
-/// ×ÓÄ¿Â¼Ê÷
+/// å­ç›®å½•æ ‘
 /// </summary>
 public class ChildrenTree
 {
     /// <summary>
-    /// µ±Ç°Ä¿Â¼»òÎÄ¼şµÄÃû³Æ
+    /// å½“å‰ç›®å½•æˆ–æ–‡ä»¶çš„åç§°
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// ×îºóĞŞ¸ÄÊ±¼ä
+    /// æœ€åä¿®æ”¹æ—¶é—´
     /// </summary>
     public DateTime? LastUpdateTime { get; set; }
 
     /// <summary>
-    /// ËµÃ÷
+    /// è¯´æ˜
     /// </summary>
     public string? Note { get; set; }
 
     /// <summary>
-    /// µ±Ç°Â·¾¶
+    /// å½“å‰è·¯å¾„
     /// </summary>
     public string[]? CurrentPath { get; set; }
 }
 
 /// <summary>
-/// Ô´ÂëÊ÷
+/// æºç æ ‘
 /// </summary>
 public class CodeNoteTree
 {
     /// <summary>
-    /// ÊÇ·ñÎª¸ùÄ¿Â¼
+    /// æ˜¯å¦ä¸ºæ ¹ç›®å½•
     /// </summary>
     public bool IsRoot { get; set; }
 
     /// <summary>
-    /// µ±Ç°Â·¾¶ÊÇ·ñÎªÄ¿Â¼
+    /// å½“å‰è·¯å¾„æ˜¯å¦ä¸ºç›®å½•
     /// </summary>
     public bool IsDirectory { get; set; }
 
     /// <summary>
-    /// ×ÓÄ¿Â¼
+    /// å­ç›®å½•
     /// </summary>
     public ChildrenTree[]? Directories { get; set; }
 
     /// <summary>
-    /// ¸ÃÄ¿Â¼ÏÂµÄÎÄ¼ş
+    /// è¯¥ç›®å½•ä¸‹çš„æ–‡ä»¶
     /// </summary>
     public ChildrenTree[]? Files { get; set; }
 
     /// <summary>
-    /// ÉÏÒ»Ò³Â·¾¶
+    /// ä¸Šä¸€é¡µè·¯å¾„
     /// </summary>
     public string[]? ParentPaths { get; set; }
 
     /// <summary>
-    /// READMEÄÚÈİ
+    /// READMEå†…å®¹
     /// </summary>
     public string? ReadmeContent { get; set; }
 
     /// <summary>
-    /// µ±Ç°Ò³Â·¾¶
+    /// å½“å‰é¡µè·¯å¾„
     /// </summary>
     public string[]? CurrentPaths { get; set; }
 
     /// <summary>
-    /// ÎÄ¼şÄÚÈİ
+    /// æ–‡ä»¶å†…å®¹
     /// </summary>
     public CodeContainer? CodeContainer { get; set; }
 
     /// <summary>
-    /// ÎÄ¼şÃû³Æ
+    /// æ–‡ä»¶åç§°
     /// </summary>
     public string? FileName { get; set; }
 
     /// <summary>
-    /// Ä¿Â¼¡¢ÎÄ¼şÀàĞÍ
+    /// ç›®å½•ã€æ–‡ä»¶ç±»å‹
     /// </summary>
     public FileSystemType Type { get; set; }
 }
 
 /// <summary>
-/// Ô´ÂëËµÃ÷DTO
+/// æºç è¯´æ˜DTO
 /// </summary>
 public class CodeSaveDto
 {
     /// <summary>
-    /// ÎÄ¼ş¡¢Ä¿Â¼ËùÔÚµÄÄ¿Â¼
+    /// æ–‡ä»¶ã€ç›®å½•æ‰€åœ¨çš„ç›®å½•
     /// </summary>
     public string[]? Path { get; set; }
 
     /// <summary>
-    /// ÎÄ¼ş¡¢Ä¿Â¼µÄÃû³Æ
+    /// æ–‡ä»¶ã€ç›®å½•çš„åç§°
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// ÎÄ¼ş¡¢Ä¿Â¼µÄËµÃ÷
+    /// æ–‡ä»¶ã€ç›®å½•çš„è¯´æ˜
     /// </summary>
     public string? Note { get; set; }
 }

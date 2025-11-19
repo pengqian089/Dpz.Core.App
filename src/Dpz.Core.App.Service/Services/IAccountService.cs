@@ -1,44 +1,44 @@
-using Dpz.Core.App.Models.Account;
+ï»¿using Dpz.Core.App.Models.Account;
 
 namespace Dpz.Core.App.Service.Services;
 
 /// <summary>
-/// ÕËºÅ·şÎñ½Ó¿Ú
+/// è´¦å·æœåŠ¡æ¥å£
 /// </summary>
 public interface IAccountService
 {
     /// <summary>
-    /// »ñÈ¡ÕËºÅÁĞ±í
+    /// è·å–è´¦å·åˆ—è¡¨
     /// </summary>
     Task<IEnumerable<VmUserInfo>> GetAccountsAsync(string? account = null, int pageSize = 0, int pageIndex = 0);
 
     /// <summary>
-    /// ´´½¨ÕËºÅ
+    /// åˆ›å»ºè´¦å·
     /// </summary>
     Task CreateAccountAsync(AccountCreateDto createDto);
 
     /// <summary>
-    /// »ñÈ¡ÕËºÅĞÅÏ¢
+    /// è·å–è´¦å·ä¿¡æ¯
     /// </summary>
     Task<VmUserInfo?> GetAccountAsync(string id);
 
     /// <summary>
-    /// ÆôÓÃ»ò½ûÓÃÕËºÅ
+    /// å¯ç”¨æˆ–ç¦ç”¨è´¦å·
     /// </summary>
     Task ToggleAccountStatusAsync(string id);
 
     /// <summary>
-    /// ĞŞ¸ÄÃÜÂë
+    /// ä¿®æ”¹å¯†ç 
     /// </summary>
     Task ChangePasswordAsync(AccountChangPasswordDto changePasswordDto);
 
     /// <summary>
-    /// ¼ì²éÕËºÅÊÇ·ñ´æÔÚ
+    /// æ£€æŸ¥è´¦å·æ˜¯å¦å­˜åœ¨
     /// </summary>
     Task<bool> CheckAccountExistsAsync(string account);
 
     /// <summary>
-    /// »ñÈ¡µÇÂ¼¼ÇÂ¼
+    /// è·å–ç™»å½•è®°å½•
     /// </summary>
     Task<IEnumerable<AccountLoginHistoryResponse>> GetLoginHistoryAsync(
         string? account = null,
@@ -50,12 +50,12 @@ public interface IAccountService
         int pageSize = 0);
 
     /// <summary>
-    /// »ñÈ¡¸ü¸Ä¹ıµÄÊôĞÔ
+    /// è·å–æ›´æ”¹è¿‡çš„å±æ€§
     /// </summary>
     Task<IEnumerable<string>> GetChangedPropertiesAsync();
 
     /// <summary>
-    /// »ñÈ¡ÓÃ»§¸ü¸ÄÀúÊ·¼ÇÂ¼
+    /// è·å–ç”¨æˆ·æ›´æ”¹å†å²è®°å½•
     /// </summary>
     Task<IEnumerable<UserHistoryResponse>> GetUserHistoryAsync(
         string? account = null,
@@ -67,30 +67,30 @@ public interface IAccountService
 }
 
 /// <summary>
-/// ÓÃ»§ĞÅÏ¢±ä¸ü¼ÇÂ¼
+/// ç”¨æˆ·ä¿¡æ¯å˜æ›´è®°å½•
 /// </summary>
 public class UserHistoryResponse
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÕËºÅ
+    /// è´¦å·
     /// </summary>
     public string? Account { get; set; }
 
     /// <summary>
-    /// ±ä¸üÊ±¼ä
+    /// å˜æ›´æ—¶é—´
     /// </summary>
     public DateTime ChangeTime { get; set; }
 
     /// <summary>
-    /// ±ä¸üÏêÇé
+    /// å˜æ›´è¯¦æƒ…
     /// </summary>
     public ChangeDetail[]? Changes { get; set; }
 }
 
 /// <summary>
-/// ±ä¸üÏêÇé
+/// å˜æ›´è¯¦æƒ…
 /// </summary>
 public class ChangeDetail
 {

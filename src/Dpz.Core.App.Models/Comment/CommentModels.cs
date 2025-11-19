@@ -1,7 +1,7 @@
-namespace Dpz.Core.App.Models.Comment;
+ï»¿namespace Dpz.Core.App.Models.Comment;
 
 /// <summary>
-/// ÆÀÂÛÀàĞÍ
+/// è¯„è®ºç±»å‹
 /// </summary>
 public enum CommentNode
 {
@@ -11,213 +11,213 @@ public enum CommentNode
 }
 
 /// <summary>
-/// ÆÀÂÛÈËÊÓÍ¼Ä£ĞÍ
+/// è¯„è®ºäººè§†å›¾æ¨¡å‹
 /// </summary>
 public class VmCommenter
 {
     /// <summary>
-    /// êÇ³Æ
+    /// æ˜µç§°
     /// </summary>
     public string? NickName { get; set; }
 }
 
 /// <summary>
-/// ÆÀÂÛ×ÓÊÓÍ¼Ä£ĞÍ
+/// è¯„è®ºå­è§†å›¾æ¨¡å‹
 /// </summary>
 public class CommentChildren
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// »Ø¸´Ê±¼ä
+    /// å›å¤æ—¶é—´
     /// </summary>
     public DateTime PublishTime { get; set; }
 
     /// <summary>
-    /// ÆÀÂÛÈË
+    /// è¯„è®ºäºº
     /// </summary>
     public VmCommenter? Commenter { get; set; }
 
     /// <summary>
-    /// »Ø¸´ÄÚÈİ
+    /// å›å¤å†…å®¹
     /// </summary>
     public string? CommentText { get; set; }
 
     /// <summary>
-    /// »Ø¸´ID
+    /// å›å¤ID
     /// </summary>
     public string[]? Replies { get; set; }
 
     /// <summary>
-    /// ÊÇ·ñÉ¾³ı
+    /// æ˜¯å¦åˆ é™¤
     /// </summary>
     public bool? IsDelete { get; set; }
 }
 
 /// <summary>
-/// ÆÀÂÛÊÓÍ¼Ä£ĞÍ£¨Æ½ÆÌ£©
+/// è¯„è®ºè§†å›¾æ¨¡å‹ï¼ˆå¹³é“ºï¼‰
 /// </summary>
 public class VmCommentFlat
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÆÀÂÛÀàĞÍ
+    /// è¯„è®ºç±»å‹
     /// </summary>
     public CommentNode Node { get; set; }
 
     /// <summary>
-    /// ¹ØÁª
+    /// å…³è”
     /// </summary>
     public string? Relation { get; set; }
 
     /// <summary>
-    /// »Ø¸´Ê±¼ä
+    /// å›å¤æ—¶é—´
     /// </summary>
     public DateTime PublishTime { get; set; }
 
     /// <summary>
-    /// »Ø¸´ÄÚÈİ
+    /// å›å¤å†…å®¹
     /// </summary>
     public string? CommentText { get; set; }
 
     /// <summary>
-    /// »Ø¸´ID
+    /// å›å¤ID
     /// </summary>
     public string[]? Replies { get; set; }
 
     /// <summary>
-    /// êÇ³Æ
+    /// æ˜µç§°
     /// </summary>
     public string? NickName { get; set; }
 
     /// <summary>
-    /// Í·Ïñ
+    /// å¤´åƒ
     /// </summary>
     public string? Avatar { get; set; }
 
     /// <summary>
-    /// Éí·İ±êÊ¶
+    /// èº«ä»½æ ‡è¯†
     /// </summary>
     public string? Identity { get; set; }
 
     /// <summary>
-    /// ÓÊÏä
+    /// é‚®ç®±
     /// </summary>
     public string? Email { get; set; }
 
     /// <summary>
-    /// ÍøÕ¾
+    /// ç½‘ç«™
     /// </summary>
     public string? Site { get; set; }
 
     /// <summary>
-    /// ÊÇ·ñÄäÃûÆÀÂÛ
+    /// æ˜¯å¦åŒ¿åè¯„è®º
     /// </summary>
     public bool IsGuest { get; set; }
 
     /// <summary>
-    /// ÊÇ·ñÉ¾³ı
+    /// æ˜¯å¦åˆ é™¤
     /// </summary>
     public bool? IsDelete { get; set; }
 }
 
 /// <summary>
-/// ÆÀÂÛÊÓÍ¼Ä£ĞÍ
+/// è¯„è®ºè§†å›¾æ¨¡å‹
 /// </summary>
 public class CommentViewModel
 {
     public string? Id { get; set; }
 
     /// <summary>
-    /// ÆÀÂÛÀàĞÍ
+    /// è¯„è®ºç±»å‹
     /// </summary>
     public CommentNode Node { get; set; }
 
     /// <summary>
-    /// ¹ØÁª
+    /// å…³è”
     /// </summary>
     public string? Relation { get; set; }
 
     /// <summary>
-    /// »Ø¸´Ê±¼ä
+    /// å›å¤æ—¶é—´
     /// </summary>
     public DateTime PublishTime { get; set; }
 
     /// <summary>
-    /// ÆÀÂÛÈË£¨¶àÌ¬£©·ÖÎªÄäÃûÆÀÂÛºÍ³ÉÔ±ÆÀÂÛ
+    /// è¯„è®ºäººï¼ˆå¤šæ€ï¼‰åˆ†ä¸ºåŒ¿åè¯„è®ºå’Œæˆå‘˜è¯„è®º
     /// </summary>
     public VmCommenter? Commenter { get; set; }
 
     /// <summary>
-    /// »Ø¸´ÄÚÈİ
+    /// å›å¤å†…å®¹
     /// </summary>
     public string? CommentText { get; set; }
 
     /// <summary>
-    /// »Ø¸´ID
+    /// å›å¤ID
     /// </summary>
     public string[]? Replies { get; set; }
 
     /// <summary>
-    /// ÊÇ·ñÉ¾³ı
+    /// æ˜¯å¦åˆ é™¤
     /// </summary>
     public bool? IsDelete { get; set; }
 
     /// <summary>
-    /// »Ø¸´
+    /// å›å¤
     /// </summary>
     public CommentChildren[]? Children { get; set; }
 }
 
 /// <summary>
-/// ·¢²¼ÆÀÂÛDTO
+/// å‘å¸ƒè¯„è®ºDTO
 /// </summary>
 public class VmPublishComment
 {
     /// <summary>
-    /// ÆÀÂÛÀàĞÍ
+    /// è¯„è®ºç±»å‹
     /// </summary>
     public CommentNode Node { get; set; }
 
     /// <summary>
-    /// ¹ØÁª
+    /// å…³è”
     /// </summary>
     public string? Relation { get; set; }
 
     /// <summary>
-    /// êÇ³Æ
+    /// æ˜µç§°
     /// </summary>
     public string? NickName { get; set; }
 
     /// <summary>
-    /// ÓÊÏäµØÖ·
+    /// é‚®ç®±åœ°å€
     /// </summary>
     public string? Email { get; set; }
 
     /// <summary>
-    /// »Ø¸´ÄÚÈİ
+    /// å›å¤å†…å®¹
     /// </summary>
     public string? CommentText { get; set; }
 
     /// <summary>
-    /// ¸öÈËÍøÕ¾
+    /// ä¸ªäººç½‘ç«™
     /// </summary>
     public string? Site { get; set; }
 
     /// <summary>
-    /// »Ø¸´ID
+    /// å›å¤ID
     /// </summary>
     public string? ReplyId { get; set; }
 
     /// <summary>
-    /// ·¢ËÍÊ±¼ä
+    /// å‘é€æ—¶é—´
     /// </summary>
     public DateTime SendTime { get; set; }
 }
 
 /// <summary>
-/// ÆÀÂÛ¹ØÁªÏìÓ¦
+/// è¯„è®ºå…³è”å“åº”
 /// </summary>
 public class CommentRelationResponse
 {
