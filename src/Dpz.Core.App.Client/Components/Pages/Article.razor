@@ -10,9 +10,9 @@
             <MudTextField @bind-Value="_searchText" Placeholder="搜索标题或内容" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="(()=> OnSearchAsync(_searchText))" OnKeyDown="@(async e=> { if(e.Key=="Enter") await OnSearchAsync(_searchText); })" />
             @if (_tags?.Count > 0)
             {
-                <div class="tags-scroll">
-                    <MudChipSet T="string" Mandatory="false" MultiSelection="false" Class="d-flex">
-                        <MudChip T="string" Color="Color.Primary" Variant="Variant.Filled" Class="@(_currentTag==null ? "tag-chip active" : "tag-chip")" OnClick="(()=>OnSelectTagAsync(null))">全部</MudChip>
+                <div class="tags-scroll has-scrollbar">
+                    <MudChipSet T="string" Mandatory="false" MultiSelection="false" Class="tags-chipset">
+                        <MudChip T="string" Color="Color.Primary" Variant="@(_currentTag==null ? Variant.Filled : Variant.Outlined)" Class="@(_currentTag==null ? "tag-chip active" : "tag-chip")" OnClick="(()=>OnSelectTagAsync(null))">全部</MudChip>
                         @foreach (var tag in _tags)
                         {
                             <MudChip T="string" Color="Color.Primary" Variant="@(_currentTag==tag ? Variant.Filled : Variant.Outlined)" Class="@(_currentTag==tag ? "tag-chip active" : "tag-chip")" OnClick="(()=>OnSelectTagAsync(tag))">@tag</MudChip>
@@ -34,10 +34,10 @@
             @for (int i = 0; i < 6; i++)
             {
                 <MudPaper Class="article-item skeleton-card" Elevation="0">
-                    <div class="media-wrapper skeleton-media">
+                    <div class="media-row skeleton-media">
                         <MudSkeleton Width="100%" Height="100%" />
                     </div>
-                    <div class="content-wrapper pa-3">
+                    <div class="content-section pa-3">
                         <MudSkeleton Width="70%" Height="20px" Class="mb-2" />
                         <MudSkeleton Width="100%" Height="14px" Class="mb-1" />
                         <MudSkeleton Width="90%" Height="14px" Class="mb-2" />
@@ -62,35 +62,31 @@
         <MudStack Spacing="2" Class="article-list" Style="padding:8px;">
             @foreach (var item in _source)
             {
-                <MudPaper Class="article-item" Elevation="1" @onclick="(()=>OnOpenArticle(item))">
-                    <div class="media-wrapper">
-                        @if (!string.IsNullOrWhiteSpace(item.MainImage))
-                        {
-                            <img src="@item.MainImage" alt="封面" class="cover-img" loading="lazy" />
-                        }
-                        else if (item.ImagesAddress?.Length > 0)
-                        {
-                            <div class="thumbs-row">
-                                @foreach (var img in item.ImagesAddress.Take(3))
-                                {
-                                    <img src="@img" alt="图" class="thumb-img" loading="lazy" />
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="no-image placeholder-gradient">
-                                <MudIcon Icon="@Icons.Material.Filled.Image" Color="Color.Tertiary" />
-                            </div>
-                        }
+                <MudPaper Class="article-item vertical-layout" Elevation="1" @onclick="(()=>OnOpenArticle(item))">
+                    @if (!string.IsNullOrWhiteSpace(item.MainImage) || (item.ImagesAddress?.Length > 0))
+                    {
+                        <div class="media-row">
+                            @if (!string.IsNullOrWhiteSpace(item.MainImage))
+                            {
+                                <img src="@item.MainImage" alt="封面" class="cover-img" loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="gallery-grid">
+                                    @foreach (var img in item.ImagesAddress!.Take(3))
+                                    {
+                                        <img src="@img" alt="图" class="grid-img" loading="lazy" />
+                                    }
+                                    @if (item.ImagesAddress!.Length > 3)
+                                    {
+                                        <div class="grid-more">+@(item.ImagesAddress.Length - 3)</div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
 
-                        @if (item.ImagesAddress?.Length > 3)
-                        {
-                            <MudChip T="string" Class="more-images-chip" Color="Color.Dark" Variant="Variant.Filled" Size="Size.Small">+@(item.ImagesAddress.Length - 3)</MudChip>
-                        }
-                    </div>
-
-                    <div class="content-wrapper pa-3">
+                    <div class="content-section pa-3">
                         <MudStack Spacing="1">
                             <MudText Typo="Typo.subtitle1" Class="title truncate-2">@item.Title</MudText>
                             <MudText Typo="Typo.body2" Color="Color.Tertiary" Class="intro truncate-3">@item.Introduction</MudText>
@@ -102,10 +98,10 @@
                                         <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small" Class="mini-tag">@tag</MudChip>
                                     }
                                 </MudStack>
-                                <MudText Typo="Typo.caption" Color="Color.Tertiary">@FormatRelativeTime(item.CreateTime)</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Tertiary">@FormatFullTime(item.CreateTime)</MudText>
                             </MudStack>
 
-                            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart" Class="stats-row" Spacing="2">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="stats-bar">
                                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="stat">
                                     <MudIcon Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" />
                                     <MudText Typo="Typo.caption">@item.ViewCount</MudText>
@@ -118,9 +114,9 @@
                                 {
                                     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="author-block">
                                         <MudAvatar Size="Size.Small" Color="Color.Primary">
-                                            <MudImage Src="@item.Author.Avatar"></MudImage>
+                                            <MudImage Src="@item.Author.Avatar" Alt="头像" Class="avatar-img" />
                                         </MudAvatar>
-                                        <MudText Typo="Typo.caption" Class="author-name truncate-1" >@item.Author?.Name</MudText>
+                                        <MudText Typo="Typo.caption" Class="author-name truncate-1">@item.Author.Name</MudText>
                                     </MudStack>
                                 }
                             </MudStack>

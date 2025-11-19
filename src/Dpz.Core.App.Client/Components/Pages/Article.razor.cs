@@ -25,6 +25,7 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
     private bool _isRefreshing = false;
     private bool _initializedJs = false;
     private bool _infiniteLock = false;
+    private bool _pendingReobserve = false; // 等待渲染完成后重新绑定哨兵
 
     private DotNetObjectReference<Article>? _dotNetRef;
     private IJSObjectReference? _module;
@@ -51,6 +52,13 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
             }
             catch { }
         }
+
+        // 渲染后再重新观察哨兵，避免在列表替换前调用导致旧元素被观察
+        if (_pendingReobserve && _initializedJs && _module != null)
+        {
+            try { await _module.InvokeVoidAsync("reobserveSentinel"); } catch { }
+            _pendingReobserve = false;
+        }
     }
 
     private async Task LoadTagsAsync()
@@ -64,10 +72,12 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
         _initialLoading = true;
         _pageIndex = 1;
         _hasMore = true;
+        _infiniteLock = false; // 切换标签或搜索后重置锁
         var list = await articleService.GetArticlesAsync(_currentTag, _searchText, PageSize, _pageIndex);
         _source = list.ToList();
         if (_source.Count < PageSize) _hasMore = false;
         _initialLoading = false;
+        _pendingReobserve = true; // 等待下一次渲染完成后 reobserve
     }
 
     private async Task RefreshAsync()
@@ -90,7 +100,7 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
         _pageIndex = nextPageIndex;
         if (added.Count < PageSize) _hasMore = false;
         _isLoadingMore = false;
-        _infiniteLock = false;
+        _infiniteLock = false; // 释放锁，允许下一次触发
         StateHasChanged();
     }
 
@@ -120,15 +130,7 @@ public partial class Article(IArticleService articleService, IJSRuntime jsRuntim
     [JSInvokable]
     public async Task OnPullToRefresh() => await RefreshAsync();
 
-    private string FormatRelativeTime(DateTime dt)
-    {
-        var span = DateTime.UtcNow - dt.ToUniversalTime();
-        if (span.TotalMinutes < 1) return "刚刚";
-        if (span.TotalHours < 1) return $"{(int)span.TotalMinutes}分钟前";
-        if (span.TotalDays < 1) return $"{(int)span.TotalHours}小时前";
-        if (span.TotalDays < 7) return $"{(int)span.TotalDays}天前";
-        return dt.ToString("yyyy-MM-dd");
-    }
+    private string FormatFullTime(DateTime dt) => dt.ToString("yyyy-MM-dd HH:mm:ss");
 
     private void OnOpenArticle(VmArticleMini item) { }
 
