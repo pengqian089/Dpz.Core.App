@@ -1,15 +1,23 @@
-﻿using Dpz.Core.App.Client.Services;
+﻿using System;
+using System.Net.Http;
+using System.Text.RegularExpressions;
+using System.Timers;
+using Dpz.Core.App.Client.Services;
 using Dpz.Core.App.Models.Music;
 using Dpz.Core.App.Service.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 using MudBlazor;
 using Plugin.Maui.Audio;
-using System;
-using System.Text.RegularExpressions;
-using System.Timers;
 
 namespace Dpz.Core.App.Client.Components.Pages;
+
+public interface INativeMediaSession
+{
+    void UpdateMetadata(string? title, string? artist, string? coverUrl);
+    void UpdatePlaybackState(bool isPlaying);
+}
 
 public partial class Music(
     IMusicService musicService,
@@ -18,21 +26,30 @@ public partial class Music(
     LayoutService layout,
     NavigationManager nav,
     ISnackbar snackbar,
-    ILogger<Music> logger
+    ILogger<Music> logger,
+    IJSRuntime jsRuntime,
+    IServiceProvider sp
 ) : IAsyncDisposable
 {
     private readonly HttpClient httpClient = httpClientFactory.CreateClient("download");
+    private INativeMediaSession? _mediaSession;
+    private IJSObjectReference? _module;
+    private bool _jsInitialized;
+
     private static List<VmMusic> _musics = [];
     private System.Timers.Timer? _timer;
     private IAudioPlayer? _player;
 
     private List<LyricLine> _currentLyricLines = [];
     private int _activeLyricIndex = -1;
+    private int _lastScrolledLyricIndex = -1;
+    private int _pendingScrollIndex = -1;
 
     private bool _loading = true;
     private bool _isPlaying;
     private bool _showLyrics = true;
     private bool _showPlaylist;
+    private bool _isBuffering;
 
     private int _currentIndex = 0;
 
@@ -43,6 +60,10 @@ public partial class Music(
 
     private PlayMode _playMode = PlayMode.Sequential;
 
+    private string? _errorMessage;
+    private int _retryCount;
+    private const int MaxRetry = 3;
+
     private VmMusic? Current =>
         _musics.Count > 0 && _currentIndex >= 0 && _currentIndex < _musics.Count
             ? _musics[_currentIndex]
@@ -51,6 +72,7 @@ public partial class Music(
     protected override async Task OnInitializedAsync()
     {
         layout.HideNavbar();
+        _mediaSession = sp.GetService<INativeMediaSession>();
         if (_musics.Count == 0)
         {
             _musics = await musicService.GetMusicsAsync(null, 1000, 1);
@@ -64,18 +86,51 @@ public partial class Music(
         await base.OnInitializedAsync();
     }
 
-    private void EnsurePlayer()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_jsInitialized)
+        {
+            try
+            {
+                _module = await jsRuntime.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    "./Components/Pages/Music.razor.js"
+                );
+                _jsInitialized = true;
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Music.js 加载失败");
+            }
+        }
+        if (_jsInitialized && _pendingScrollIndex >= 0)
+        {
+            try
+            {
+                await _module!.InvokeVoidAsync("scrollToLyric", _pendingScrollIndex);
+            }
+            catch (Exception e)
+            {
+                logger.LogDebug(e, "滚动歌词失败");
+            }
+            _pendingScrollIndex = -1;
+        }
+    }
+
+    private async Task EnsurePlayerAsync(bool autoPlay)
     {
         if (Current == null || string.IsNullOrWhiteSpace(Current.MusicUrl))
             return;
         DisposePlayer();
+        _isBuffering = true;
+        _errorMessage = null;
+        StateHasChanged();
         try
         {
-            using var httpClient = new HttpClient();
-            
-            var request = new HttpRequestMessage(HttpMethod.Get, Current.MusicUrl);
-            var response = httpClient.Send(request);
-            var stream = response.Content.ReadAsStream();
+            using var req = new HttpRequestMessage(HttpMethod.Get, Current.MusicUrl);
+            using var resp = await httpClient.SendAsync(req);
+            resp.EnsureSuccessStatusCode();
+            var stream = await resp.Content.ReadAsStreamAsync();
             _player = audioManager.CreatePlayer(stream);
             _player.Error += OnPlayerError;
             _player.PlaybackEnded += OnPlaybackEnded;
@@ -86,77 +141,82 @@ public partial class Music(
             _durationSeconds = GetDurationSeconds(Current);
             if (_durationSeconds <= 0 && _player != null)
             {
-                _durationSeconds = _player.Duration; // plugin returns double seconds
+                _durationSeconds = _player.Duration;
             }
             _durationText = FormatSeconds(_durationSeconds);
+            UpdateMediaSessionMetadata();
+            if (autoPlay)
+            {
+                _player.Play();
+                _isPlaying = true;
+                UpdateMediaSessionPlayback();
+            }
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "初始化播放器失败");
+            _errorMessage = "初始化失败";
             snackbar.Add("初始化播放器失败", Severity.Error);
+            _isBuffering = false;
+        }
+        finally
+        {
+            StateHasChanged();
         }
     }
 
     private double GetDurationSeconds(VmMusic m)
     {
         if (string.IsNullOrWhiteSpace(m.Duration))
-        {
             return 0;
-        }
-
         var parts = m.Duration.Split(':');
         if (
             parts.Length == 2
             && int.TryParse(parts[0], out var mm)
             && int.TryParse(parts[1], out var ss)
         )
-        {
             return mm * 60 + ss;
-        }
-
-        return
+        if (
             parts.Length == 3
             && int.TryParse(parts[0], out var hh)
             && int.TryParse(parts[1], out mm)
             && int.TryParse(parts[2], out ss)
-            ? hh * 3600 + mm * 60 + ss
-            : 0;
+        )
+            return hh * 3600 + mm * 60 + ss;
+        return 0;
     }
 
-    private void TogglePlay()
+    private async Task TogglePlayAsync()
     {
         if (_player == null)
         {
-            EnsurePlayer();
+            await EnsurePlayerAsync(true);
         }
-        if (_player == null)
-            return;
-
-        if (_isPlaying)
+        else if (_isPlaying)
         {
             _player.Pause();
             _isPlaying = false;
+            UpdateMediaSessionPlayback();
         }
         else
         {
             _player.Play();
             _isPlaying = true;
+            UpdateMediaSessionPlayback();
         }
     }
 
-    private void PlayIndex(int index)
+    private async Task PlayIndexAsync(int index)
     {
         if (index < 0 || index >= _musics.Count)
             return;
         _currentIndex = index;
         LoadLyricsForCurrent();
-        EnsurePlayer();
-        _isPlaying = true;
-        _player?.Play();
         ResetProgress();
+        await EnsurePlayerAsync(true);
     }
 
-    private void PlayNext()
+    private async Task PlayNextAsync()
     {
         if (_musics.Count == 0)
             return;
@@ -170,17 +230,17 @@ public partial class Music(
         {
             next = (_currentIndex + 1) % _musics.Count;
         }
-        PlayIndex(next);
+        await PlayIndexAsync(next);
     }
 
-    private void PlayPrevious()
+    private async Task PlayPreviousAsync()
     {
         if (_musics.Count == 0)
             return;
         int prev = _currentIndex - 1;
         if (prev < 0)
             prev = _musics.Count - 1;
-        PlayIndex(prev);
+        await PlayIndexAsync(prev);
     }
 
     private void ToggleLyrics() => _showLyrics = !_showLyrics;
@@ -213,7 +273,7 @@ public partial class Music(
             return;
         try
         {
-            _player.Seek(value); // plugin expects seconds (double)
+            _player.Seek(value);
             _progressSeconds = value;
             UpdateElapsed(value);
             UpdateActiveLyric(value);
@@ -224,33 +284,38 @@ public partial class Music(
         }
     }
 
-    private void OnPlaybackEnded(object? sender, EventArgs e)
+    private async void OnPlaybackEnded(object? sender, EventArgs e)
     {
         _isPlaying = false;
-        _timer?.Stop();
-        _timer?.Dispose();
-        _timer = null;
+        UpdateMediaSessionPlayback();
         if (_playMode == PlayMode.LoopOne)
         {
-            PlayIndex(_currentIndex);
+            await PlayIndexAsync(_currentIndex);
         }
         else
         {
-            PlayNext();
+            await PlayNextAsync();
         }
         StateHasChanged();
     }
 
     private void OnPlayerError(object? sender, EventArgs e)
     {
+        _errorMessage = "播放错误";
         snackbar.Add("播放错误", Severity.Error);
+        _isBuffering = false;
+        if (_retryCount < MaxRetry)
+        {
+            _retryCount++;
+            _ = EnsurePlayerAsync(true);
+        }
     }
 
     private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
     {
         if (_player == null)
             return;
-        var pos = _player.CurrentPosition; // double seconds
+        var pos = _player.CurrentPosition;
         _progressSeconds = pos;
         UpdateElapsed(pos);
         UpdateActiveLyric(pos);
@@ -259,13 +324,14 @@ public partial class Music(
             _durationSeconds = _player.Duration;
             _durationText = FormatSeconds(_durationSeconds);
         }
+        if (_isBuffering && pos > 0)
+        {
+            _isBuffering = false; // first data arrived
+        }
         InvokeAsync(StateHasChanged);
     }
 
-    private void UpdateElapsed(double seconds)
-    {
-        _elapsedText = FormatSeconds(seconds);
-    }
+    private void UpdateElapsed(double seconds) => _elapsedText = FormatSeconds(seconds);
 
     private void UpdateActiveLyric(double seconds)
     {
@@ -278,16 +344,27 @@ public partial class Music(
             if (seconds >= cur.Time && seconds < next.Time)
             {
                 _activeLyricIndex = i;
+                QueueLyricScroll(i);
                 return;
             }
         }
         _activeLyricIndex = _currentLyricLines.Count - 1;
+        QueueLyricScroll(_activeLyricIndex);
+    }
+
+    private void QueueLyricScroll(int index)
+    {
+        if (index == _lastScrolledLyricIndex)
+            return;
+        _pendingScrollIndex = index;
+        _lastScrolledLyricIndex = index;
     }
 
     private void LoadLyricsForCurrent()
     {
         _currentLyricLines = [];
         _activeLyricIndex = -1;
+        _lastScrolledLyricIndex = -1;
         if (Current != null && !string.IsNullOrWhiteSpace(Current.LyricContent))
         {
             _currentLyricLines = ParseLyrics(Current.LyricContent!);
@@ -317,11 +394,29 @@ public partial class Music(
 
     private void NavigateBack() => nav.NavigateTo("/profile");
 
-    public ValueTask DisposeAsync()
+    private void UpdateMediaSessionMetadata() =>
+        _mediaSession?.UpdateMetadata(Current?.Title, Current?.Artist, Current?.CoverUrl);
+
+    private void UpdateMediaSessionPlayback() => _mediaSession?.UpdatePlaybackState(_isPlaying);
+
+    private async Task RetryAsync()
+    {
+        _retryCount = 0;
+        await EnsurePlayerAsync(true);
+    }
+
+    public async ValueTask DisposeAsync()
     {
         layout.ShowNavbar();
         DisposePlayer();
-        return ValueTask.CompletedTask;
+        if (_module != null)
+        {
+            try
+            {
+                await _module.DisposeAsync();
+            }
+            catch { }
+        }
     }
 
     private void DisposePlayer()
