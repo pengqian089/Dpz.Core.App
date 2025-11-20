@@ -1,24 +1,111 @@
 ﻿@page "/music"
 
-@if (_loading)
-{
-    @* TODO 加载骨架 *@
-}
-else
-{
-    @foreach(var music in _musics)
+<MudStack Class="music-page" Spacing="2">
+    <MudPaper Class="top-bar pa-3" Elevation="1" Square="true">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" OnClick="NavigateBack" />
+                <MudText Typo="Typo.h6" Class="page-title">音乐播放器</MudText>
+            </MudStack>
+            <MudIconButton Icon="@Icons.Material.Filled.PlaylistPlay" Color="Color.Primary" OnClick="TogglePlaylist" />
+        </MudStack>
+    </MudPaper>
+
+    @if (_loading)
     {
-        @* TODO 歌手 - 歌曲名 *@
-        <MudText>@music.Artist - @music.Title</MudText>
-
-        @* TODO 封面 *@
-        <img src="@music.CoverUrl" alt="@music.Title"/>
-
-        @* TODO 播放时长 *@
-        <MudText>@_playingText</MudText>
-
-        @* TODO 播放进度条，拖拽进度条 *@
-
-        @* TODO 播放、暂停、上一首、下一首、歌词、歌曲列表、顺序（列表、随机）等等 *@
+        <MudStack Spacing="2" Class="pa-3">
+            <MudSkeleton Width="100%" Height="300px" Class="mb-2" />
+            <MudSkeleton Width="60%" Height="24px" Class="mb-1" />
+            <MudSkeleton Width="40%" Height="18px" Class="mb-3" />
+            <MudSkeleton Width="100%" Height="8px" Class="mb-2" />
+            <MudSkeleton Width="100%" Height="52px" />
+        </MudStack>
     }
-}
+    else if (Current == null)
+    {
+        <MudPaper Class="empty-block pa-6" Elevation="0">
+            <MudStack AlignItems="AlignItems.Center" Spacing="1">
+                <MudIcon Icon="@Icons.Material.Filled.LibraryMusic" Color="Color.Tertiary" Size="Size.Large" />
+                <MudText Typo="Typo.subtitle1">暂无音乐</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Tertiary">请稍后再试</MudText>
+            </MudStack>
+        </MudPaper>
+    }
+    else
+    {
+        <MudPaper Class="current-track-card" Elevation="1">
+            <div class="cover-wrapper">
+                @if (!string.IsNullOrWhiteSpace(Current.CoverUrl))
+                {
+                    <img src="@Current.CoverUrl" alt="封面" class="cover-img" loading="lazy" />
+                }
+                else
+                {
+                    <div class="cover-fallback">
+                        <MudIcon Icon="@Icons.Material.Filled.MusicNote" Size="Size.Large" />
+                    </div>
+                }
+                <div class="cover-overlay"></div>
+                <div class="floating-meta">
+                    <MudText Typo="Typo.subtitle1" Class="title truncate-1">@Current.Title</MudText>
+                    <MudText Typo="Typo.caption" Class="artist truncate-1" Color="Color.Tertiary">@Current.Artist</MudText>
+                </div>
+            </div>
+
+            <MudStack Spacing="1" Class="pa-3">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="time-row">
+                    <MudText Typo="Typo.caption">@_elapsedText</MudText>
+                    <MudText Typo="Typo.caption">@_durationText</MudText>
+                </MudStack>
+                <MudSlider @bind-Value="_progressSeconds" Min="0" Max="@_durationSeconds" Step="1" Disabled="_durationSeconds <= 0" Color="Color.Primary" OnChange="OnSeek" Class="progress-slider" />
+
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceAround" Class="controls-bar mt-2">
+                    <MudIconButton Icon="@Icons.Material.Filled.SkipPrevious" Color="Color.Primary" Disabled="_musics.Count == 0" OnClick="PlayPrevious" />
+                    <MudIconButton Icon="@( _isPlaying ? Icons.Material.Filled.PauseCircleFilled : Icons.Material.Filled.PlayCircleFilled)" Color="Color.Primary" Size="Size.Large" OnClick="TogglePlay" />
+                    <MudIconButton Icon="@Icons.Material.Filled.SkipNext" Color="Color.Primary" Disabled="_musics.Count == 0" OnClick="PlayNext" />
+                    <MudIconButton Icon="@GetModeIcon()" Color="Color.Primary" OnClick="ToggleMode" />
+                    <MudIconButton Icon="@(_showLyrics ? Icons.Material.Filled.Subtitles : Icons.Material.Filled.SubtitlesOff)" Color="Color.Primary" OnClick="ToggleLyrics" />
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+
+        @if (_showLyrics && _currentLyricLines.Count > 0)
+        {
+            <MudPaper Class="lyrics-panel" Elevation="0">
+                <div class="lyrics-scroll">
+                    @for (int i = 0; i < _currentLyricLines.Count; i++)
+                    {
+                        var line = _currentLyricLines[i];
+                        var active = i == _activeLyricIndex && !string.IsNullOrEmpty(line.Text);
+                        <div class="lyric-line @(active ? "active" : "")">@line.Text</div>
+                    }
+                </div>
+            </MudPaper>
+        }
+
+        @if (_showPlaylist)
+        {
+            <MudPaper Class="playlist-panel pa-2" Elevation="1">
+                <MudStack Spacing="1">
+                    @for (int i = 0; i < _musics.Count; i++)
+                    {
+                        var m = _musics[i];
+                        <MudPaper Class="@GetPlaylistCss(i)" Elevation="0" @onclick="(()=>PlayIndex(i))">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="pa-2">
+                                <MudText Typo="Typo.caption" Class="index">@(i+1)</MudText>
+                                <MudStack Spacing="0" Style="flex:1;">
+                                    <MudText Typo="Typo.body2" Class="truncate-1">@m.Title</MudText>
+                                    <MudText Typo="Typo.caption" Color="Color.Tertiary" Class="truncate-1">@m.Artist</MudText>
+                                </MudStack>
+                                @if (i==_currentIndex && _isPlaying)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.GraphicEq" Color="Color.Primary" />
+                                }
+                            </MudStack>
+                        </MudPaper>
+                    }
+                </MudStack>
+            </MudPaper>
+        }
+    }
+</MudStack> @* end root stack *@

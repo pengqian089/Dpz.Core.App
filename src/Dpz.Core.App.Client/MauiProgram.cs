@@ -42,7 +42,6 @@ public static class MauiProgram
         // 从配置读取 OIDC 配置
         var clientId = configClient["OIDC:ClientId"];
         var authority = configClient["OIDC:Authority"];
-        
 
         if (string.IsNullOrWhiteSpace(clientId))
         {
@@ -89,6 +88,21 @@ public static class MauiProgram
             sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerAPI")
         );
 
+        services
+            .AddHttpClient(
+                "download",
+                httpClient =>
+                {
+                    httpClient.DefaultRequestHeaders.Add(
+                        "User-Agent",
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0"
+                    );
+                }
+            )
+            .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
+            });
 
         // 注册布局服务
         services.AddScoped<LayoutService>();
@@ -107,8 +121,8 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
-		builder.Logging.AddDebug();
+        builder.Services.AddBlazorWebViewDeveloperTools();
+        builder.Logging.AddDebug();
 #endif
 
         return builder.Build();

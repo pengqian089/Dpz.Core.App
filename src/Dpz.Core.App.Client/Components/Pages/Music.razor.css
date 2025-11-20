@@ -1,3 +1,42 @@
 ﻿body
 {
 }
+
+.music-page { padding-bottom:72px; }
+.top-bar { position:sticky; top:0; z-index:10; backdrop-filter:blur(10px); }
+.page-title { font-weight:600; }
+
+.current-track-card { border-radius:20px; overflow:hidden; }
+.cover-wrapper { position:relative; width:100%; height:300px; background:var(--mud-palette-background); display:flex; align-items:center; justify-content:center; }
+.cover-img { width:100%; height:100%; object-fit:cover; }
+.cover-fallback { display:flex; align-items:center; justify-content:center; width:100%; height:100%; color:var(--mud-palette-primary); opacity:.7; }
+.cover-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.25)); pointer-events:none; }
+.floating-meta { position:absolute; left:16px; bottom:16px; right:16px; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.6); }
+.floating-meta .title { font-weight:600; }
+.floating-meta .artist { opacity:.85; }
+
+.progress-slider { --mud-slider-track-height:6px; }
+.time-row { margin-top:4px; }
+.controls-bar { padding:8px 0; }
+
+.lyrics-panel { max-height:280px; overflow:hidden; border-radius:16px; background:var(--mud-palette-surface); }
+.lyrics-scroll { overflow-y:auto; height:100%; padding:16px; -webkit-overflow-scrolling:touch; }
+.lyric-line { font-size:.9rem; line-height:1.4; opacity:.55; transition:opacity .25s, transform .25s; }
+.lyric-line.active { opacity:1; font-weight:600; transform:scale(1.02); color:var(--mud-palette-primary); }
+
+.playlist-panel { border-radius:16px; }
+.playlist-item { border-radius:12px; cursor:pointer; transition:background-color .25s; }
+.playlist-item.active { background:var(--mud-palette-primary); color:var(--mud-palette-primary-text); }
+.playlist-item:hover { background:var(--mud-palette-action-hover); }
+.playlist-item.active:hover { background:var(--mud-palette-primary-dark); }
+.playlist-item .index { width:24px; text-align:right; opacity:.6; }
+.playlist-item.active .index { opacity:1; }
+
+.empty-block { text-align:center; margin-top:48px; }
+
+.truncate-1 { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+
+@media (max-width:480px) {
+  .cover-wrapper { height:240px; }
+  .lyrics-panel { max-height:220px; }
+}
