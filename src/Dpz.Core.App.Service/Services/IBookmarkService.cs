@@ -10,7 +10,7 @@ public interface IBookmarkService
     /// <summary>
     /// 获取书签列表
     /// </summary>
-    Task<IEnumerable<VmBookmark>> GetBookmarksAsync(
+    Task<List<VmBookmark>> GetBookmarksAsync(
         string? title = null,
         string[]? categories = null
     );

@@ -10,7 +10,7 @@ public class BookmarkService(IHttpService httpService) : IBookmarkService
 {
     private const string BaseEndpoint = "/api/Bookmark";
 
-    public async Task<IEnumerable<VmBookmark>> GetBookmarksAsync(
+    public async Task<List<VmBookmark>> GetBookmarksAsync(
         string? title = null,
         string[]? categories = null
     )
@@ -21,8 +21,8 @@ public class BookmarkService(IHttpService httpService) : IBookmarkService
             { "categories", categories },
         };
 
-        var result = await httpService.GetAsync<IEnumerable<VmBookmark>>(BaseEndpoint, parameters);
-        return result ?? Enumerable.Empty<VmBookmark>();
+        var result = await httpService.GetAsync<List<VmBookmark>>(BaseEndpoint, parameters);
+        return result ?? [];
     }
 
     public async Task CreateBookmarkAsync(CreateBookmarkDto createDto)

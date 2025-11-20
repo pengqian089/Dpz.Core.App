@@ -1,0 +1,42 @@
+﻿@page "/bookmark"
+
+@if (_loading)
+{
+    @*TODO 骨架屏加载*@
+}
+else
+{
+    @*TODO 搜索框，可以按照 Title 搜索，不区分大小写 *@
+
+    @*TODO 头部，显示所有分类 ，点击分类，按照分类筛选 *@
+    foreach (var item in _allCategories)
+    {
+        <MudChip T="string">@item</MudChip>
+    }
+
+    @*TODO 重新加载 -> 静态的 _bookmarks 、_allCategories 重新请求WebApi，如果不触碰重新加载将始终用第一次加载的数据 *@
+
+    foreach(var item in _bookmarks)
+    {
+        if (!string.IsNullOrWhiteSpace(item.Icon))
+        {
+            @*TODO 有图标显示图标*@
+            <img src="@item.Icon" alt="@item.Title" class="icon-img" loading="lazy" />
+        }
+        if (!string.IsNullOrWhiteSpace(item.Image))
+        {
+            @*TODO 有图片地址，显示图片*@
+            <img src="@item.Image" alt="@item.Title" class="bookmark-img" loading="lazy" />
+        }
+        <MudText>@item.Title</MudText>
+        <MudButton>
+            @*TODO 打开外部浏览器，前往 item.Url *@
+        </MudButton>
+        foreach (var category in item.Categories ?? [])
+        {
+            @*TODO 有分类信息，显示分类信息*@
+            <MudChip T="string">@category</MudChip>
+        }
+    }
+
+}

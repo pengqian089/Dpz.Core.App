@@ -42,6 +42,9 @@
         <MudButton T="string" Variant="Variant.Text" Color="Color.Inherit" Class="justify-start" StartIcon="@Icons.Material.Filled.Security" Href="#">
             隐私设置
         </MudButton>
+        <MudButton T="string" Variant="Variant.Text" Color="Color.Inherit" Class="justify-start" StartIcon="@Icons.Material.Filled.Bookmark" Href="/bookmark">
+            我的书签
+        </MudButton>
     </MudStack>
 
     <!-- 其他菜单 -->
@@ -58,34 +61,6 @@
         </MudButton>
     </MudStack>
 </div>
-
-<style>
-    .page-container {
-        padding: 16px;
-    }
-
-    .user-header {
-        background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
-        color: white;
-        border-radius: 8px;
-        margin: -16px -16px 16px -16px;
-        padding: 32px 16px !important;
-    }
-
-    .stat-card {
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    .justify-start {
-        justify-content: flex-start;
-    }
-</style>
 
 @code {
 
