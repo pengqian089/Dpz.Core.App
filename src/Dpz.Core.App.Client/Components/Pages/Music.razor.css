@@ -1,46 +1,40 @@
-﻿body
-{
+﻿/* 音乐播放器本地样式（备份，主要样式在 app.css 中） */
+/* 这里保留一些基础定义以防全局样式加载失败 */
+
+.music-page { 
+    height: 100vh; 
+    max-height: 100vh;
+    overflow: hidden; 
+    display: flex;
+    flex-direction: column;
 }
 
-.music-page { height:100vh; padding:0; display:flex; flex-direction:column; }
-.top-bar { position:sticky; top:0; z-index:20; backdrop-filter:blur(10px); }
-.page-title { font-weight:600; }
-
-.player-screen { flex:1; display:flex; flex-direction:column; overflow:hidden; }
-.upper-area { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:8px 12px 0; }
-.cover-wrapper { position:relative; width:70%; max-width:360px; aspect-ratio:1/1; background:var(--mud-palette-background); border-radius:20px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,.25); }
-.cover-img { width:100%; height:100%; object-fit:cover; }
-.cover-fallback { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--mud-palette-primary); opacity:.7; font-size:2rem; }
-.cover-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.25)); pointer-events:none; }
-.floating-meta { position:absolute; left:12px; bottom:12px; right:12px; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.6); }
-.floating-meta .title { font-weight:600; }
-.floating-meta .artist { opacity:.85; }
-
-.lyrics-panel { width:100%; flex:1; margin-top:12px; border-radius:16px; background:var(--mud-palette-surface); display:flex; overflow:hidden; }
-.lyrics-scroll { flex:1; overflow-y:auto; padding:16px 12px; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
-.lyric-line { font-size:.9rem; line-height:1.4; opacity:.55; padding:2px 4px; transition:opacity .3s, transform .3s; }
-.lyric-line.active { opacity:1; font-weight:600; transform:scale(1.05); color:var(--mud-palette-primary); }
-
-.lower-area { width:100%; background:var(--mud-palette-surface); box-shadow:0 -4px 12px rgba(0,0,0,.12); }
-.progress-slider { --mud-slider-track-height:6px; }
-.time-row { margin-top:4px; }
-.controls-bar { padding:4px 0 0; }
-
-.playlist-panel { position:absolute; bottom:0; left:0; right:0; max-height:55vh; overflow-y:auto; border-radius:20px 20px 0 0; background:var(--mud-palette-surface); box-shadow:0 -4px 18px rgba(0,0,0,.35); }
-.playlist-item { border-radius:12px; cursor:pointer; transition:background-color .25s; }
-.playlist-item.active { background:var(--mud-palette-primary); color:var(--mud-palette-primary-text); }
-.playlist-item:hover { background:var(--mud-palette-action-hover); }
-.playlist-item.active:hover { background:var(--mud-palette-primary-dark); }
-.playlist-item .index { width:24px; text-align:right; opacity:.6; }
-.playlist-item.active .index { opacity:1; }
-
-.empty-block { text-align:center; margin-top:48px; }
-.truncate-1 { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
-
-@media (max-width:520px){
-  .cover-wrapper { width:68%; }
-  .lyrics-scroll { font-size:.85rem; }
+.top-bar { 
+    position: sticky; 
+    top: 0; 
+    z-index: 30; 
+    backdrop-filter: blur(10px); 
+    flex-shrink: 0;
 }
-@media (max-width:420px){
-  .cover-wrapper { width:74%; }
+
+.page-title { 
+    font-weight: 600; 
+}
+
+.player-screen { 
+    flex: 1;
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden;
+    min-height: 0;
+}
+
+.skeleton-wrapper { 
+    flex: 1;
+    padding: 16px;
+}
+
+.empty-block { 
+    text-align: center;
+    padding: 48px 24px;
 }

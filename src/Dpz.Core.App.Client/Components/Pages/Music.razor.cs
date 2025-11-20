@@ -1,5 +1,3 @@
-﻿using System;
-using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Timers;
 using Dpz.Core.App.Client.Services;
@@ -57,6 +55,7 @@ public partial class Music(
     private double _durationSeconds; // total duration in seconds
     private string _elapsedText = "00:00";
     private string _durationText = "00:00";
+    private bool _isSeeking = false; // 标记是否正在拖拽进度条
 
     private PlayMode _playMode = PlayMode.Sequential;
 
@@ -97,6 +96,10 @@ public partial class Music(
                     "./Components/Pages/Music.razor.js"
                 );
                 _jsInitialized = true;
+                
+                // 初始化封面手势支持
+                var dotNetRef = DotNetObjectReference.Create(this);
+                await _module.InvokeVoidAsync("initCoverGesture", dotNetRef);
             }
             catch (Exception e)
             {
@@ -267,10 +270,21 @@ public partial class Music(
             _ => Icons.Material.Filled.Repeat,
         };
 
-    private void OnSeek(double value)
+    private string GetModeText() =>
+        _playMode switch
+        {
+            PlayMode.Sequential => "顺序播放",
+            PlayMode.LoopOne => "单曲循环",
+            PlayMode.Shuffle => "随机播放",
+            _ => "顺序播放",
+        };
+
+    private void OnSeekChanged(double value)
     {
-        if (_player == null)
+        if (_player == null || _durationSeconds <= 0)
             return;
+
+        _isSeeking = true;
         try
         {
             _player.Seek(value);
@@ -282,6 +296,15 @@ public partial class Music(
         {
             logger.LogWarning(ex, "Seek 失败");
         }
+        finally
+        {
+            _isSeeking = false;
+        }
+    }
+
+    private void ClosePlaylist()
+    {
+        _showPlaylist = false;
     }
 
     private async void OnPlaybackEnded(object? sender, EventArgs e)
@@ -313,21 +336,25 @@ public partial class Music(
 
     private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
     {
-        if (_player == null)
+        if (_player == null || _isSeeking)
             return;
+
         var pos = _player.CurrentPosition;
         _progressSeconds = pos;
         UpdateElapsed(pos);
         UpdateActiveLyric(pos);
+
         if (_durationSeconds <= 0 && _player.Duration > 0)
         {
             _durationSeconds = _player.Duration;
             _durationText = FormatSeconds(_durationSeconds);
         }
+
         if (_isBuffering && pos > 0)
         {
             _isBuffering = false; // first data arrived
         }
+
         InvokeAsync(StateHasChanged);
     }
 
@@ -413,6 +440,8 @@ public partial class Music(
         {
             try
             {
+                // 清理手势事件监听器
+                await _module.InvokeVoidAsync("disposeCoverGesture");
                 await _module.DisposeAsync();
             }
             catch { }
@@ -435,6 +464,27 @@ public partial class Music(
         _timer?.Stop();
         _timer?.Dispose();
         _timer = null;
+    }
+
+    // 可供原生后台通知调用的控制方法（平台桥接触发）
+    public Task NativePlayPauseAsync()
+    {
+        return TogglePlayAsync();
+    }
+    public Task NativeNextAsync() => PlayNextAsync();
+    public Task NativePreviousAsync() => PlayPreviousAsync();
+
+    // 手势滑动回调（供 JavaScript 调用）
+    [JSInvokable]
+    public async Task OnSwipeNext()
+    {
+        await PlayNextAsync();
+    }
+
+    [JSInvokable]
+    public async Task OnSwipePrevious()
+    {
+        await PlayPreviousAsync();
     }
 
     private static List<LyricLine> ParseLyrics(string lrcContent)

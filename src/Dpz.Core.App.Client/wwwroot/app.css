@@ -1,5 +1,5 @@
-/* ============================================
-   ȫ��Ӧ����ʽ
+﻿/* ============================================
+   全局应用样式
    ============================================ */
 
 html, body {
@@ -12,12 +12,17 @@ html, body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+#app {
+    height: 100%;
+    overflow: hidden;
+}
+
 * {
     box-sizing: border-box;
 }
 
 /* ============================================
-   ǳɫģʽ��Ĭ�ϣ�
+   浅色模式（默认）
    ============================================ */
 :root {
     --primary-color: #1976d2;
@@ -46,7 +51,7 @@ html, body {
 }
 
 /* ============================================
-   ��ɫģʽ
+   深色模式
    ============================================ */
 @media (prefers-color-scheme: dark) {
     :root {
@@ -77,7 +82,7 @@ html, body {
 }
 
 /* ============================================
-   MudBlazor �����Զ���
+   MudBlazor 主题自定义
    ============================================ */
 
 body {
@@ -86,14 +91,14 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ��Ƭ��ʽ */
+/* 卡片样式 */
 .mud-card {
     background-color: var(--surface-color);
     color: var(--app-text-color);
     border: 1px solid var(--surface-variant-color);
 }
 
-/* ��ť��ʽ */
+/* 按钮样式 */
 .mud-button {
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -104,14 +109,14 @@ body {
     transition: all 0.3s ease;
 }
 
-/* �������ʽ */
+/* 输入框样式 */
 .mud-input-base {
     background-color: var(--surface-color);
     color: var(--app-text-color);
 }
 
 /* ============================================
-   ��Ӧʽ����
+   响应式基础
    ============================================ */
 
 @media (max-width: 640px) {
@@ -133,14 +138,14 @@ body {
 }
 
 /* ============================================
-   ����Ĭ�ϴ��������ӳ٣��ƶ��ˣ�
+   禁用默认触摸反馈延迟（移动端）
    ============================================ */
 a, button {
     -webkit-tap-highlight-color: transparent;
 }
 
 /* ============================================
-   Focus ��ʽ�����ϰ�֧�֣�
+   Focus 样式（无障碍支持）
    ============================================ */
 :focus-visible {
     outline: 2px solid var(--primary-color);
@@ -154,7 +159,7 @@ a:focus-visible {
 }
 
 /* === Article Page Active Tag Chip Global Override === */
-/* ͳһ�״μ��������ѡ���ĸ�����ʽ��������� primary-hover �������죩 */
+/* 统一首次加载与二次选择后的高亮样式（避免出现 primary-hover 背景差异） */
 .mud-chip.tag-chip.active,
 .mud-chip.tag-chip[data-active="true"],
 .mud-chip.tag-chip.active:hover,
@@ -163,12 +168,373 @@ a:focus-visible {
     color: var(--mud-palette-primary-text) !important;
     --mud-ripple-color: var(--mud-palette-primary-text) !important;
 }
-/* ��ֹ MudBlazor ��ѡ�к�ӵ� hover ��ɫ���� */
+/* 防止 MudBlazor 在选中后加的 hover 颜色覆盖 */
 .mud-chip.tag-chip.active.mud-primary-hover,
 .mud-chip.tag-chip.active.mud-default-hover {
     background-color: var(--mud-palette-primary) !important;
     color: var(--mud-palette-primary-text) !important;
 }
-/* ����Բ����߿�ͳһ */
+/* 保持圆角与边框统一 */
 .mud-chip.tag-chip { border-radius: 20px; }
 .mud-chip.tag-chip.active { box-shadow: 0 0 0 2px var(--mud-palette-primary); font-weight: 600; }
+
+/* ============================================
+   音乐播放器全局样式（防止 CSS 作用域隔离）
+   ============================================ */
+
+/* 页面容器 - 固定100vh，禁止滚动 */
+.music-page { 
+    height: 100vh !important; 
+    max-height: 100vh !important;
+    overflow: hidden !important; 
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* 播放器主屏幕 - 填充剩余空间 */
+.player-screen { 
+    flex: 1 !important;
+    display: flex !important; 
+    flex-direction: column !important; 
+    overflow: hidden !important;
+    min-height: 0 !important;
+}
+
+/* 内容区域 */
+.content-zone { 
+    flex: 1 !important;
+    display: flex !important; 
+    flex-direction: column !important; 
+    align-items: center !important; 
+    padding: 16px 16px 0 !important;
+    overflow: hidden !important;
+    min-height: 0 !important;
+}
+
+/* 封面区域 */
+.cover-zone { 
+    flex-shrink: 0 !important;
+    display: flex !important; 
+    justify-content: center !important; 
+    width: 100% !important;
+    padding-bottom: 16px !important;
+}
+
+.cover-wrapper { 
+    position: relative !important; 
+    width: 280px !important;
+    max-width: 85% !important;
+    aspect-ratio: 1/1 !important; 
+    border-radius: 24px !important; 
+    overflow: hidden !important; 
+    box-shadow: 0 8px 32px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2) !important;
+    transition: transform 0.3s ease !important;
+    cursor: grab !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -webkit-touch-callout: none !important;
+}
+
+.cover-wrapper:active {
+    cursor: grabbing !important;
+}
+
+.cover-img { 
+    width: 100% !important; 
+    height: 100% !important; 
+    object-fit: cover !important; 
+}
+
+.cover-fallback { 
+    width: 100% !important; 
+    height: 100% !important; 
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important; 
+    background: linear-gradient(135deg, var(--mud-palette-primary) 0%, var(--mud-palette-secondary) 100%) !important;
+    color: #fff !important;
+    opacity: 0.8 !important;
+    font-size: 4rem !important; 
+}
+
+.cover-overlay { 
+    position: absolute !important; 
+    inset: 0 !important; 
+    background: linear-gradient(to top, rgba(0,0,0,.6), transparent 50%) !important;
+    pointer-events: none !important; 
+}
+
+.floating-meta { 
+    position: absolute !important; 
+    left: 16px !important;
+    bottom: 16px !important;
+    right: 16px !important;
+    color: #fff !important; 
+    text-shadow: 0 2px 8px rgba(0,0,0,.8) !important;
+    z-index: 1 !important;
+}
+
+.floating-meta .title { 
+    font-weight: 600 !important;
+    font-size: 1.1rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 4px !important;
+}
+
+.floating-meta .artist { 
+    opacity: 0.9 !important;
+    font-size: 0.9rem !important;
+}
+
+/* 歌词区域 - 改进滚动 */
+.lyrics-zone { 
+    flex: 1 !important;
+    width: 100% !important; 
+    display: flex !important;
+    overflow: hidden !important;
+    min-height: 0 !important;
+}
+
+.lyrics-panel { 
+    flex: 1 !important;
+    border-radius: 16px !important; 
+    backdrop-filter: blur(10px) !important;
+    display: flex !important;
+    overflow: hidden !important;
+    margin: 0 4px !important;
+}
+
+.lyrics-scroll { 
+    flex: 1 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 20px 16px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+/* 隐藏滚动条但保持功能 */
+.lyrics-scroll::-webkit-scrollbar {
+    display: none !important;
+}
+
+.lyric-line { 
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important; /* 从 2 改为 1.5，减小行间距 */
+    opacity: 0.35 !important;
+    padding: 4px 8px !important; /* 从 8px 12px 改为 4px 8px */
+    margin: 2px 0 !important; /* 添加小的垂直边距 */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-align: center !important;
+    border-radius: 6px !important;
+    min-height: 32px !important; /* 从 40px 改为 32px */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.lyric-line.active { 
+    opacity: 1 !important;
+    font-weight: 600 !important;
+    font-size: 1.05rem !important; /* 当前歌词稍大 */
+    transform: scale(1.05) !important; /* 从 1.08 改为 1.05 */
+    color: var(--mud-palette-primary) !important;
+    background: rgba(var(--mud-palette-primary-rgb), 0.1) !important;
+    padding: 6px 12px !important; /* 活动行稍大 */
+}
+
+/* 控制区域 - 固定高度 */
+.controls-zone { 
+    flex-shrink: 0 !important;
+    box-shadow: 0 -4px 24px rgba(0,0,0,.12) !important;
+    padding: 16px 20px 24px !important;
+}
+
+/* 进度条样式优化 */
+.progress-slider {
+    margin: 8px 0 !important;
+}
+
+.progress-slider .mud-slider-track {
+    height: 4px !important;
+    border-radius: 2px !important;
+}
+
+.progress-slider .mud-slider-thumb {
+    width: 16px !important;
+    height: 16px !important;
+    transition: transform 0.2s ease !important;
+}
+
+.progress-slider .mud-slider-thumb:hover,
+.progress-slider .mud-slider-thumb:active {
+    transform: scale(1.3) !important;
+}
+
+/* 控制按钮 */
+.controls-bar { 
+    padding: 12px 0 0 !important;
+    gap: 8px !important;
+}
+
+.controls-bar .mud-icon-button {
+    transition: all 0.2s ease !important;
+}
+
+.controls-bar .mud-icon-button:active {
+    transform: scale(0.9) !important;
+}
+
+/* 播放列表弹层 */
+.playlist-overlay { 
+    position: fixed !important; 
+    inset: 0 !important; 
+    background: rgba(0,0,0,.6) !important;
+    backdrop-filter: blur(6px) !important;
+    display: flex !important; 
+    align-items: flex-end !important; 
+    z-index: 200 !important;
+    animation: fadeIn 0.2s ease !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.playlist-sheet { 
+    width: 100% !important; 
+    max-height: 65vh !important;
+    border-radius: 24px 24px 0 0 !important;
+    box-shadow: 0 -8px 32px rgba(0,0,0,.3) !important;
+    display: flex !important; 
+    flex-direction: column !important;
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.sheet-header { 
+    padding: 16px 20px !important;
+    flex-shrink: 0 !important;
+}
+
+.sheet-body { 
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 8px 12px 16px !important;
+}
+
+.sheet-item { 
+    border-radius: 12px !important;
+    margin-bottom: 6px !important;
+    transition: all 0.2s ease !important;
+}
+
+.playlist-item { 
+    cursor: pointer !important;
+    transition: all 0.25s ease !important;
+}
+
+.playlist-item:hover { 
+    transform: translateX(4px) !important;
+}
+
+.playlist-item .index { 
+    width: 28px !important;
+    text-align: right !important;
+    opacity: 0.6 !important;
+    font-weight: 500 !important;
+}
+
+.playlist-item.active .index { 
+    opacity: 1 !important;
+}
+
+/* 文本截断 */
+.truncate-1 { 
+    display: -webkit-box !important;
+    -webkit-line-clamp: 1 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* 响应式调整 */
+@media (max-height: 700px) {
+    .cover-wrapper { 
+        width: 240px !important;
+    }
+    
+    .controls-zone {
+        padding: 12px 16px 20px !important;
+    }
+    
+    .lyric-line {
+        font-size: 0.9rem !important;
+        line-height: 1.4 !important;
+        padding: 3px 6px !important;
+        min-height: 28px !important;
+    }
+    
+    .lyric-line.active {
+        font-size: 0.95rem !important;
+        padding: 5px 10px !important;
+    }
+}
+
+@media (max-height: 600px) {
+    .cover-wrapper { 
+        width: 200px !important;
+    }
+    
+    .floating-meta .title {
+        font-size: 1rem !important;
+    }
+    
+    .floating-meta .artist {
+        font-size: 0.85rem !important;
+    }
+    
+    .lyric-line {
+        font-size: 0.85rem !important;
+        line-height: 1.3 !important;
+        padding: 2px 6px !important;
+        min-height: 26px !important;
+    }
+    
+    .lyric-line.active {
+        font-size: 0.9rem !important;
+        padding: 4px 8px !important;
+    }
+}
+
+@media (max-width: 520px) { 
+    .cover-wrapper { 
+        width: 260px !important;
+    }
+    
+    .lyric-line { 
+        font-size: 0.9rem !important;
+    }
+}
+
+@media (max-width: 420px) { 
+    .cover-wrapper { 
+        width: 240px !important;
+    }
+    
+    .controls-zone {
+        padding: 12px 16px 20px !important;
+    }
+    
+    .lyric-line {
+        font-size: 0.88rem !important;
+        line-height: 1.4 !important;
+    }
+}
