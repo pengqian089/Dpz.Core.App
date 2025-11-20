@@ -1,42 +1,108 @@
 ﻿@page "/bookmark"
 
-@if (_loading)
-{
-    @*TODO 骨架屏加载*@
-}
-else
-{
-    @*TODO 搜索框，可以按照 Title 搜索，不区分大小写 *@
+<MudStack Class="bookmark-page" Spacing="2">
+    <MudPaper Class="top-bar pa-3" Elevation="1" Square="true">
+        <MudStack Spacing="2">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" OnClick="NavigateBack" />
+                    <MudText Typo="Typo.h6" Class="page-title">我的书签</MudText>
+                </MudStack>
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" Color="Color.Primary" Disabled="_isRefreshing || _loading" OnClick="RefreshAsync" />
+            </MudStack>
+            <MudTextField @bind-Value="_searchText" Placeholder="搜索标题" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnBlur="(()=> OnSearchAsync(_searchText))" OnKeyDown="@(async e=> { if(e.Key=="Enter") await OnSearchAsync(_searchText); })" />
+            @if (_allCategories?.Count > 0)
+            {
+                <div class="categories-scroll has-scrollbar">
+                    <MudChipSet T="string" Mandatory="false" MultiSelection="false" Class="categories-chipset">
+                        <MudChip T="string" Color="Color.Primary" Variant="@(_selectedCategory==null ? Variant.Filled : Variant.Outlined)" Class="@GetCategoryCss(null)" OnClick="(()=>OnSelectCategory(null))">全部</MudChip>
+                        @foreach (var cat in _allCategories)
+                        {
+                            <MudChip T="string" Color="Color.Primary" Variant="@(_selectedCategory==cat ? Variant.Filled : Variant.Outlined)" Class="@GetCategoryCss(cat)" OnClick="(()=>OnSelectCategory(cat))">@cat</MudChip>
+                        }
+                    </MudChipSet>
+                </div>
+            }
+        </MudStack>
+    </MudPaper>
 
-    @*TODO 头部，显示所有分类 ，点击分类，按照分类筛选 *@
-    foreach (var item in _allCategories)
+    @if (_isRefreshing)
     {
-        <MudChip T="string">@item</MudChip>
+        <MudProgressLinear Class="refresh-bar" Color="Color.Primary" Indeterminate="true" />
     }
 
-    @*TODO 重新加载 -> 静态的 _bookmarks 、_allCategories 重新请求WebApi，如果不触碰重新加载将始终用第一次加载的数据 *@
-
-    foreach(var item in _bookmarks)
+    @if (_loading)
     {
-        if (!string.IsNullOrWhiteSpace(item.Icon))
-        {
-            @*TODO 有图标显示图标*@
-            <img src="@item.Icon" alt="@item.Title" class="icon-img" loading="lazy" />
-        }
-        if (!string.IsNullOrWhiteSpace(item.Image))
-        {
-            @*TODO 有图片地址，显示图片*@
-            <img src="@item.Image" alt="@item.Title" class="bookmark-img" loading="lazy" />
-        }
-        <MudText>@item.Title</MudText>
-        <MudButton>
-            @*TODO 打开外部浏览器，前往 item.Url *@
-        </MudButton>
-        foreach (var category in item.Categories ?? [])
-        {
-            @*TODO 有分类信息，显示分类信息*@
-            <MudChip T="string">@category</MudChip>
-        }
+        <MudStack Spacing="2" Class="pa-2">
+            @for (int i = 0; i < 6; i++)
+            {
+                <MudPaper Class="bookmark-card skeleton-card" Elevation="0">
+                    <div class="media-row skeleton-media">
+                        <MudSkeleton Width="100%" Height="100%" />
+                    </div>
+                    <div class="content-section pa-3">
+                        <MudSkeleton Width="60%" Height="20px" Class="mb-2" />
+                        <MudSkeleton Width="40%" Height="14px" Class="mb-2" />
+                        <MudSkeleton Width="80%" Height="14px" />
+                    </div>
+                </MudPaper>
+            }
+        </MudStack>
     }
+    else if (_view.Count == 0)
+    {
+        <MudPaper Class="empty-block pa-6" Elevation="0">
+            <MudStack Spacing="1" AlignItems="AlignItems.Center">
+                <MudIcon Color="Color.Tertiary" Icon="@Icons.Material.Filled.Bookmarks" Size="Size.Large" />
+                <MudText Typo="Typo.subtitle1">暂无书签</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Tertiary">尝试更换分类或搜索关键字</MudText>
+            </MudStack>
+        </MudPaper>
+    }
+    else
+    {
+        <MudStack Spacing="2" Class="bookmark-list" Style="padding:8px;">
+            @foreach (var item in _view)
+            {
+                <MudPaper Class="bookmark-card vertical-layout" Elevation="1">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Class="card-header pa-3" Spacing="2">
+                        @if (!string.IsNullOrWhiteSpace(item.Icon))
+                        {
+                            <MudAvatar Size="Size.Medium" Class="icon-avatar">
+                                <MudImage Src="@item.Icon" Alt="图标" Class="icon-img" />
+                            </MudAvatar>
+                        }
+                        else
+                        {
+                            <MudAvatar Color="Color.Primary" Size="Size.Medium">@((item.Title??"?").FirstOrDefault())</MudAvatar>
+                        }
+                        <MudStack Spacing="0" Class="title-block" Style="flex:1;">
+                            <MudText Typo="Typo.subtitle2" Class="title truncate-1">@item.Title</MudText>
+                            @if (!string.IsNullOrWhiteSpace(item.Url))
+                            {
+                                <MudLink Href="javascript:void(0);" @onclick="(()=>OpenUrlAsync(item))" Class="url-text truncate-1">@item.Url</MudLink>
+                            }
+                        </MudStack>
+                        <MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Color="Color.Primary" Disabled="string.IsNullOrWhiteSpace(item.Url)" OnClick="(()=>OpenUrlAsync(item))" />
+                    </MudStack>
 
-}
+                    @if (!string.IsNullOrWhiteSpace(item.Image))
+                    {
+                        <div class="media-row image-wrapper">
+                            <img src="@item.Image" alt="图片" class="preview-img" loading="lazy" />
+                        </div>
+                    }
+
+                    <div class="content-section pa-3">
+                        <MudStack Row="true" Spacing="1" Class="tags-inline">
+                            @foreach (var tag in item.Categories ?? [])
+                            {
+                                <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small" Class="mini-tag">@tag</MudChip>
+                            }
+                        </MudStack>
+                    </div>
+                </MudPaper>
+            }
+        </MudStack>
+    }
+</MudStack>
