@@ -1,4 +1,4 @@
-﻿using AgileConfig.Client;
+using AgileConfig.Client;
 using Dpz.Core.App.Client.Services;
 using Dpz.Core.App.Service;
 using Dpz.Core.App.Service.Extensions;
@@ -27,7 +27,7 @@ public static class MauiProgram
 
         const string agileConfigServerUrl = "https://config.dpangzi.com";
         const string appId = "Dpz.Core.App";
-        const string env = "DEV";
+        const string env = "PROD";
 
         // 注册 ConfigClient 到 DI 容器供应用使用
         var loggerFactory = new LoggerFactory();
@@ -106,6 +106,28 @@ public static class MauiProgram
 
         // 注册布局服务
         services.AddScoped<LayoutService>();
+
+        // 注册播放状态持久化服务
+        services.AddSingleton<PlaybackStateService>();
+
+        // 注册平台特定的媒体会话服务
+#if ANDROID
+        services.AddSingleton<INativeMediaSession>(sp =>
+        {
+            var activity =
+                Microsoft.Maui.ApplicationModel.Platform.CurrentActivity
+                ?? throw new InvalidOperationException("No current activity");
+            return new Dpz.Core.App.Client.Platforms.Android.AndroidMediaSession(activity);
+        });
+#elif WINDOWS
+        services.AddSingleton<
+            INativeMediaSession,
+            Dpz.Core.App.Client.Platforms.Windows.WindowsMediaSession
+        >();
+#else
+        // 其他平台使用空实现
+        services.AddSingleton<INativeMediaSession>(new NoopMediaSession());
+#endif
 
         services.AddApiServices();
 

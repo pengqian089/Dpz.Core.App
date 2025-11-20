@@ -42,22 +42,41 @@
         <div class="player-screen">
             <div class="content-zone">
                 <div class="cover-zone">
-                    <div class="cover-wrapper">
-                        @if (!string.IsNullOrWhiteSpace(Current.CoverUrl))
+                    <div class="cover-stack">
+                        @* 渲染堆叠的3个封面 *@
+                        @for (int i = 0; i < 3; i++)
                         {
-                            <img src="@Current.CoverUrl" alt="@Current.Title" class="cover-img" loading="lazy" />
-                        }
-                        else
-                        {
-                            <div class="cover-fallback">
-                                <MudIcon Icon="@Icons.Material.Filled.MusicNote" />
+                            var stackIndex = (_currentIndex + i) % _musics.Count;
+                            var music = stackIndex >= 0 && stackIndex < _musics.Count ? _musics[stackIndex] : null;
+                            var cssClass = i == 0 ? "current" : (i == 1 ? "next" : "next-next");
+                            
+                            <div class="cover-stack-item @cssClass">
+                                <div class="cover-wrapper">
+                                    @if (music != null)
+                                    {
+                                        @if (!string.IsNullOrWhiteSpace(music.CoverUrl))
+                                        {
+                                            <img src="@music.CoverUrl" alt="@music.Title" class="cover-img" loading="lazy" />
+                                        }
+                                        else
+                                        {
+                                            <div class="cover-fallback">
+                                                <MudIcon Icon="@Icons.Material.Filled.MusicNote" />
+                                            </div>
+                                        }
+                                        
+                                        @if (i == 0)
+                                        {
+                                            <div class="cover-overlay"></div>
+                                            <div class="floating-meta">
+                                                <MudText Class="title truncate-1">@music.Title</MudText>
+                                                <MudText Class="artist truncate-1">@music.Artist</MudText>
+                                            </div>
+                                        }
+                                    }
+                                </div>
                             </div>
                         }
-                        <div class="cover-overlay"></div>
-                        <div class="floating-meta">
-                            <MudText Class="title truncate-1">@Current.Title</MudText>
-                            <MudText Class="artist truncate-1">@Current.Artist</MudText>
-                        </div>
                     </div>
                 </div>
                 

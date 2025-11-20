@@ -11,12 +11,6 @@ using Plugin.Maui.Audio;
 
 namespace Dpz.Core.App.Client.Components.Pages;
 
-public interface INativeMediaSession
-{
-    void UpdateMetadata(string? title, string? artist, string? coverUrl);
-    void UpdatePlaybackState(bool isPlaying);
-}
-
 public partial class Music(
     IMusicService musicService,
     IAudioManager audioManager,
@@ -26,13 +20,16 @@ public partial class Music(
     ISnackbar snackbar,
     ILogger<Music> logger,
     IJSRuntime jsRuntime,
-    IServiceProvider sp
+    IServiceProvider sp,
+    PlaybackStateService playbackStateService
 ) : IAsyncDisposable
 {
     private readonly HttpClient httpClient = httpClientFactory.CreateClient("download");
     private INativeMediaSession? _mediaSession;
     private IJSObjectReference? _module;
     private bool _jsInitialized;
+    private bool _disposed;
+    private System.Timers.Timer? _stateSaveTimer; // 用于定期保存状态
 
     private static List<VmMusic> _musics = [];
     private System.Timers.Timer? _timer;
@@ -72,17 +69,93 @@ public partial class Music(
     {
         layout.HideNavbar();
         _mediaSession = sp.GetService<INativeMediaSession>();
+        
+        // 订阅平台特定的媒体按钮事件
+        SubscribeToMediaButtons();
+        
         if (_musics.Count == 0)
         {
             _musics = await musicService.GetMusicsAsync(null, 1000, 1);
         }
+        
+        // 加载上次的播放状态
+        await LoadPlaybackStateAsync();
+        
         _loading = false;
 
         if (Current != null && !string.IsNullOrWhiteSpace(Current.LyricContent))
         {
             _currentLyricLines = ParseLyrics(Current.LyricContent!);
         }
+        
+        // 启动定期保存状态的计时器（每5秒保存一次）
+        _stateSaveTimer = new System.Timers.Timer(5000);
+        _stateSaveTimer.Elapsed += OnStateSaveTimerElapsed;
+        _stateSaveTimer.AutoReset = true;
+        _stateSaveTimer.Enabled = true;
+        
         await base.OnInitializedAsync();
+    }
+
+    private void SubscribeToMediaButtons()
+    {
+#if ANDROID
+        Platforms.Android.MediaButtonReceiver.MediaButtonPressed += OnNativeMediaButton;
+#elif WINDOWS
+        Platforms.Windows.WindowsMediaSession.WindowsMediaButtonPressed += OnNativeMediaButton;
+#endif
+    }
+
+    private void UnsubscribeFromMediaButtons()
+    {
+#if ANDROID
+        Platforms.Android.MediaButtonReceiver.MediaButtonPressed -= OnNativeMediaButton;
+#elif WINDOWS
+        Platforms.Windows.WindowsMediaSession.WindowsMediaButtonPressed -= OnNativeMediaButton;
+#endif
+    }
+
+    private void OnNativeMediaButton(string action)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            switch (action)
+            {
+                case "play":
+                    // 通知栏点击播放
+                    if (_player != null && !_isPlaying)
+                    {
+                        _player.Play();
+                        _isPlaying = true;
+                        UpdateMediaSessionPlayback();
+                        StateHasChanged();
+                    }
+                    else if (_player == null)
+                    {
+                        await TogglePlayAsync();
+                    }
+                    break;
+                    
+                case "pause":
+                    // 通知栏点击暂停
+                    if (_player != null && _isPlaying)
+                    {
+                        _player.Pause();
+                        _isPlaying = false;
+                        UpdateMediaSessionPlayback();
+                        StateHasChanged();
+                    }
+                    break;
+                    
+                case "next":
+                    await PlayNextAsync();
+                    break;
+                    
+                case "previous":
+                    await PlayPreviousAsync();
+                    break;
+            }
+        });
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -209,6 +282,94 @@ public partial class Music(
         }
     }
 
+    private async Task LoadPlaybackStateAsync()
+    {
+        try
+        {
+            var savedState = await playbackStateService.LoadStateAsync();
+            if (savedState == null || _musics.Count == 0)
+                return;
+
+            // 恢复播放模式
+            if (Enum.TryParse<PlayMode>(savedState.PlayMode, out var playMode))
+            {
+                _playMode = playMode;
+            }
+
+            // 恢复播放索引
+            if (savedState.CurrentMusicId != null)
+            {
+                var index = _musics.FindIndex(m => m.Id == savedState.CurrentMusicId);
+                if (index >= 0)
+                {
+                    _currentIndex = index;
+                }
+            }
+            else if (savedState.CurrentIndex >= 0 && savedState.CurrentIndex < _musics.Count)
+            {
+                _currentIndex = savedState.CurrentIndex;
+            }
+
+            // 恢复播放进度（在播放器初始化后）
+            if (savedState.ProgressSeconds > 0 && Current != null)
+            {
+                _progressSeconds = savedState.ProgressSeconds;
+                _elapsedText = FormatSeconds(_progressSeconds);
+                
+                // 自动初始化播放器但不自动播放
+                await EnsurePlayerAsync(false);
+                
+                // 跳转到保存的进度
+                if (_player != null && savedState.ProgressSeconds > 0)
+                {
+                    try
+                    {
+                        _player.Seek(savedState.ProgressSeconds);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, "恢复播放进度失败");
+                    }
+                }
+            }
+
+            logger.LogInformation($"已恢复播放状态: 索引={_currentIndex}, 进度={savedState.ProgressSeconds}秒, 模式={_playMode}");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "加载播放状态失败");
+        }
+    }
+
+    private async void OnStateSaveTimerElapsed(object? sender, ElapsedEventArgs e)
+    {
+        if (_disposed || Current == null)
+            return;
+
+        await SavePlaybackStateAsync();
+    }
+
+    private async Task SavePlaybackStateAsync()
+    {
+        try
+        {
+            var state = new PlaybackState
+            {
+                CurrentMusicId = Current?.Id,
+                CurrentIndex = _currentIndex,
+                ProgressSeconds = _progressSeconds,
+                PlayMode = _playMode.ToString(),
+                PlaylistIds = _musics.Select(m => m.Id).Where(id => id != null).Cast<string>().ToList()
+            };
+
+            await playbackStateService.SaveStateAsync(state);
+        }
+        catch (Exception ex)
+        {
+            logger.LogDebug(ex, "保存播放状态失败");
+        }
+    }
+
     private async Task PlayIndexAsync(int index)
     {
         if (index < 0 || index >= _musics.Count)
@@ -217,12 +378,19 @@ public partial class Music(
         LoadLyricsForCurrent();
         ResetProgress();
         await EnsurePlayerAsync(true);
+        
+        // 切换歌曲时保存状态
+        await SavePlaybackStateAsync();
     }
 
     private async Task PlayNextAsync()
     {
         if (_musics.Count == 0)
             return;
+            
+        // 触发切换动画
+        await TriggerSwitchAnimationAsync("next");
+        
         int next = _currentIndex;
         if (_playMode == PlayMode.Shuffle)
         {
@@ -240,10 +408,29 @@ public partial class Music(
     {
         if (_musics.Count == 0)
             return;
+            
+        // 触发切换动画
+        await TriggerSwitchAnimationAsync("previous");
+        
         int prev = _currentIndex - 1;
         if (prev < 0)
             prev = _musics.Count - 1;
         await PlayIndexAsync(prev);
+    }
+
+    private async Task TriggerSwitchAnimationAsync(string direction)
+    {
+        if (_jsInitialized && _module != null)
+        {
+            try
+            {
+                await _module.InvokeVoidAsync("triggerCoverSwitchAnimation", direction);
+            }
+            catch (Exception ex)
+            {
+                logger.LogDebug(ex, "触发封面切换动画失败");
+            }
+        }
     }
 
     private void ToggleLyrics() => _showLyrics = !_showLyrics;
@@ -259,6 +446,9 @@ public partial class Music(
             PlayMode.Shuffle => PlayMode.Sequential,
             _ => PlayMode.Sequential,
         };
+        
+        // 切换模式时保存状态
+        _ = SavePlaybackStateAsync();
     }
 
     private string GetModeIcon() =>
@@ -336,26 +526,33 @@ public partial class Music(
 
     private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
     {
-        if (_player == null || _isSeeking)
+        if (_disposed || _player == null || _isSeeking)
             return;
 
-        var pos = _player.CurrentPosition;
-        _progressSeconds = pos;
-        UpdateElapsed(pos);
-        UpdateActiveLyric(pos);
-
-        if (_durationSeconds <= 0 && _player.Duration > 0)
+        try
         {
-            _durationSeconds = _player.Duration;
-            _durationText = FormatSeconds(_durationSeconds);
-        }
+            var pos = _player.CurrentPosition;
+            _progressSeconds = pos;
+            UpdateElapsed(pos);
+            UpdateActiveLyric(pos);
 
-        if (_isBuffering && pos > 0)
+            if (_durationSeconds <= 0 && _player.Duration > 0)
+            {
+                _durationSeconds = _player.Duration;
+                _durationText = FormatSeconds(_durationSeconds);
+            }
+
+            if (_isBuffering && pos > 0)
+            {
+                _isBuffering = false;
+            }
+
+            InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
         {
-            _isBuffering = false; // first data arrived
+            logger.LogDebug(ex, "Timer elapsed error (player may be disposed)");
         }
-
-        InvokeAsync(StateHasChanged);
     }
 
     private void UpdateElapsed(double seconds) => _elapsedText = FormatSeconds(seconds);
@@ -434,13 +631,25 @@ public partial class Music(
 
     public async ValueTask DisposeAsync()
     {
+        if (_disposed)
+            return;
+            
+        _disposed = true;
+        
+        _stateSaveTimer?.Stop();
+        _stateSaveTimer?.Dispose();
+        _stateSaveTimer = null;
+        
+        await SavePlaybackStateAsync();
+        
+        UnsubscribeFromMediaButtons();
+        
         layout.ShowNavbar();
         DisposePlayer();
         if (_module != null)
         {
             try
             {
-                // 清理手势事件监听器
                 await _module.InvokeVoidAsync("disposeCoverGesture");
                 await _module.DisposeAsync();
             }
@@ -450,6 +659,10 @@ public partial class Music(
 
     private void DisposePlayer()
     {
+        _timer?.Stop();
+        _timer?.Dispose();
+        _timer = null;
+        
         if (_player != null)
         {
             try
@@ -461,20 +674,12 @@ public partial class Music(
             catch { }
         }
         _player = null;
-        _timer?.Stop();
-        _timer?.Dispose();
-        _timer = null;
     }
 
-    // 可供原生后台通知调用的控制方法（平台桥接触发）
-    public Task NativePlayPauseAsync()
-    {
-        return TogglePlayAsync();
-    }
+    public Task NativePlayPauseAsync() => TogglePlayAsync();
     public Task NativeNextAsync() => PlayNextAsync();
     public Task NativePreviousAsync() => PlayPreviousAsync();
 
-    // 手势滑动回调（供 JavaScript 调用）
     [JSInvokable]
     public async Task OnSwipeNext()
     {
