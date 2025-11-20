@@ -7,6 +7,7 @@ using Dpz.Core.App.Service.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using MudBlazor.Services;
+using Plugin.Maui.Audio;
 using Serilog;
 
 namespace Dpz.Core.App.Client;
@@ -93,6 +94,8 @@ public static class MauiProgram
         services.AddScoped<LayoutService>();
 
         services.AddApiServices();
+
+        builder.AddAudio();
 
         builder
             .UseMauiApp<App>()

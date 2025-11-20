@@ -1,0 +1,24 @@
+﻿@page "/music"
+
+@if (_loading)
+{
+    @* TODO 加载骨架 *@
+}
+else
+{
+    @foreach(var music in _musics)
+    {
+        @* TODO 歌手 - 歌曲名 *@
+        <MudText>@music.Artist - @music.Title</MudText>
+
+        @* TODO 封面 *@
+        <img src="@music.CoverUrl" alt="@music.Title"/>
+
+        @* TODO 播放时长 *@
+        <MudText>@_playingText</MudText>
+
+        @* TODO 播放进度条，拖拽进度条 *@
+
+        @* TODO 播放、暂停、上一首、下一首、歌词、歌曲列表、顺序（列表、随机）等等 *@
+    }
+}

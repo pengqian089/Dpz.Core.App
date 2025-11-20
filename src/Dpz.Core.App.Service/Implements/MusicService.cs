@@ -10,7 +10,7 @@ public class MusicService(IHttpService httpService) : IMusicService
 {
     private const string BaseEndpoint = "/api/Music";
 
-    public async Task<IEnumerable<VmMusic>> GetMusicsAsync(
+    public async Task<List<VmMusic>> GetMusicsAsync(
         string? title = null,
         int pageSize = 0,
         int pageIndex = 0

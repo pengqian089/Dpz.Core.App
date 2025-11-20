@@ -10,7 +10,7 @@ public interface IMusicService
     /// <summary>
     /// 获取音乐列表
     /// </summary>
-    Task<IEnumerable<VmMusic>> GetMusicsAsync(
+    Task<List<VmMusic>> GetMusicsAsync(
         string? title = null,
         int pageSize = 0,
         int pageIndex = 0
