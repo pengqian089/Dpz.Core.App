@@ -23,7 +23,7 @@ jobs:
 
           ENCODED_PASS=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''${GITEA_PASSWORD}'''))")
 
-          REMOTE_URL="https://${GITEA_USER}:git.dpangzi.com/pengqian/Dpz.Core.App.git"
+          REMOTE_URL="https://${GITEA_USER}:${ENCODED_PASS}@git.dpangzi.com/pengqian/Dpz.Core.App.git"
           echo "Using remote: $REMOTE_URL"
           git remote add gitea "$REMOTE_URL"
           git fetch gitea --prune
