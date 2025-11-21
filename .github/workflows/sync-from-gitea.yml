@@ -18,13 +18,13 @@ jobs:
           GITEA_PASSWORD: ${{ secrets.GITEA_PASSWORD }}
           GITEA_URL: ${{ secrets.GITEA_URL }}
         run: |
-          # 配置 Git 用户信息
           git config --global user.name "${GITEA_USER}"
           git config --global user.email "${GITEA_USER}@users.noreply.github.com"
 
-          # 添加 Gitea 远程，直接拼接账号密码到 URL
-          git remote add gitea https://${GITEA_USER}:${GITEA_PASSWORD}@${GITEA_URL}
+          ENCODED_PASS=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''${GITEA_PASSWORD}'''))")
 
-          # 拉取并推送镜像
+          REMOTE_URL="https://${GITEA_USER}:${ENCODED_PASS}@${GITEA_URL}"
+          echo "Using remote: $REMOTE_URL"
+          git remote add gitea "$REMOTE_URL"
           git fetch gitea --prune
           git push origin --mirror
