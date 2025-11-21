@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using System.Timers;
 using Dpz.Core.App.Client.Services;
 using Dpz.Core.App.Models.Music;
 using Dpz.Core.App.Service.Services;
@@ -31,10 +30,11 @@ public partial class Music(
     private IJSObjectReference? _module;
     private bool _jsInitialized;
     private bool _disposed;
-    private System.Timers.Timer? _stateSaveTimer; // 用于定期保存状态
+    private bool _isDisposing;
+    private IDispatcherTimer? _stateSaveTimer; // 用于定期保存状态
 
     private static List<VmMusic> _musics = [];
-    private System.Timers.Timer? _timer;
+    private IDispatcherTimer? _timer;
     private IAudioPlayer? _player;
 
     private List<LyricLine> _currentLyricLines = [];
@@ -72,6 +72,16 @@ public partial class Music(
             ? _musics[_currentIndex]
             : null;
 
+    protected override bool ShouldRender()
+    {
+        // 如果组件正在或已经销毁，阻止所有渲染
+        if (_isDisposing || _disposed)
+        {
+            return false;
+        }
+        return base.ShouldRender();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         layout.HideNavbar();
@@ -96,10 +106,10 @@ public partial class Music(
         }
 
         // 启动定期保存状态的计时器（每5秒保存一次）
-        _stateSaveTimer = new System.Timers.Timer(5000);
-        _stateSaveTimer.Elapsed += OnStateSaveTimerElapsed;
-        _stateSaveTimer.AutoReset = true;
-        _stateSaveTimer.Enabled = true;
+        _stateSaveTimer = Application.Current!.Dispatcher.CreateTimer();
+        _stateSaveTimer.Interval = TimeSpan.FromSeconds(5);
+        _stateSaveTimer.Tick += OnStateSaveTimerTick;
+        _stateSaveTimer.Start();
 
         await base.OnInitializedAsync();
     }
@@ -124,7 +134,7 @@ public partial class Music(
 
     private void OnNativeMediaButton(string action)
     {
-        if (_disposed)
+        if (_disposed || _isDisposing)
         {
             return;
         }
@@ -133,6 +143,11 @@ public partial class Music(
         {
             _ = InvokeAsync(async () =>
             {
+                if (_disposed || _isDisposing)
+                {
+                    return;
+                }
+
                 switch (action)
                 {
                     case "play":
@@ -142,7 +157,10 @@ public partial class Music(
                             _player.Play();
                             _isPlaying = true;
                             UpdateMediaSessionPlayback();
-                            StateHasChanged();
+                            if (!_disposed && !_isDisposing)
+                            {
+                                StateHasChanged();
+                            }
                         }
                         else if (_player == null)
                         {
@@ -157,7 +175,10 @@ public partial class Music(
                             _player.Pause();
                             _isPlaying = false;
                             UpdateMediaSessionPlayback();
-                            StateHasChanged();
+                            if (!_disposed && !_isDisposing)
+                            {
+                                StateHasChanged();
+                            }
                         }
                         break;
 
@@ -183,6 +204,11 @@ public partial class Music(
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (_isDisposing || _disposed)
+        {
+            return;
+        }
+
         if (firstRender && !_jsInitialized)
         {
             try
@@ -197,6 +223,10 @@ public partial class Music(
                 var dotNetRef = DotNetObjectReference.Create(this);
                 await _module.InvokeVoidAsync("initCoverGesture", dotNetRef);
             }
+            catch (JSDisconnectedException)
+            {
+                // Ignore if the JS runtime is disconnected (e.g., during shutdown)
+            }
             catch (Exception e)
             {
                 logger.LogWarning(e, "Music.js 加载失败");
@@ -207,6 +237,10 @@ public partial class Music(
             try
             {
                 await _module!.InvokeVoidAsync("scrollToLyric", _pendingScrollIndex);
+            }
+            catch (JSDisconnectedException)
+            {
+                // Ignore if the JS runtime is disconnected (e.g., during shutdown)
             }
             catch (Exception e)
             {
@@ -226,7 +260,12 @@ public partial class Music(
         DisposePlayer();
         _isBuffering = true;
         _errorMessage = null;
-        StateHasChanged();
+        
+        if (!_isDisposing && !_disposed)
+        {
+            StateHasChanged();
+        }
+        
         try
         {
             using var req = new HttpRequestMessage(HttpMethod.Get, Current.MusicUrl);
@@ -236,10 +275,12 @@ public partial class Music(
             _player = audioManager.CreatePlayer(stream);
             _player.Error += OnPlayerError;
             _player.PlaybackEnded += OnPlaybackEnded;
-            _timer = new System.Timers.Timer(250);
-            _timer.Elapsed += OnTimerElapsed;
-            _timer.AutoReset = true;
-            _timer.Enabled = true;
+            
+            _timer = Application.Current!.Dispatcher.CreateTimer();
+            _timer.Interval = TimeSpan.FromMilliseconds(250);
+            _timer.Tick += OnTimerTick;
+            _timer.Start();
+            
             _durationSeconds = GetDurationSeconds(Current);
             if (_durationSeconds <= 0 && _player != null)
             {
@@ -258,12 +299,24 @@ public partial class Music(
         {
             logger.LogError(ex, "初始化播放器失败");
             _errorMessage = "初始化失败";
-            snackbar.Add("初始化播放器失败", Severity.Error);
+            
+            try
+            {
+                snackbar.Add("初始化播放器失败", Severity.Error);
+            }
+            catch (ObjectDisposedException)
+            {
+                // Snackbar 已被释放，忽略
+            }
+            
             _isBuffering = false;
         }
         finally
         {
-            StateHasChanged();
+            if (!_isDisposing && !_disposed)
+            {
+                StateHasChanged();
+            }
         }
     }
 
@@ -383,9 +436,9 @@ public partial class Music(
         }
     }
 
-    private async void OnStateSaveTimerElapsed(object? sender, ElapsedEventArgs e)
+    private async void OnStateSaveTimerTick(object? sender, EventArgs e)
     {
-        if (_disposed || Current == null)
+        if (_disposed || _isDisposing || Current == null)
         {
             return;
         }
@@ -566,7 +619,7 @@ public partial class Music(
 
     private async void OnPlaybackEnded(object? sender, EventArgs e)
     {
-        if (_disposed)
+        if (_disposed || _isDisposing)
         {
             return;
         }
@@ -585,7 +638,10 @@ public partial class Music(
                 await PlayNextAsync();
             }
 
-            await InvokeAsync(StateHasChanged);
+            if (!_disposed && !_isDisposing)
+            {
+                await InvokeAsync(StateHasChanged);
+            }
         }
         catch (ObjectDisposedException)
         {
@@ -599,7 +655,7 @@ public partial class Music(
 
     private void OnPlayerError(object? sender, EventArgs e)
     {
-        if (_disposed)
+        if (_disposed || _isDisposing)
         {
             return;
         }
@@ -623,9 +679,9 @@ public partial class Music(
         }
     }
 
-    private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+    private void OnTimerTick(object? sender, EventArgs e)
     {
-        if (_disposed || _player == null || _isSeeking)
+        if (_disposed || _isDisposing || _player == null || _isSeeking)
         {
             return;
         }
@@ -648,19 +704,7 @@ public partial class Music(
                 _isBuffering = false;
             }
 
-            // 安全地调用 InvokeAsync，避免在应用关闭时抛出异常
-            try
-            {
-                _ = InvokeAsync(StateHasChanged);
-            }
-            catch (ObjectDisposedException)
-            {
-                // 组件已经被释放，忽略此异常
-            }
-            catch (InvalidOperationException)
-            {
-                // Dispatcher 不可用，忽略此异常
-            }
+            StateHasChanged();
         }
         catch (ObjectDisposedException)
         {
@@ -669,7 +713,7 @@ public partial class Music(
         }
         catch (Exception ex)
         {
-            logger.LogDebug(ex, "Timer elapsed error (player may be disposed)");
+            logger.LogDebug(ex, "Timer tick error (player may be disposed)");
         }
     }
 
@@ -758,21 +802,27 @@ public partial class Music(
 
     public async ValueTask DisposeAsync()
     {
-        if (_disposed)
+        if (_disposed || _isDisposing)
         {
             return;
         }
 
-        _disposed = true;
+        _isDisposing = true;
 
         // Stop and dispose timers first
-        _stateSaveTimer?.Stop();
-        _stateSaveTimer?.Dispose();
-        _stateSaveTimer = null;
+        if (_stateSaveTimer != null)
+        {
+            _stateSaveTimer.Stop();
+            _stateSaveTimer.Tick -= OnStateSaveTimerTick;
+            _stateSaveTimer = null;
+        }
 
-        _timer?.Stop();
-        _timer?.Dispose();
-        _timer = null;
+        if (_timer != null)
+        {
+            _timer.Stop();
+            _timer.Tick -= OnTimerTick;
+            _timer = null;
+        }
 
         // Save state one last time
         await SavePlaybackStateAsync();
@@ -788,7 +838,11 @@ public partial class Music(
             {
                 // Don't wait for JS disposal on background thread
                 _ = _module.InvokeVoidAsync("disposeCoverGesture");
-                _ = _module.DisposeAsync();
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Ignore if the JS runtime is disconnected (e.g., during shutdown)
             }
             catch (Exception ex)
             {
@@ -799,15 +853,19 @@ public partial class Music(
                 _module = null;
             }
         }
-
+        
+        _disposed = true;
         GC.SuppressFinalize(this);
     }
 
     private void DisposePlayer()
     {
-        _timer?.Stop();
-        _timer?.Dispose();
-        _timer = null;
+        if (_timer != null)
+        {
+            _timer.Stop();
+            _timer.Tick -= OnTimerTick;
+            _timer = null;
+        }
 
         if (_player != null)
         {

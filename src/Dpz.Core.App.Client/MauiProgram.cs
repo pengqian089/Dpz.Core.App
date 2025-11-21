@@ -150,6 +150,14 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        return builder.Build();
+        try
+        {
+            return builder.Build();
+        }
+        catch (Exception e)
+        {
+            Log.Fatal(e, "启动失败");
+            throw;
+        }
     }
 }
