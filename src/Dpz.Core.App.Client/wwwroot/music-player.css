@@ -49,8 +49,6 @@
     position: relative;
     width: min(85vw, 320px);
     height: min(85vw, 320px);
-    perspective: 1500px;
-    perspective-origin: 50% 30%;
 }
 
 /* 堆叠的封面项 - 卡片式设计 */
@@ -62,77 +60,63 @@
     overflow: hidden;
     transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), 
                 opacity 0.5s ease,
-                box-shadow 0.5s ease,
-                filter 0.4s ease;
-    backface-visibility: hidden;
+                box-shadow 0.5s ease;
     will-change: transform, opacity;
-    transform-style: preserve-3d;
 }
 
-/* 浅色模式样式 */
+/* 浅色模式样式 - 柔化边框和阴影 */
 @media (prefers-color-scheme: light) {
     .cover-stack-item {
         box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.12),
-            0 2px 8px rgba(0, 0, 0, 0.08),
+            0 2px 8px rgba(0, 0, 0, 0.06),
+            inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+    }
+    
+    .cover-stack-item.current {
+        box-shadow: 
+            0 12px 32px rgba(0, 0, 0, 0.1),
+            0 6px 18px rgba(0, 0, 0, 0.06),
             inset 0 0 0 1px rgba(0, 0, 0, 0.05);
     }
     
-    .cover-stack-item.current {
-        box-shadow: 
-            0 20px 60px rgba(0, 0, 0, 0.18),
-            0 8px 24px rgba(0, 0, 0, 0.12),
-            inset 0 0 0 1px rgba(0, 0, 0, 0.08);
-    }
-    
     .cover-stack-item.next {
         box-shadow: 
-            0 12px 40px rgba(0, 0, 0, 0.10),
-            0 4px 12px rgba(0, 0, 0, 0.06),
-            inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+            0 6px 18px rgba(0, 0, 0, 0.07),
+            inset 0 0 0 1px rgba(0, 0, 0, 0.03);
     }
     
     .cover-stack-item.next-next {
         box-shadow: 
-            0 6px 20px rgba(0, 0, 0, 0.08),
-            0 2px 6px rgba(0, 0, 0, 0.04),
-            inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+            0 4px 12px rgba(0, 0, 0, 0.05),
+            inset 0 0 0 1px rgba(0, 0, 0, 0.02);
     }
 }
 
-/* 深色模式样式 - 增强对比度和光晕效果 */
+/* 深色模式样式 - 优化边框和光晕 */
 @media (prefers-color-scheme: dark) {
     .cover-stack-item {
         box-shadow: 
-            0 10px 40px rgba(0, 0, 0, 0.4),
-            0 4px 16px rgba(0, 0, 0, 0.3),
-            0 0 0 1px rgba(255, 255, 255, 0.08),
-            0 1px 0 0 rgba(255, 255, 255, 0.05) inset;
+            0 8px 25px rgba(0, 0, 0, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.06);
     }
     
     .cover-stack-item.current {
         box-shadow: 
-            0 24px 70px rgba(0, 0, 0, 0.5),
-            0 10px 30px rgba(0, 0, 0, 0.4),
-            0 0 0 1.5px rgba(255, 255, 255, 0.18),
-            0 1px 0 0 rgba(255, 255, 255, 0.15) inset,
-            0 0 60px -10px rgba(var(--mud-palette-primary-rgb), 0.4);
+            0 18px 50px rgba(0, 0, 0, 0.4),
+            0 0 0 1px rgba(255, 255, 255, 0.1),
+            0 0 70px -20px rgba(var(--mud-palette-primary-rgb), 0.4);
     }
     
     .cover-stack-item.next {
         box-shadow: 
-            0 16px 50px rgba(0, 0, 0, 0.35),
-            0 6px 20px rgba(0, 0, 0, 0.25),
-            0 0 0 1.5px rgba(255, 255, 255, 0.15),
-            0 1px 0 0 rgba(255, 255, 255, 0.12) inset;
+            0 10px 35px rgba(0, 0, 0, 0.35),
+            0 0 0 1px rgba(255, 255, 255, 0.08);
     }
     
     .cover-stack-item.next-next {
         box-shadow: 
-            0 10px 30px rgba(0, 0, 0, 0.3),
-            0 4px 12px rgba(0, 0, 0, 0.2),
-            0 0 0 1.5px rgba(255, 255, 255, 0.12),
-            0 1px 0 0 rgba(255, 255, 255, 0.08) inset;
+            0 6px 20px rgba(0, 0, 0, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.07);
     }
 }
 
@@ -151,36 +135,28 @@
 
 /* 向下一首切换 - 滑出左侧 */
 @keyframes switchOutNext {
-    0% {
-        transform: translateZ(0) translateX(0) rotateY(0deg) scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: translateZ(-30px) translateX(-150%) rotateY(-25deg) scale(0.85);
+    to {
+        transform: translateX(-120%) scale(0.85);
         opacity: 0;
     }
 }
 
 /* 向上一首切换 - 滑出右侧 */
 @keyframes switchOutPrev {
-    0% {
-        transform: translateZ(0) translateX(0) rotateY(0deg) scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: translateZ(-30px) translateX(150%) rotateY(25deg) scale(0.85);
+    to {
+        transform: translateX(120%) scale(0.85);
         opacity: 0;
     }
 }
 
 /* 新封面滑入 */
 @keyframes switchIn {
-    0% {
-        transform: translateZ(-30px) translateY(16px) scale(0.92);
-        opacity: 0.5;
+    from {
+        transform: translateY(12px) scale(0.94);
+        opacity: 0.6;
     }
-    100% {
-        transform: translateZ(0) translateY(0) scale(1);
+    to {
+        transform: translateY(0) scale(1);
         opacity: 1;
     }
 }
@@ -188,43 +164,27 @@
 /* 当前播放（最上层） - 完全展示 */
 .cover-stack-item.current {
     z-index: 3;
-    transform: translateZ(0) translateY(0) scale(1);
+    transform: scale(1);
     opacity: 1;
-    filter: brightness(1);
 }
 
-/* 下一首（中间层） - 更紧密的堆叠 */
+/* 下一首（中间层） - 优化堆叠效果 */
 .cover-stack-item.next {
     z-index: 2;
-    transform: translateZ(-15px) translateY(8px) scale(0.96);
-    opacity: 0.88;
-    filter: brightness(0.92);
+    transform: translateY(12px) scale(0.94);
+    opacity: 0.8;
 }
 
-/* 下下首（底层） - 更紧密的堆叠 */
+/* 下下首（底层） - 优化堆叠效果 */
 .cover-stack-item.next-next {
     z-index: 1;
-    transform: translateZ(-30px) translateY(16px) scale(0.92);
-    opacity: 0.7;
-    filter: brightness(0.85);
-}
-
-/* 深色模式下的滤镜优化 - 增强后层卡片的亮度和透明度 */
-@media (prefers-color-scheme: dark) {
-    .cover-stack-item.next {
-        opacity: 0.95;
-        filter: brightness(1.05) contrast(1.08) saturate(1.1);
-    }
-    
-    .cover-stack-item.next-next {
-        opacity: 0.85;
-        filter: brightness(1.08) contrast(1.12) saturate(1.15);
-    }
+    transform: translateY(24px) scale(0.88);
+    opacity: 0.6;
 }
 
 /* 鼠标/触摸交互反馈 */
 .cover-stack-item.current:active {
-    transform: translateZ(0) translateY(0) scale(0.98);
+    transform: scale(0.98);
     transition: transform 0.1s ease;
 }
 
@@ -328,48 +288,73 @@
     height: 100%;
     background: transparent;
     overflow: hidden;
+    position: relative; /* For pseudo-element overlay */
+}
+
+/* Add top and bottom fade effect to lyrics */
+.music-page .lyrics-panel::before,
+.music-page .lyrics-panel::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 40px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.music-page .lyrics-panel::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--mud-palette-surface) 20%, transparent);
+}
+
+.music-page .lyrics-panel::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--mud-palette-surface) 20%, transparent);
 }
 
 .music-page .lyrics-scroll {
     height: 100%;
     overflow-y: auto;
-    padding: 24px 16px;
+    padding: 40px 16px; /* Increased padding to account for fades */
     scroll-behavior: smooth;
 }
 
 .music-page .lyric-line {
     text-align: center;
-    padding: 8px 0;
-    font-size: 0.95rem;
-    color: rgba(var(--mud-palette-text-primary-rgb), 0.5);
+    padding: 10px 0; /* Increased padding for better spacing */
+    font-size: 1rem; /* Slightly larger base font size */
+    color: var(--mud-palette-text-secondary); /* Softer color for inactive lines */
     transition: all 0.3s ease;
     line-height: 1.6;
+    opacity: 0.7;
 }
 
 .music-page .lyric-line.active {
-    font-size: 1.1rem;
+    font-size: 1.15rem; /* Larger active font size */
     font-weight: 600;
     color: var(--mud-palette-primary);
-    transform: scale(1.05);
+    transform: scale(1.03);
+    opacity: 1;
 }
 
 .music-page .controls-zone {
     flex-shrink: 0;
-    padding: 16px 24px 32px;
+    padding: 8px 24px 24px; /* Reduced padding */
     background: var(--mud-palette-surface);
 }
 
 .music-page .progress-slider {
-    margin-bottom: 8px;
+    margin-bottom: 4px; /* Reduced margin */
 }
 
 .music-page .time-row {
-    margin-bottom: 16px;
+    margin-bottom: 8px; /* Reduced margin */
     padding: 0 4px;
 }
 
 .music-page .controls-bar {
-    padding: 8px 0;
+    padding: 0; /* Removed padding */
 }
 
 /* 播放列表遮罩 */

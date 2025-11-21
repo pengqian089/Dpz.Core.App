@@ -58,279 +58,173 @@ export function initCoverGesture(dotNetRef) {
     return;
   }
 
-  const currentCover = coverStack.querySelector('.cover-stack-item.current');
-  if (!currentCover) {
-    console.warn('Current cover not found');
-    return;
-  }
-
   // 移除旧的事件监听器
-  currentCover.removeEventListener('touchstart', handleTouchStart);
-  currentCover.removeEventListener('touchmove', handleTouchMove);
-  currentCover.removeEventListener('touchend', handleTouchEnd);
+  disposeCoverGesture();
 
-  // 添加触摸事件 - 优化触摸响应
-  currentCover.addEventListener('touchstart', handleTouchStart, { passive: true });
-  currentCover.addEventListener('touchmove', handleTouchMove, { passive: false });
-  currentCover.addEventListener('touchend', (e) => handleTouchEnd(e, dotNetRef), { passive: true });
-
-  // 添加鼠标事件
-  currentCover.addEventListener('mousedown', handleMouseDown);
-  currentCover.addEventListener('mousemove', handleMouseMove);
-  currentCover.addEventListener('mouseup', (e) => handleMouseUp(e, dotNetRef));
-  currentCover.addEventListener('mouseleave', resetSwipe);
+  // 绑定新的启动事件
+  coverStack.addEventListener('mousedown', (e) => handleGestureStart(e, dotNetRef));
+  coverStack.addEventListener('touchstart', (e) => handleGestureStart(e, dotNetRef), { passive: true });
 }
 
 export function disposeCoverGesture() {
-  const currentCover = document.querySelector('.cover-stack-item.current');
-  if (!currentCover) return;
+  const coverStack = document.querySelector('.cover-stack');
+  if (!coverStack) return;
 
-  currentCover.removeEventListener('touchstart', handleTouchStart);
-  currentCover.removeEventListener('touchmove', handleTouchMove);
-  currentCover.removeEventListener('touchend', handleTouchEnd);
-  currentCover.removeEventListener('mousedown', handleMouseDown);
-  currentCover.removeEventListener('mousemove', handleMouseMove);
-  currentCover.removeEventListener('mouseup', handleMouseUp);
-  currentCover.removeEventListener('mouseleave', resetSwipe);
+  // 移除所有相关监听器
+  coverStack.removeEventListener('mousedown', handleGestureStart);
+  coverStack.removeEventListener('touchstart', handleGestureStart);
+  document.removeEventListener('mousemove', handleGestureMove);
+  document.removeEventListener('touchmove', handleGestureMove);
+  document.removeEventListener('mouseup', handleGestureEnd);
+  document.removeEventListener('touchend', handleGestureEnd);
+  document.removeEventListener('mouseleave', handleGestureEnd);
 }
 
-let touchStartX = 0;
-let touchStartY = 0;
-let touchEndX = 0;
-let touchEndY = 0;
-let isSwiping = false;
-let swipeStartTime = 0;
+// --- 手势状态变量 ---
+let isDragging = false;
+let startX = 0;
+let currentX = 0;
+let animationFrameId = null;
+let dotNetRef = null;
+let currentCoverEl = null;
+let nextCoverEl = null;
+let coverWidth = 0;
 
-function handleTouchStart(e) {
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
-  isSwiping = false;
-  swipeStartTime = Date.now();
-}
-
-function handleTouchMove(e) {
-  if (!isSwiping) {
-    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-    const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
-    
-    // 降低触发阈值到5px，提高响应性
-    if (deltaX > 5 && deltaX > deltaY * 1.5) {
-      isSwiping = true;
-      e.preventDefault();
-    }
-  }
+function handleGestureStart(e, ref) {
+  // 阻止在非当前封面上启动拖动
+  if (!e.target.closest('.cover-stack-item.current')) return;
   
-  if (isSwiping) {
+  dotNetRef = ref;
+  isDragging = true;
+  startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+  
+  currentCoverEl = document.querySelector('.cover-stack-item.current');
+  nextCoverEl = document.querySelector('.cover-stack-item.next');
+  if (!currentCoverEl) return;
+
+  coverWidth = currentCoverEl.offsetWidth;
+
+  // 移除过渡效果以便手动控制
+  currentCoverEl.style.transition = 'none';
+  if (nextCoverEl) {
+    nextCoverEl.style.transition = 'none';
+  }
+
+  // 添加全局移动和结束监听器
+  document.addEventListener('mousemove', handleGestureMove);
+  document.addEventListener('touchmove', handleGestureMove, { passive: false });
+  document.addEventListener('mouseup', handleGestureEnd);
+  document.addEventListener('touchend', handleGestureEnd);
+  document.addEventListener('mouseleave', handleGestureEnd); // 处理鼠标移出窗口
+}
+
+function handleGestureMove(e) {
+  if (!isDragging) return;
+
+  // 阻止页面滚动
+  if (e.type === 'touchmove') {
     e.preventDefault();
-    const coverStack = document.querySelector('.cover-stack');
-    const currentCover = e.currentTarget;
-    const deltaX = e.touches[0].clientX - touchStartX;
-    const progress = Math.max(-1, Math.min(1, deltaX / (coverStack.offsetWidth * 0.8)));
-    
-    // 更平滑的变换效果
-    currentCover.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(progress) * 0.1}) rotateY(${progress * 10}deg)`;
-    currentCover.style.opacity = `${1 - Math.abs(progress) * 0.3}`;
-    
-    // 只在向左滑时显示下一首 - 使用更紧密的参数
-    const nextCover = coverStack.querySelector('.cover-stack-item.next');
-    if (nextCover && deltaX < 0) {
-      const nextProgress = Math.min(1, Math.abs(progress));
-      nextCover.style.transform = `translateZ(-${15 * (1 - nextProgress)}px) translateY(${8 * (1 - nextProgress)}px) scale(${0.96 + 0.04 * nextProgress})`;
-      nextCover.style.opacity = `${0.88 + 0.12 * nextProgress}`;
-    } else if (nextCover) {
-      // 向右滑时重置下一首的样式
-      nextCover.style.transform = '';
-      nextCover.style.opacity = '';
-    }
+  }
+
+  currentX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+  
+  // 使用 requestAnimationFrame 优化性能
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+  }
+  animationFrameId = requestAnimationFrame(updateCoverPositions);
+}
+
+function updateCoverPositions() {
+  if (!isDragging || !currentCoverEl) return;
+
+  const deltaX = currentX - startX;
+  const progress = Math.max(-1, Math.min(1, deltaX / coverWidth));
+
+  // 移动当前封面
+  currentCoverEl.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(progress) * 0.05})`;
+  currentCoverEl.style.opacity = `${1 - Math.abs(progress) * 0.3}`;
+
+  // 联动下一张封面
+  if (nextCoverEl && deltaX < 0) { // 只在向左滑时
+    const nextProgress = Math.min(1, Math.abs(progress));
+    const scale = 0.94 + 0.06 * nextProgress;
+    const translateY = 12 * (1 - nextProgress);
+    nextCoverEl.style.transform = `translateY(${translateY}px) scale(${scale})`;
+    nextCoverEl.style.opacity = `${0.8 + 0.2 * nextProgress}`;
   }
 }
 
-async function handleTouchEnd(e, dotNetRef) {
-  if (!isSwiping) {
-    resetSwipe(e);
-    return;
+async function handleGestureEnd(e) {
+  if (!isDragging) return;
+  isDragging = false;
+
+  cancelAnimationFrame(animationFrameId);
+
+  const deltaX = currentX - startX;
+  const threshold = coverWidth * 0.3; // 滑动超过30%宽度触发切换
+
+  // 恢复过渡效果
+  if (currentCoverEl) {
+    currentCoverEl.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+  }
+  if (nextCoverEl) {
+    nextCoverEl.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
   }
 
-  touchEndX = e.changedTouches[0].clientX;
-  touchEndY = e.changedTouches[0].clientY;
-  
-  const coverStack = document.querySelector('.cover-stack');
-  const currentCover = e.currentTarget;
-  const deltaX = touchEndX - touchStartX;
-  const swipeDuration = Date.now() - swipeStartTime;
-  const swipeVelocity = Math.abs(deltaX) / swipeDuration; // px/ms
-  
-  // 根据滑动距离和速度判断是否切换
-  // 快速滑动: 速度 > 0.5 px/ms 且滑动 > 30px
-  // 慢速滑动: 滑动距离 > 屏幕宽度的15%
-  const threshold = coverStack.offsetWidth * 0.15;
-  const isQuickSwipe = swipeVelocity > 0.5 && Math.abs(deltaX) > 30;
-  const isLongSwipe = Math.abs(deltaX) > threshold;
-
-  if (isQuickSwipe || isLongSwipe) {
+  if (Math.abs(deltaX) > threshold) {
+    // 触发切换
     const direction = deltaX > 0 ? 'previous' : 'next';
     
-    // 完成滑动动画
-    currentCover.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease';
-    currentCover.style.transform = `translateX(${deltaX > 0 ? '120%' : '-120%'}) scale(0.8) rotateY(${deltaX > 0 ? '20deg' : '-20deg'})`;
-    currentCover.style.opacity = '0';
-    
-    try {
-      if (direction === 'next') {
-        await dotNetRef.invokeMethodAsync('OnSwipeNext');
-      } else {
-        await dotNetRef.invokeMethodAsync('OnSwipePrevious');
+    if (currentCoverEl) {
+      currentCoverEl.style.transform = `translateX(${deltaX > 0 ? '100%' : '-100%'}) scale(0.9)`;
+      currentCoverEl.style.opacity = '0';
+    }
+
+    // [FIX] Check if dotNetRef is still valid before invoking
+    if (dotNetRef) {
+      try {
+        if (direction === 'next') {
+          await dotNetRef.invokeMethodAsync('OnSwipeNext');
+        } else {
+          await dotNetRef.invokeMethodAsync('OnSwipePrevious');
+        }
+      } catch (error) {
+        console.error('Failed to invoke swipe handler:', error);
       }
-    } catch (error) {
-      console.error('Failed to invoke swipe handler:', error);
     }
     
-    setTimeout(() => {
-      currentCover.style.transition = '';
-      resetSwipe({ currentTarget: currentCover });
-    }, 100);
+    // 动画结束后清理样式，以防影响下一次交互
+    setTimeout(resetElementStyles, 300);
+
   } else {
     // 弹回原位
-    currentCover.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease';
-    resetSwipe(e);
-    
-    const nextCover = coverStack.querySelector('.cover-stack-item.next');
-    if (nextCover) {
-      nextCover.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
-      nextCover.style.transform = '';
-      nextCover.style.opacity = '';
-      setTimeout(() => {
-        nextCover.style.transition = '';
-      }, 350);
-    }
-    
-    setTimeout(() => {
-      currentCover.style.transition = '';
-    }, 350);
+    resetElementStyles();
   }
+
+  // 清理全局监听器
+  document.removeEventListener('mousemove', handleGestureMove);
+  document.removeEventListener('touchmove', handleGestureMove);
+  document.removeEventListener('mouseup', handleGestureEnd);
+  document.removeEventListener('touchend', handleGestureEnd);
+  document.removeEventListener('mouseleave', handleGestureEnd);
   
-  isSwiping = false;
+  // 重置状态
+  dotNetRef = null;
+  currentCoverEl = null;
+  nextCoverEl = null;
 }
 
-function handleMouseDown(e) {
-  touchStartX = e.clientX;
-  touchStartY = e.clientY;
-  isSwiping = false;
-  swipeStartTime = Date.now();
-}
-
-function handleMouseMove(e) {
-  if (e.buttons !== 1) return;
+function resetElementStyles() {
+  const current = document.querySelector('.cover-stack-item.current');
+  const next = document.querySelector('.cover-stack-item.next');
   
-  if (!isSwiping) {
-    const deltaX = Math.abs(e.clientX - touchStartX);
-    const deltaY = Math.abs(e.clientY - touchStartY);
-    
-    // 降低触发阈值到3px
-    if (deltaX > 3 && deltaX > deltaY * 1.5) {
-      isSwiping = true;
-    }
+  if (current) {
+    current.style.transform = '';
+    current.style.opacity = '';
   }
-  
-  if (isSwiping) {
-    const coverStack = document.querySelector('.cover-stack');
-    const currentCover = e.currentTarget;
-    const deltaX = e.clientX - touchStartX;
-    const progress = Math.max(-1, Math.min(1, deltaX / (coverStack.offsetWidth * 0.8)));
-    
-    // 更平滑的变换效果
-    currentCover.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(progress) * 0.1}) rotateY(${progress * 10}deg)`;
-    currentCover.style.opacity = `${1 - Math.abs(progress) * 0.3}`;
-    
-    // 只在向左滑时显示下一首 - 使用更紧密的参数
-    const nextCover = coverStack.querySelector('.cover-stack-item.next');
-    if (nextCover && deltaX < 0) {
-      const nextProgress = Math.min(1, Math.abs(progress));
-      nextCover.style.transform = `translateZ(-${15 * (1 - nextProgress)}px) translateY(${8 * (1 - nextProgress)}px) scale(${0.96 + 0.04 * nextProgress})`;
-      nextCover.style.opacity = `${0.88 + 0.12 * nextProgress}`;
-    } else if (nextCover) {
-      nextCover.style.transform = '';
-      nextCover.style.opacity = '';
-    }
-  }
-}
-
-async function handleMouseUp(e, dotNetRef) {
-  if (!isSwiping) {
-    resetSwipe(e);
-    return;
-  }
-
-  touchEndX = e.clientX;
-  const coverStack = document.querySelector('.cover-stack');
-  const currentCover = e.currentTarget;
-  const deltaX = touchEndX - touchStartX;
-  const swipeDuration = Date.now() - swipeStartTime;
-  const swipeVelocity = Math.abs(deltaX) / swipeDuration;
-  
-  // 鼠标操作阈值稍低
-  const threshold = coverStack.offsetWidth * 0.12;
-  const isQuickSwipe = swipeVelocity > 0.4 && Math.abs(deltaX) > 25;
-  const isLongSwipe = Math.abs(deltaX) > threshold;
-
-  if (isQuickSwipe || isLongSwipe) {
-    const direction = deltaX > 0 ? 'previous' : 'next';
-    
-    // 完成滑动动画
-    currentCover.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease';
-    currentCover.style.transform = `translateX(${deltaX > 0 ? '120%' : '-120%'}) scale(0.8) rotateY(${deltaX > 0 ? '20deg' : '-20deg'})`;
-    currentCover.style.opacity = '0';
-    
-    try {
-      if (direction === 'next') {
-        await dotNetRef.invokeMethodAsync('OnSwipeNext');
-      } else {
-        await dotNetRef.invokeMethodAsync('OnSwipePrevious');
-      }
-    } catch (error) {
-      console.error('Failed to invoke swipe handler:', error);
-    }
-    
-    setTimeout(() => {
-      currentCover.style.transition = '';
-      resetSwipe({ currentTarget: currentCover });
-    }, 100);
-  } else {
-    // 弹回原位
-    currentCover.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease';
-    resetSwipe(e);
-    
-    const nextCover = coverStack.querySelector('.cover-stack-item.next');
-    if (nextCover) {
-      nextCover.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
-      nextCover.style.transform = '';
-      nextCover.style.opacity = '';
-      setTimeout(() => {
-        nextCover.style.transition = '';
-      }, 350);
-    }
-    
-    setTimeout(() => {
-      currentCover.style.transition = '';
-    }, 350);
-  }
-  
-  isSwiping = false;
-}
-
-function resetSwipe(e) {
-  const currentCover = e.currentTarget || document.querySelector('.cover-stack-item.current');
-  if (currentCover) {
-    currentCover.style.transform = '';
-    currentCover.style.opacity = '';
-  }
-  
-  const coverStack = document.querySelector('.cover-stack');
-  if (coverStack) {
-    const nextCover = coverStack.querySelector('.cover-stack-item.next');
-    if (nextCover) {
-      nextCover.style.transform = '';
-      nextCover.style.opacity = '';
-    }
+  if (next) {
+    next.style.transform = '';
+    next.style.opacity = '';
   }
 }

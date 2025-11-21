@@ -701,26 +701,43 @@ public partial class Music(
             return;
             
         _disposed = true;
-        
+
+        // Stop and dispose timers first
         _stateSaveTimer?.Stop();
         _stateSaveTimer?.Dispose();
         _stateSaveTimer = null;
+
+        _timer?.Stop();
+        _timer?.Dispose();
+        _timer = null;
         
+        // Save state one last time
         await SavePlaybackStateAsync();
         
         UnsubscribeFromMediaButtons();
         
         layout.ShowNavbar();
         DisposePlayer();
+
         if (_module != null)
         {
             try
             {
-                await _module.InvokeVoidAsync("disposeCoverGesture");
-                await _module.DisposeAsync();
+                // Don't wait for JS disposal on background thread
+                _ = _module.InvokeVoidAsync("disposeCoverGesture");
+                _ = _module.DisposeAsync();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                logger.LogDebug(ex, "Error disposing JS module.");
+            }
+            finally
+            {
+                _module = null;
+            }
         }
+        
+        GC.SuppressFinalize(this);
     }
 
     private void DisposePlayer()
