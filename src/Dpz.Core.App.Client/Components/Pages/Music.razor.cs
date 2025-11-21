@@ -117,45 +117,59 @@ public partial class Music(
 
     private void OnNativeMediaButton(string action)
     {
-        _ = InvokeAsync(async () =>
+        if (_disposed)
+            return;
+
+        try
         {
-            switch (action)
+            _ = InvokeAsync(async () =>
             {
-                case "play":
-                    // 通知栏点击播放
-                    if (_player != null && !_isPlaying)
-                    {
-                        _player.Play();
-                        _isPlaying = true;
-                        UpdateMediaSessionPlayback();
-                        StateHasChanged();
-                    }
-                    else if (_player == null)
-                    {
-                        await TogglePlayAsync();
-                    }
-                    break;
-                    
-                case "pause":
-                    // 通知栏点击暂停
-                    if (_player != null && _isPlaying)
-                    {
-                        _player.Pause();
-                        _isPlaying = false;
-                        UpdateMediaSessionPlayback();
-                        StateHasChanged();
-                    }
-                    break;
-                    
-                case "next":
-                    await PlayNextAsync();
-                    break;
-                    
-                case "previous":
-                    await PlayPreviousAsync();
-                    break;
-            }
-        });
+                switch (action)
+                {
+                    case "play":
+                        // 通知栏点击播放
+                        if (_player != null && !_isPlaying)
+                        {
+                            _player.Play();
+                            _isPlaying = true;
+                            UpdateMediaSessionPlayback();
+                            StateHasChanged();
+                        }
+                        else if (_player == null)
+                        {
+                            await TogglePlayAsync();
+                        }
+                        break;
+                        
+                    case "pause":
+                        // 通知栏点击暂停
+                        if (_player != null && _isPlaying)
+                        {
+                            _player.Pause();
+                            _isPlaying = false;
+                            UpdateMediaSessionPlayback();
+                            StateHasChanged();
+                        }
+                        break;
+                        
+                    case "next":
+                        await PlayNextAsync();
+                        break;
+                        
+                    case "previous":
+                        await PlayPreviousAsync();
+                        break;
+                }
+            });
+        }
+        catch (ObjectDisposedException)
+        {
+            // 组件已经被释放，忽略此异常
+        }
+        catch (InvalidOperationException)
+        {
+            // Dispatcher 不可用，忽略此异常
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -346,7 +360,14 @@ public partial class Music(
         if (_disposed || Current == null)
             return;
 
-        await SavePlaybackStateAsync();
+        try
+        {
+            await SavePlaybackStateAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogDebug(ex, "保存播放状态失败");
+        }
     }
 
     private async Task SavePlaybackStateAsync()
@@ -499,23 +520,51 @@ public partial class Music(
 
     private async void OnPlaybackEnded(object? sender, EventArgs e)
     {
+        if (_disposed)
+            return;
+
         _isPlaying = false;
         UpdateMediaSessionPlayback();
-        if (_playMode == PlayMode.LoopOne)
+        
+        try
         {
-            await PlayIndexAsync(_currentIndex);
+            if (_playMode == PlayMode.LoopOne)
+            {
+                await PlayIndexAsync(_currentIndex);
+            }
+            else
+            {
+                await PlayNextAsync();
+            }
+            
+            await InvokeAsync(StateHasChanged);
         }
-        else
+        catch (ObjectDisposedException)
         {
-            await PlayNextAsync();
+            // 组件已经被释放，忽略此异常
         }
-        StateHasChanged();
+        catch (InvalidOperationException)
+        {
+            // Dispatcher 不可用，忽略此异常
+        }
     }
 
     private void OnPlayerError(object? sender, EventArgs e)
     {
+        if (_disposed)
+            return;
+
         _errorMessage = "播放错误";
-        snackbar.Add("播放错误", Severity.Error);
+        
+        try
+        {
+            snackbar.Add("播放错误", Severity.Error);
+        }
+        catch (ObjectDisposedException)
+        {
+            // Snackbar 已被释放，忽略
+        }
+        
         _isBuffering = false;
         if (_retryCount < MaxRetry)
         {
@@ -547,7 +596,24 @@ public partial class Music(
                 _isBuffering = false;
             }
 
-            InvokeAsync(StateHasChanged);
+            // 安全地调用 InvokeAsync，避免在应用关闭时抛出异常
+            try
+            {
+                _ = InvokeAsync(StateHasChanged);
+            }
+            catch (ObjectDisposedException)
+            {
+                // 组件已经被释放，忽略此异常
+            }
+            catch (InvalidOperationException)
+            {
+                // Dispatcher 不可用，忽略此异常
+            }
+        }
+        catch (ObjectDisposedException)
+        {
+            // Player 已被释放，停止计时器
+            _timer?.Stop();
         }
         catch (Exception ex)
         {

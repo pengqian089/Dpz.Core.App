@@ -69,7 +69,7 @@ export function initCoverGesture(dotNetRef) {
   currentCover.removeEventListener('touchmove', handleTouchMove);
   currentCover.removeEventListener('touchend', handleTouchEnd);
 
-  // 添加触摸事件
+  // 添加触摸事件 - 优化触摸响应
   currentCover.addEventListener('touchstart', handleTouchStart, { passive: true });
   currentCover.addEventListener('touchmove', handleTouchMove, { passive: false });
   currentCover.addEventListener('touchend', (e) => handleTouchEnd(e, dotNetRef), { passive: true });
@@ -99,11 +99,13 @@ let touchStartY = 0;
 let touchEndX = 0;
 let touchEndY = 0;
 let isSwiping = false;
+let swipeStartTime = 0;
 
 function handleTouchStart(e) {
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
   isSwiping = false;
+  swipeStartTime = Date.now();
 }
 
 function handleTouchMove(e) {
@@ -111,7 +113,8 @@ function handleTouchMove(e) {
     const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
     const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
     
-    if (deltaX > 10 && deltaX > deltaY) {
+    // 降低触发阈值到5px，提高响应性
+    if (deltaX > 5 && deltaX > deltaY * 1.5) {
       isSwiping = true;
       e.preventDefault();
     }
@@ -122,16 +125,22 @@ function handleTouchMove(e) {
     const coverStack = document.querySelector('.cover-stack');
     const currentCover = e.currentTarget;
     const deltaX = e.touches[0].clientX - touchStartX;
-    const progress = Math.max(-1, Math.min(1, deltaX / coverStack.offsetWidth));
+    const progress = Math.max(-1, Math.min(1, deltaX / (coverStack.offsetWidth * 0.8)));
     
-    currentCover.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(progress) * 0.15})`;
-    currentCover.style.opacity = `${1 - Math.abs(progress) * 0.4}`;
+    // 更平滑的变换效果
+    currentCover.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(progress) * 0.1}) rotateY(${progress * 10}deg)`;
+    currentCover.style.opacity = `${1 - Math.abs(progress) * 0.3}`;
     
+    // 只在向左滑时显示下一首 - 使用更紧密的参数
     const nextCover = coverStack.querySelector('.cover-stack-item.next');
     if (nextCover && deltaX < 0) {
       const nextProgress = Math.min(1, Math.abs(progress));
-      nextCover.style.transform = `translateZ(-${30 * (1 - nextProgress)}px) translateY(${15 * (1 - nextProgress)}px) scale(${0.92 + 0.08 * nextProgress})`;
-      nextCover.style.opacity = `${0.75 + 0.25 * nextProgress}`;
+      nextCover.style.transform = `translateZ(-${15 * (1 - nextProgress)}px) translateY(${8 * (1 - nextProgress)}px) scale(${0.96 + 0.04 * nextProgress})`;
+      nextCover.style.opacity = `${0.88 + 0.12 * nextProgress}`;
+    } else if (nextCover) {
+      // 向右滑时重置下一首的样式
+      nextCover.style.transform = '';
+      nextCover.style.opacity = '';
     }
   }
 }
@@ -148,13 +157,22 @@ async function handleTouchEnd(e, dotNetRef) {
   const coverStack = document.querySelector('.cover-stack');
   const currentCover = e.currentTarget;
   const deltaX = touchEndX - touchStartX;
-  const threshold = coverStack.offsetWidth * 0.2; // 降低阈值到20%
+  const swipeDuration = Date.now() - swipeStartTime;
+  const swipeVelocity = Math.abs(deltaX) / swipeDuration; // px/ms
+  
+  // 根据滑动距离和速度判断是否切换
+  // 快速滑动: 速度 > 0.5 px/ms 且滑动 > 30px
+  // 慢速滑动: 滑动距离 > 屏幕宽度的15%
+  const threshold = coverStack.offsetWidth * 0.15;
+  const isQuickSwipe = swipeVelocity > 0.5 && Math.abs(deltaX) > 30;
+  const isLongSwipe = Math.abs(deltaX) > threshold;
 
-  if (Math.abs(deltaX) > threshold) {
+  if (isQuickSwipe || isLongSwipe) {
     const direction = deltaX > 0 ? 'previous' : 'next';
     
-    currentCover.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-    currentCover.style.transform = `translateX(${deltaX > 0 ? '120%' : '-120%'}) scale(0.7)`;
+    // 完成滑动动画
+    currentCover.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease';
+    currentCover.style.transform = `translateX(${deltaX > 0 ? '120%' : '-120%'}) scale(0.8) rotateY(${deltaX > 0 ? '20deg' : '-20deg'})`;
     currentCover.style.opacity = '0';
     
     try {
@@ -172,22 +190,23 @@ async function handleTouchEnd(e, dotNetRef) {
       resetSwipe({ currentTarget: currentCover });
     }, 100);
   } else {
-    currentCover.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
+    // 弹回原位
+    currentCover.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease';
     resetSwipe(e);
     
     const nextCover = coverStack.querySelector('.cover-stack-item.next');
     if (nextCover) {
-      nextCover.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      nextCover.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
       nextCover.style.transform = '';
       nextCover.style.opacity = '';
       setTimeout(() => {
         nextCover.style.transition = '';
-      }, 300);
+      }, 350);
     }
     
     setTimeout(() => {
       currentCover.style.transition = '';
-    }, 300);
+    }, 350);
   }
   
   isSwiping = false;
@@ -197,6 +216,7 @@ function handleMouseDown(e) {
   touchStartX = e.clientX;
   touchStartY = e.clientY;
   isSwiping = false;
+  swipeStartTime = Date.now();
 }
 
 function handleMouseMove(e) {
@@ -206,8 +226,8 @@ function handleMouseMove(e) {
     const deltaX = Math.abs(e.clientX - touchStartX);
     const deltaY = Math.abs(e.clientY - touchStartY);
     
-    // 降低触发阈值
-    if (deltaX > 5 && deltaX > deltaY) {
+    // 降低触发阈值到3px
+    if (deltaX > 3 && deltaX > deltaY * 1.5) {
       isSwiping = true;
     }
   }
@@ -216,16 +236,21 @@ function handleMouseMove(e) {
     const coverStack = document.querySelector('.cover-stack');
     const currentCover = e.currentTarget;
     const deltaX = e.clientX - touchStartX;
-    const progress = Math.max(-1, Math.min(1, deltaX / coverStack.offsetWidth));
+    const progress = Math.max(-1, Math.min(1, deltaX / (coverStack.offsetWidth * 0.8)));
     
-    currentCover.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(progress) * 0.15})`;
-    currentCover.style.opacity = `${1 - Math.abs(progress) * 0.4}`;
+    // 更平滑的变换效果
+    currentCover.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(progress) * 0.1}) rotateY(${progress * 10}deg)`;
+    currentCover.style.opacity = `${1 - Math.abs(progress) * 0.3}`;
     
+    // 只在向左滑时显示下一首 - 使用更紧密的参数
     const nextCover = coverStack.querySelector('.cover-stack-item.next');
     if (nextCover && deltaX < 0) {
       const nextProgress = Math.min(1, Math.abs(progress));
-      nextCover.style.transform = `translateZ(-${30 * (1 - nextProgress)}px) translateY(${15 * (1 - nextProgress)}px) scale(${0.92 + 0.08 * nextProgress})`;
-      nextCover.style.opacity = `${0.75 + 0.25 * nextProgress}`;
+      nextCover.style.transform = `translateZ(-${15 * (1 - nextProgress)}px) translateY(${8 * (1 - nextProgress)}px) scale(${0.96 + 0.04 * nextProgress})`;
+      nextCover.style.opacity = `${0.88 + 0.12 * nextProgress}`;
+    } else if (nextCover) {
+      nextCover.style.transform = '';
+      nextCover.style.opacity = '';
     }
   }
 }
@@ -240,13 +265,20 @@ async function handleMouseUp(e, dotNetRef) {
   const coverStack = document.querySelector('.cover-stack');
   const currentCover = e.currentTarget;
   const deltaX = touchEndX - touchStartX;
-  const threshold = coverStack.offsetWidth * 0.15; // 降低鼠标操作阈值到15%
+  const swipeDuration = Date.now() - swipeStartTime;
+  const swipeVelocity = Math.abs(deltaX) / swipeDuration;
+  
+  // 鼠标操作阈值稍低
+  const threshold = coverStack.offsetWidth * 0.12;
+  const isQuickSwipe = swipeVelocity > 0.4 && Math.abs(deltaX) > 25;
+  const isLongSwipe = Math.abs(deltaX) > threshold;
 
-  if (Math.abs(deltaX) > threshold) {
+  if (isQuickSwipe || isLongSwipe) {
     const direction = deltaX > 0 ? 'previous' : 'next';
     
-    currentCover.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-    currentCover.style.transform = `translateX(${deltaX > 0 ? '120%' : '-120%'}) scale(0.7)`;
+    // 完成滑动动画
+    currentCover.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease';
+    currentCover.style.transform = `translateX(${deltaX > 0 ? '120%' : '-120%'}) scale(0.8) rotateY(${deltaX > 0 ? '20deg' : '-20deg'})`;
     currentCover.style.opacity = '0';
     
     try {
@@ -264,22 +296,23 @@ async function handleMouseUp(e, dotNetRef) {
       resetSwipe({ currentTarget: currentCover });
     }, 100);
   } else {
-    currentCover.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
+    // 弹回原位
+    currentCover.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease';
     resetSwipe(e);
     
     const nextCover = coverStack.querySelector('.cover-stack-item.next');
     if (nextCover) {
-      nextCover.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      nextCover.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
       nextCover.style.transform = '';
       nextCover.style.opacity = '';
       setTimeout(() => {
         nextCover.style.transition = '';
-      }, 300);
+      }, 350);
     }
     
     setTimeout(() => {
       currentCover.style.transition = '';
-    }, 300);
+    }, 350);
   }
   
   isSwiping = false;
