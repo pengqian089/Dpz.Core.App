@@ -27,4 +27,8 @@ jobs:
           echo "Using remote: $REMOTE_URL"
           git remote add gitea "$REMOTE_URL"
           git fetch gitea --prune
+
+          # 重设 GitHub 远程，使用 GITHUB_TOKEN 认证
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/pengqian089/Dpz.Core.App.git
+
           git push origin --mirror
