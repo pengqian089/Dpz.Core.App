@@ -1,4 +1,4 @@
-using AgileConfig.Client;
+﻿using AgileConfig.Client;
 using Dpz.Core.App.Client.Services;
 using Dpz.Core.App.Service;
 using Dpz.Core.App.Service.Extensions;
@@ -106,6 +106,9 @@ public static class MauiProgram
 
         // 注册布局服务
         services.AddScoped<LayoutService>();
+
+        // 注册返回按钮服务（Singleton，因为整个应用共享）
+        services.AddSingleton<BackButtonService>();
 
         // 注册播放状态持久化服务
         services.AddSingleton<PlaybackStateService>();
