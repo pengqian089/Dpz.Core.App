@@ -1,0 +1,30 @@
+name: Sync from Gitea
+
+on:
+  schedule:
+    - cron: '0 */8 * * *'   # 每8小时执行一次 (UTC 时间)
+  workflow_dispatch:         # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v3
+
+      - name: Mirror from Gitea
+        env:
+          GITEA_USER: ${{ secrets.GITEA_USER }}
+          GITEA_PASSWORD: ${{ secrets.GITEA_PASSWORD }}
+          GITEA_URL: ${{ secrets.GITEA_URL }}
+        run: |
+          # 配置 Git 用户信息
+          git config --global user.name "${GITEA_USER}"
+          git config --global user.email "${GITEA_USER}@users.noreply.github.com"
+
+          # 添加 Gitea 远程，直接拼接账号密码到 URL
+          git remote add gitea https://${GITEA_USER}:${GITEA_PASSWORD}@${GITEA_URL}
+
+          # 拉取并推送镜像
+          git fetch gitea --prune
+          git push origin --mirror
