@@ -1,7 +1,7 @@
-namespace Dpz.Core.App.Client.Services;
+ï»¿namespace Dpz.Core.App.Client.Services;
 
 /// <summary>
-/// ²¼¾Ö·şÎñ - ¹ÜÀíµ¼º½À¸ÏÔÊ¾/Òş²Ø×´Ì¬
+/// å¸ƒå±€æœåŠ¡ - ç®¡ç†å¯¼èˆªæ æ˜¾ç¤º/éšè—çŠ¶æ€
 /// </summary>
 public class LayoutService
 {
@@ -23,7 +23,7 @@ public class LayoutService
     }
 
     /// <summary>
-    /// ÏÔÊ¾µ¼º½À¸
+    /// æ˜¾ç¤ºå¯¼èˆªæ 
     /// </summary>
     public void ShowNavbar()
     {
@@ -31,7 +31,7 @@ public class LayoutService
     }
 
     /// <summary>
-    /// Òş²Øµ¼º½À¸
+    /// éšè—å¯¼èˆªæ 
     /// </summary>
     public void HideNavbar()
     {
@@ -39,7 +39,7 @@ public class LayoutService
     }
 
     /// <summary>
-    /// ÇĞ»»µ¼º½À¸ÏÔÊ¾×´Ì¬
+    /// åˆ‡æ¢å¯¼èˆªæ æ˜¾ç¤ºçŠ¶æ€
     /// </summary>
     public void ToggleNavbar()
     {

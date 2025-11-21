@@ -9,6 +9,8 @@ using Microsoft.JSInterop;
 using MudBlazor;
 using Plugin.Maui.Audio;
 
+// ReSharper disable UnusedMember.Local
+
 namespace Dpz.Core.App.Client.Components.Pages;
 
 public partial class Music(
@@ -24,7 +26,7 @@ public partial class Music(
     PlaybackStateService playbackStateService
 ) : IAsyncDisposable
 {
-    private readonly HttpClient httpClient = httpClientFactory.CreateClient("download");
+    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("download");
     private INativeMediaSession? _mediaSession;
     private IJSObjectReference? _module;
     private bool _jsInitialized;
@@ -46,13 +48,18 @@ public partial class Music(
     private bool _showPlaylist;
     private bool _isBuffering;
 
-    private int _currentIndex = 0;
+    private int _currentIndex;
 
-    private double _progressSeconds; // slider bind
-    private double _durationSeconds; // total duration in seconds
+    // slider bind
+    private double _progressSeconds;
+
+    // total duration in seconds
+    private double _durationSeconds;
     private string _elapsedText = "00:00";
     private string _durationText = "00:00";
-    private bool _isSeeking = false; // 标记是否正在拖拽进度条
+
+    // 标记是否正在拖拽进度条
+    private bool _isSeeking;
 
     private PlayMode _playMode = PlayMode.Sequential;
 
@@ -69,31 +76,31 @@ public partial class Music(
     {
         layout.HideNavbar();
         _mediaSession = sp.GetService<INativeMediaSession>();
-        
+
         // 订阅平台特定的媒体按钮事件
         SubscribeToMediaButtons();
-        
+
         if (_musics.Count == 0)
         {
             _musics = await musicService.GetMusicsAsync(null, 1000, 1);
         }
-        
+
         // 加载上次的播放状态
         await LoadPlaybackStateAsync();
-        
+
         _loading = false;
 
         if (Current != null && !string.IsNullOrWhiteSpace(Current.LyricContent))
         {
             _currentLyricLines = ParseLyrics(Current.LyricContent!);
         }
-        
+
         // 启动定期保存状态的计时器（每5秒保存一次）
         _stateSaveTimer = new System.Timers.Timer(5000);
         _stateSaveTimer.Elapsed += OnStateSaveTimerElapsed;
         _stateSaveTimer.AutoReset = true;
         _stateSaveTimer.Enabled = true;
-        
+
         await base.OnInitializedAsync();
     }
 
@@ -118,7 +125,9 @@ public partial class Music(
     private void OnNativeMediaButton(string action)
     {
         if (_disposed)
+        {
             return;
+        }
 
         try
         {
@@ -140,7 +149,7 @@ public partial class Music(
                             await TogglePlayAsync();
                         }
                         break;
-                        
+
                     case "pause":
                         // 通知栏点击暂停
                         if (_player != null && _isPlaying)
@@ -151,11 +160,11 @@ public partial class Music(
                             StateHasChanged();
                         }
                         break;
-                        
+
                     case "next":
                         await PlayNextAsync();
                         break;
-                        
+
                     case "previous":
                         await PlayPreviousAsync();
                         break;
@@ -183,7 +192,7 @@ public partial class Music(
                     "./Components/Pages/Music.razor.js"
                 );
                 _jsInitialized = true;
-                
+
                 // 初始化封面手势支持
                 var dotNetRef = DotNetObjectReference.Create(this);
                 await _module.InvokeVoidAsync("initCoverGesture", dotNetRef);
@@ -210,7 +219,10 @@ public partial class Music(
     private async Task EnsurePlayerAsync(bool autoPlay)
     {
         if (Current == null || string.IsNullOrWhiteSpace(Current.MusicUrl))
+        {
             return;
+        }
+
         DisposePlayer();
         _isBuffering = true;
         _errorMessage = null;
@@ -218,7 +230,7 @@ public partial class Music(
         try
         {
             using var req = new HttpRequestMessage(HttpMethod.Get, Current.MusicUrl);
-            using var resp = await httpClient.SendAsync(req);
+            using var resp = await _httpClient.SendAsync(req);
             resp.EnsureSuccessStatusCode();
             var stream = await resp.Content.ReadAsStreamAsync();
             _player = audioManager.CreatePlayer(stream);
@@ -237,7 +249,7 @@ public partial class Music(
             UpdateMediaSessionMetadata();
             if (autoPlay)
             {
-                _player.Play();
+                _player?.Play();
                 _isPlaying = true;
                 UpdateMediaSessionPlayback();
             }
@@ -258,21 +270,30 @@ public partial class Music(
     private double GetDurationSeconds(VmMusic m)
     {
         if (string.IsNullOrWhiteSpace(m.Duration))
+        {
             return 0;
+        }
+
         var parts = m.Duration.Split(':');
         if (
             parts.Length == 2
             && int.TryParse(parts[0], out var mm)
             && int.TryParse(parts[1], out var ss)
         )
+        {
             return mm * 60 + ss;
+        }
+
         if (
             parts.Length == 3
             && int.TryParse(parts[0], out var hh)
             && int.TryParse(parts[1], out mm)
             && int.TryParse(parts[2], out ss)
         )
+        {
             return hh * 3600 + mm * 60 + ss;
+        }
+
         return 0;
     }
 
@@ -302,7 +323,9 @@ public partial class Music(
         {
             var savedState = await playbackStateService.LoadStateAsync();
             if (savedState == null || _musics.Count == 0)
+            {
                 return;
+            }
 
             // 恢复播放模式
             if (Enum.TryParse<PlayMode>(savedState.PlayMode, out var playMode))
@@ -329,10 +352,10 @@ public partial class Music(
             {
                 _progressSeconds = savedState.ProgressSeconds;
                 _elapsedText = FormatSeconds(_progressSeconds);
-                
+
                 // 自动初始化播放器但不自动播放
                 await EnsurePlayerAsync(false);
-                
+
                 // 跳转到保存的进度
                 if (_player != null && savedState.ProgressSeconds > 0)
                 {
@@ -347,7 +370,12 @@ public partial class Music(
                 }
             }
 
-            logger.LogInformation($"已恢复播放状态: 索引={_currentIndex}, 进度={savedState.ProgressSeconds}秒, 模式={_playMode}");
+            logger.LogInformation(
+                "已恢复播放状态: 索引={CurrentIndex}, 进度={SavedStateProgressSeconds}秒, 模式={PlayMode}",
+                _currentIndex,
+                savedState.ProgressSeconds,
+                _playMode
+            );
         }
         catch (Exception ex)
         {
@@ -358,7 +386,9 @@ public partial class Music(
     private async void OnStateSaveTimerElapsed(object? sender, ElapsedEventArgs e)
     {
         if (_disposed || Current == null)
+        {
             return;
+        }
 
         try
         {
@@ -380,7 +410,11 @@ public partial class Music(
                 CurrentIndex = _currentIndex,
                 ProgressSeconds = _progressSeconds,
                 PlayMode = _playMode.ToString(),
-                PlaylistIds = _musics.Select(m => m.Id).Where(id => id != null).Cast<string>().ToList()
+                PlaylistIds = _musics
+                    .Select(m => m.Id)
+                    .Where(id => id != null)
+                    .Cast<string>()
+                    .ToList(),
             };
 
             await playbackStateService.SaveStateAsync(state);
@@ -394,12 +428,15 @@ public partial class Music(
     private async Task PlayIndexAsync(int index)
     {
         if (index < 0 || index >= _musics.Count)
+        {
             return;
+        }
+
         _currentIndex = index;
         LoadLyricsForCurrent();
         ResetProgress();
         await EnsurePlayerAsync(true);
-        
+
         // 切换歌曲时保存状态
         await SavePlaybackStateAsync();
     }
@@ -407,12 +444,14 @@ public partial class Music(
     private async Task PlayNextAsync()
     {
         if (_musics.Count == 0)
+        {
             return;
-            
+        }
+
         // 触发切换动画
         await TriggerSwitchAnimationAsync("next");
-        
-        int next = _currentIndex;
+
+        var next = _currentIndex;
         if (_playMode == PlayMode.Shuffle)
         {
             var rnd = Random.Shared.Next(_musics.Count);
@@ -428,14 +467,19 @@ public partial class Music(
     private async Task PlayPreviousAsync()
     {
         if (_musics.Count == 0)
+        {
             return;
-            
+        }
+
         // 触发切换动画
         await TriggerSwitchAnimationAsync("previous");
-        
-        int prev = _currentIndex - 1;
+
+        var prev = _currentIndex - 1;
         if (prev < 0)
+        {
             prev = _musics.Count - 1;
+        }
+
         await PlayIndexAsync(prev);
     }
 
@@ -467,7 +511,7 @@ public partial class Music(
             PlayMode.Shuffle => PlayMode.Sequential,
             _ => PlayMode.Sequential,
         };
-        
+
         // 切换模式时保存状态
         _ = SavePlaybackStateAsync();
     }
@@ -493,7 +537,9 @@ public partial class Music(
     private void OnSeekChanged(double value)
     {
         if (_player == null || _durationSeconds <= 0)
+        {
             return;
+        }
 
         _isSeeking = true;
         try
@@ -521,11 +567,13 @@ public partial class Music(
     private async void OnPlaybackEnded(object? sender, EventArgs e)
     {
         if (_disposed)
+        {
             return;
+        }
 
         _isPlaying = false;
         UpdateMediaSessionPlayback();
-        
+
         try
         {
             if (_playMode == PlayMode.LoopOne)
@@ -536,7 +584,7 @@ public partial class Music(
             {
                 await PlayNextAsync();
             }
-            
+
             await InvokeAsync(StateHasChanged);
         }
         catch (ObjectDisposedException)
@@ -552,10 +600,12 @@ public partial class Music(
     private void OnPlayerError(object? sender, EventArgs e)
     {
         if (_disposed)
+        {
             return;
+        }
 
         _errorMessage = "播放错误";
-        
+
         try
         {
             snackbar.Add("播放错误", Severity.Error);
@@ -564,7 +614,7 @@ public partial class Music(
         {
             // Snackbar 已被释放，忽略
         }
-        
+
         _isBuffering = false;
         if (_retryCount < MaxRetry)
         {
@@ -576,7 +626,9 @@ public partial class Music(
     private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
     {
         if (_disposed || _player == null || _isSeeking)
+        {
             return;
+        }
 
         try
         {
@@ -626,8 +678,11 @@ public partial class Music(
     private void UpdateActiveLyric(double seconds)
     {
         if (_currentLyricLines.Count == 0)
+        {
             return;
-        for (int i = 0; i < _currentLyricLines.Count - 1; i++)
+        }
+
+        for (var i = 0; i < _currentLyricLines.Count - 1; i++)
         {
             var cur = _currentLyricLines[i];
             var next = _currentLyricLines[i + 1];
@@ -645,7 +700,10 @@ public partial class Music(
     private void QueueLyricScroll(int index)
     {
         if (index == _lastScrolledLyricIndex)
+        {
             return;
+        }
+
         _pendingScrollIndex = index;
         _lastScrolledLyricIndex = index;
     }
@@ -676,9 +734,12 @@ public partial class Music(
     private string FormatSeconds(double secs)
     {
         if (secs < 0)
+        {
             secs = 0;
-        int mm = (int)(secs / 60);
-        int ss = (int)(secs % 60);
+        }
+
+        var mm = (int)(secs / 60);
+        var ss = (int)(secs % 60);
         return mm.ToString("00") + ":" + ss.ToString("00");
     }
 
@@ -698,8 +759,10 @@ public partial class Music(
     public async ValueTask DisposeAsync()
     {
         if (_disposed)
+        {
             return;
-            
+        }
+
         _disposed = true;
 
         // Stop and dispose timers first
@@ -710,12 +773,12 @@ public partial class Music(
         _timer?.Stop();
         _timer?.Dispose();
         _timer = null;
-        
+
         // Save state one last time
         await SavePlaybackStateAsync();
-        
+
         UnsubscribeFromMediaButtons();
-        
+
         layout.ShowNavbar();
         DisposePlayer();
 
@@ -736,7 +799,7 @@ public partial class Music(
                 _module = null;
             }
         }
-        
+
         GC.SuppressFinalize(this);
     }
 
@@ -745,7 +808,7 @@ public partial class Music(
         _timer?.Stop();
         _timer?.Dispose();
         _timer = null;
-        
+
         if (_player != null)
         {
             try
@@ -754,13 +817,18 @@ public partial class Music(
                 _player.PlaybackEnded -= OnPlaybackEnded;
                 _player.Dispose();
             }
-            catch { }
+            catch (Exception e)
+            {
+                logger.LogError(e, "释放播放器失败");
+            }
         }
         _player = null;
     }
 
     public Task NativePlayPauseAsync() => TogglePlayAsync();
+
     public Task NativeNextAsync() => PlayNextAsync();
+
     public Task NativePreviousAsync() => PlayPreviousAsync();
 
     [JSInvokable]
@@ -778,7 +846,10 @@ public partial class Music(
     private static List<LyricLine> ParseLyrics(string lrcContent)
     {
         if (string.IsNullOrWhiteSpace(lrcContent))
+        {
             return [];
+        }
+
         var clearLrcContent = Regex.Replace(lrcContent, @"([^\]\n])\[", "$1\n[");
         var lyricLines = clearLrcContent.Split('\n');
         var lines = new List<LyricLine>();

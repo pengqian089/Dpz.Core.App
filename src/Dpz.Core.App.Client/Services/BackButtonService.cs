@@ -7,7 +7,7 @@ public class BackButtonService
 {
     private Func<Task<bool>>? _handler;
     private DateTime _lastBackPressTime = DateTime.MinValue;
-    private bool _backPressNotified = false;
+    private bool _backPressNotified;
     private readonly TimeSpan _exitThreshold = TimeSpan.FromSeconds(2);
 
     /// <summary>
