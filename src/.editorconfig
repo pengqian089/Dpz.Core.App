@@ -2,7 +2,53 @@ root = true
 
 [*.cs]
 charset = utf-8
+indent_style = space
 indent_size = 4
-# 强制所有控制语句（if/else/for/while等）必须使用大括号
+max_line_length = 100
+# 强制所有控制语句（if/else/for/foreach/while 等）必须使用大括号
 csharp_prefer_braces = true:warning
 csharp_style_var_for_built_in_types = true:warning
+# CA2016: 将 CancellationToken 参数传递给需要它的方法
+dotnet_diagnostic.CA2016.severity = warning
+# 命名空间使用文件作用域
+csharp_style_namespace_declarations = file_scoped:warning
+# [约定] 禁止在代码行末尾添加行内注释（trailing inline comment）
+# 注释必须另起独立一行，无内置 Roslyn 规则——由 Code Review 检查
+
+# 未使用的using 设置为警告
+dotnet_diagnostic.IDE0005.severity = warning
+
+# ============================================
+# 代码规范约定 (无内置规则，需人工检查)
+# ============================================
+
+# [约定-ERROR] 严格禁止在代码行末尾添加行内注释 (Trailing Inline Comment)
+# 说明: 注释必须另起独立一行，不允许在代码语句后添加 // 注释
+# 正确: 
+#   // 这是注释
+#   var x = 1;
+# 错误:
+#   var x = 1; // 这是注释
+# 实施方式: 
+#   - Code Review 时必须检查
+#   - CI/CD 管道中可使用正则表达式检测: \S+\s*;\s*//
+# 违反此约定视为编译错误级别的严重性
+# 注意: C# Roslyn/StyleCop 无内置规则，需自定义检查工具
+
+[*.js]
+charset = utf-8
+indent_style = space
+indent_size = 4
+
+
+[*.ts]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+[*.md]
+trim_trailing_whitespace = false
