@@ -37,7 +37,6 @@ public static class ServiceCollectionExtensions
 
         // 注册 ViewModels
         services.AddTransient<MainWindowViewModel>();
-        services.AddTransient<ExampleViewModel>();
 
         // 注册 Views
         services.AddTransient<MainWindow>();

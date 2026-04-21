@@ -2,14 +2,41 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Dpz.Core.App.Client.App"
              xmlns:local="using:Dpz.Core.App.Client"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
+
+    <Application.Resources>
+        <!-- 霞骛文楷字体资源 -->
+        <FontFamily x:Key="LXGWWenKaiLight">avares://Dpz.Core.App.Client/Assets/Fonts/LXGWWenKai-Light.ttf#LXGW WenKai</FontFamily>
+        <FontFamily x:Key="LXGWWenKaiRegular">avares://Dpz.Core.App.Client/Assets/Fonts/LXGWWenKai-Regular.ttf#LXGW WenKai</FontFamily>
+        <FontFamily x:Key="LXGWWenKaiMedium">avares://Dpz.Core.App.Client/Assets/Fonts/LXGWWenKai-Medium.ttf#LXGW WenKai</FontFamily>
+        <FontFamily x:Key="LXGWWenKaiMonoLight">avares://Dpz.Core.App.Client/Assets/Fonts/LXGWWenKaiMono-Light.ttf#LXGW WenKai Mono</FontFamily>
+        <FontFamily x:Key="LXGWWenKaiMonoRegular">avares://Dpz.Core.App.Client/Assets/Fonts/LXGWWenKaiMono-Regular.ttf#LXGW WenKai Mono</FontFamily>
+        <FontFamily x:Key="LXGWWenKaiMonoMedium">avares://Dpz.Core.App.Client/Assets/Fonts/LXGWWenKaiMono-Medium.ttf#LXGW WenKai Mono</FontFamily>
+        
+        <!-- Font Awesome 字体资源 -->
+        <FontFamily x:Key="FontAwesomeSolid">avares://Dpz.Core.App.Client/Assets/Fonts/Font Awesome 7 Free-Solid-900.otf#Font Awesome 7 Free</FontFamily>
+        <FontFamily x:Key="FontAwesomeRegular">avares://Dpz.Core.App.Client/Assets/Fonts/Font Awesome 7 Free-Regular-400.otf#Font Awesome 7 Free</FontFamily>
+        <FontFamily x:Key="FontAwesomeBrands">avares://Dpz.Core.App.Client/Assets/Fonts/Font Awesome 7 Brands-Regular-400.otf#Font Awesome 7 Brands</FontFamily>
+    </Application.Resources>
   
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="/Styles/DashboardStyles.axaml"/>
+        
+        <!-- 全局默认字体样式 -->
+        <Style Selector="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource LXGWWenKaiRegular}"/>
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="FontFamily" Value="{StaticResource LXGWWenKaiRegular}"/>
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="FontFamily" Value="{StaticResource LXGWWenKaiRegular}"/>
+        </Style>
     </Application.Styles>
 </Application>

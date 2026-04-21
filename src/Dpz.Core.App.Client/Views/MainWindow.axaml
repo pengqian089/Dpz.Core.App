@@ -3,18 +3,462 @@
         xmlns:vm="using:Dpz.Core.App.Client.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="900"
         x:Class="Dpz.Core.App.Client.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="Dpz.Core.App.Client">
+        Title="对有程屋" 
+        Width="1400" Height="900"
+        Background="#0F172A">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 左侧边栏 -->
+        <Border Grid.Column="0" Background="#1E293B" BorderBrush="#334155" BorderThickness="0,0,1,0">
+            <StackPanel>
+                <!-- Logo区域 -->
+                <Border Padding="20" Margin="0,0,0,20">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Ellipse Width="32" Height="32" Fill="#3B82F6"/>
+                        <TextBlock Text="对有程屋" FontSize="18" FontWeight="Bold" 
+                                   Foreground="White" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 菜单项 -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <!-- 文章管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf15c;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="文章管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 账号管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf4fe;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="账号管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 音乐管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf001;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="音乐管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 录音管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf130;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="录音管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 源代码管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf121;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="源代码管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 评论管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf086;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="评论管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 弹幕管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf20a;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="弹幕管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 动态页面管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf337;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="动态页面管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 碎碎念管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf0e0;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="碎碎念管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 图片管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf302;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="图片管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 系统管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf085;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="系统管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 时间轴管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf017;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="时间轴管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 视频管理 -->
+                        <Button Classes="MenuItem">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="&#xf03d;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="16" VerticalAlignment="Center"/>
+                                <TextBlock Text="视频管理" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+
+        <!-- 主内容区域 -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 顶部栏 -->
+            <Border Grid.Row="0" Background="#1E293B" BorderBrush="#334155" 
+                    BorderThickness="0,0,0,1" Padding="20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="仪表板" FontSize="24" 
+                               FontWeight="Bold" Foreground="White" 
+                               VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="15">
+                        <!-- 通知按钮 -->
+                        <Button Background="Transparent" BorderThickness="0" Padding="8">
+                            <TextBlock Text="&#xf0f3;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                       FontSize="18" Foreground="White"/>
+                        </Button>
+                        
+                        <!-- 设置按钮 -->
+                        <Button Background="Transparent" BorderThickness="0" Padding="8">
+                            <TextBlock Text="&#xf013;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                       FontSize="18" Foreground="White"/>
+                        </Button>
+                        
+                        <!-- 用户信息 -->
+                        <Border Background="#3B82F6" CornerRadius="20" Padding="10,5">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="&#xf2bd;" FontFamily="{StaticResource FontAwesomeSolid}" 
+                                           FontSize="14" Foreground="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="Admin" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 主内容滚动区域 -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <Border Padding="20">
+                    <StackPanel Spacing="20">
+                    
+                    <!-- 统计卡片行 -->
+                    <ItemsControl ItemsSource="{Binding StatCards}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1" Columns="4"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Classes="StatCard" Background="{Binding BackgroundColor}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Icon}" 
+                                                   FontFamily="{StaticResource FontAwesomeSolid}"
+                                                   FontSize="32" 
+                                                   Margin="0,0,0,10"/>
+                                        <TextBlock Text="{Binding Title}" 
+                                                   Classes="StatLabel"/>
+                                        <TextBlock Text="{Binding Value}" 
+                                                   Classes="StatValue"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- 第二行：图表区域 -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 生意统计图表 -->
+                        <Border Grid.Column="0" Classes="ContentCard">
+                            <StackPanel>
+                                <TextBlock Text="生意统计" Classes="CardTitle"/>
+                                
+                                <!-- 简化的图表占位符 -->
+                                <Border Background="#0F172A" CornerRadius="8" 
+                                        Height="200" Margin="0,10,0,0">
+                                    <Canvas>
+                                        <TextBlock Canvas.Left="20" Canvas.Top="90" 
+                                                   Text="📊 图表区域" 
+                                                   Foreground="#64748B" FontSize="16"/>
+                                    </Canvas>
+                                </Border>
+
+                                <StackPanel Orientation="Horizontal" 
+                                            HorizontalAlignment="Center" 
+                                            Spacing="20" Margin="0,15,0,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Ellipse Width="12" Height="12" Fill="#3B82F6"/>
+                                        <TextBlock Text="8日" Foreground="#94A3B8"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Ellipse Width="12" Height="12" Fill="#8B5CF6"/>
+                                        <TextBlock Text="98日" Foreground="#94A3B8"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 杂鱼模目饼图 -->
+                        <Border Grid.Column="1" Classes="ContentCard">
+                            <StackPanel>
+                                <TextBlock Text="杂鱼模目" Classes="CardTitle"/>
+                                
+                                <!-- 环形图占位符 -->
+                                <Viewbox Width="180" Height="180" Margin="0,10">
+                                    <Canvas Width="200" Height="200">
+                                        <Ellipse Width="200" Height="200" 
+                                                 Fill="#1E293B" Stroke="#3B82F6" 
+                                                 StrokeThickness="40"/>
+                                    </Canvas>
+                                </Viewbox>
+
+                                <!-- 存储模块列表 -->
+                                <ItemsControl ItemsSource="{Binding StorageModules}" 
+                                              Margin="0,10,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" 
+                                                        Spacing="10" Margin="0,5">
+                                                <Ellipse Width="12" Height="12" 
+                                                         Fill="{Binding Color}"/>
+                                                <TextBlock Text="{Binding ModuleName}" 
+                                                           Foreground="#F1F5F9" Width="40"/>
+                                                <TextBlock Foreground="#94A3B8">
+                                                    <Run Text="{Binding SizeInGB}"/>
+                                                    <Run Text=" GB"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- 第三行：列表区域 -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 租赁作价 -->
+                        <Border Grid.Column="0" Classes="ContentCard">
+                            <StackPanel>
+                                <TextBlock Text="租赁作价" Classes="CardTitle"/>
+                                <ItemsControl ItemsSource="{Binding RentalPriceList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#0F172A" 
+                                                    CornerRadius="8" Padding="12" 
+                                                    Margin="0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Ellipse Grid.Column="0" Width="32" 
+                                                             Height="32" Fill="#3B82F6" 
+                                                             Margin="0,0,10,0"/>
+                                                    
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding UserName}" 
+                                                                   Foreground="White" 
+                                                                   FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding Description}" 
+                                                                   Foreground="#94A3B8" 
+                                                                   FontSize="12" 
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+
+                                                    <TextBlock Grid.Column="2" 
+                                                               Foreground="#F59E0B" 
+                                                               FontWeight="SemiBold">
+                                                        <Run Text="{Binding Rating}"/>
+                                                        <Run Text="外目"/>
+                                                    </TextBlock>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 软硬银行 -->
+                        <Border Grid.Column="1" Classes="ContentCard">
+                            <StackPanel>
+                                <TextBlock Text="软硬银行句" Classes="CardTitle"/>
+                                <ItemsControl ItemsSource="{Binding SoftwareItemList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#0F172A" 
+                                                    CornerRadius="8" Padding="12" 
+                                                    Margin="0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="{Binding Icon}" 
+                                                               FontFamily="{StaticResource FontAwesomeSolid}"
+                                                               FontSize="20" 
+                                                               Margin="0,0,10,0"/>
+                                                    
+                                                    <TextBlock Grid.Column="1" 
+                                                               Text="{Binding Title}" 
+                                                               Foreground="White" 
+                                                               VerticalAlignment="Center"
+                                                               TextTrimming="CharacterEllipsis"/>
+
+                                                    <TextBlock Grid.Column="2" 
+                                                               Text="{Binding Count}" 
+                                                               Foreground="#F59E0B" 
+                                                               FontSize="12"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- 软硬解密 + 操作按钮 -->
+                        <StackPanel Grid.Column="2" Spacing="12">
+                            <!-- 软硬解密 -->
+                            <Border Classes="ContentCard">
+                                <StackPanel>
+                                    <TextBlock Text="软硬解密" Classes="CardTitle"/>
+                                    <ItemsControl ItemsSource="{Binding SoftwareDecryptList}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#0F172A" 
+                                                        CornerRadius="8" Padding="12" 
+                                                        Margin="0,8">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <TextBlock Grid.Column="0" 
+                                                                   Text="{Binding Icon}" 
+                                                                   FontFamily="{StaticResource FontAwesomeSolid}"
+                                                                   FontSize="16" 
+                                                                   Margin="0,0,10,0"/>
+                                                        
+                                                        <TextBlock Grid.Column="1" 
+                                                                   Text="{Binding Title}" 
+                                                                   Foreground="White" 
+                                                                   FontSize="12"
+                                                                   VerticalAlignment="Center"
+                                                                   TextWrapping="Wrap"/>
+
+                                                        <TextBlock Grid.Column="2" 
+                                                                   Text="{Binding Count}" 
+                                                                   Foreground="#F59E0B" 
+                                                                   FontSize="11"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 杂鱼解字区域 -->
+                            <Border Classes="ContentCard">
+                                <StackPanel>
+                                    <TextBlock Text="杂鱼解字" Classes="CardTitle"/>
+                                    <Button Classes="ActionButton" Content="+ 杂普尤串"/>
+                                    <Button Classes="ActionButton" Content="+ 报观目串"/>
+                                    <Button Classes="ActionButton" Content="+ 上充目串"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                </StackPanel>
+                </Border>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
 
 </Window>
