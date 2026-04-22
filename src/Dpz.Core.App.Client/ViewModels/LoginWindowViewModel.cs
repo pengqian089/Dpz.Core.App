@@ -18,18 +18,6 @@ public partial class LoginWindowViewModel : ViewModelBase
     private const string AppSettingsFile = "appsettings.json";
 
     [ObservableProperty]
-    private string _username = string.Empty;
-
-    [ObservableProperty]
-    private string _password = string.Empty;
-
-    [ObservableProperty]
-    private string _twoFactorCode = string.Empty;
-
-    [ObservableProperty]
-    private bool _rememberPassword;
-
-    [ObservableProperty]
     private bool _isLoading;
 
     [ObservableProperty]
@@ -37,6 +25,18 @@ public partial class LoginWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _apiAddress = string.Empty;
+
+    [ObservableProperty]
+    private string _oidcClientId = string.Empty;
+
+    [ObservableProperty]
+    private string _oidcAuthority = string.Empty;
+
+    [ObservableProperty]
+    private string _oidcResponseType = string.Empty;
+
+    [ObservableProperty]
+    private string _oidcResponseMode = string.Empty;
 
     [ObservableProperty]
     private bool _canLogin;
@@ -51,37 +51,60 @@ public partial class LoginWindowViewModel : ViewModelBase
         _logger = logger;
         _configuration = configuration;
         _logger.LogInformation("登录界面初始化");
-        LoadApiAddress();
+        LoadConfiguration();
     }
 
     /// <summary>
-    /// 加载 API 地址
+    /// 加载配置
     /// </summary>
-    private void LoadApiAddress()
+    private void LoadConfiguration()
     {
         try
         {
             ApiAddress = _configuration["ApiSettings:BaseAddress"] ?? string.Empty;
-            CanLogin = !string.IsNullOrWhiteSpace(ApiAddress);
-            _logger.LogInformation("API 地址已加载: {ApiAddress}", ApiAddress);
+            OidcClientId = _configuration["ApiSettings:OIDC:ClientId"] ?? string.Empty;
+            OidcAuthority = _configuration["ApiSettings:OIDC:Authority"] ?? string.Empty;
+            OidcResponseType = _configuration["ApiSettings:OIDC:ResponseType"] ?? string.Empty;
+            OidcResponseMode = _configuration["ApiSettings:OIDC:ResponseMode"] ?? string.Empty;
+
+            UpdateCanLogin();
+
+            _logger.LogInformation(
+                "配置已加载 - API: {ApiAddress}, OIDC Authority: {Authority}",
+                ApiAddress,
+                OidcAuthority
+            );
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "加载 API 地址失败");
+            _logger.LogError(ex, "加载配置失败");
             ApiAddress = string.Empty;
             CanLogin = false;
         }
     }
 
     /// <summary>
-    /// 保存 API 地址到 appsettings.json
+    /// 更新 CanLogin 状态
     /// </summary>
-    private void SaveApiAddress()
+    private void UpdateCanLogin()
+    {
+        CanLogin =
+            !string.IsNullOrWhiteSpace(ApiAddress)
+            && !string.IsNullOrWhiteSpace(OidcClientId)
+            && !string.IsNullOrWhiteSpace(OidcAuthority)
+            && !string.IsNullOrWhiteSpace(OidcResponseType)
+            && !string.IsNullOrWhiteSpace(OidcResponseMode);
+    }
+
+    /// <summary>
+    /// 保存配置到 appsettings.json
+    /// </summary>
+    private void SaveConfiguration()
     {
         try
         {
             var appSettingsPath = Path.Combine(AppContext.BaseDirectory, AppSettingsFile);
-            
+
             if (!File.Exists(appSettingsPath))
             {
                 _logger.LogError("配置文件不存在: {Path}", appSettingsPath);
@@ -90,16 +113,20 @@ public partial class LoginWindowViewModel : ViewModelBase
 
             var json = File.ReadAllText(appSettingsPath);
             var appSettings = JsonSerializer.Deserialize<JsonElement>(json);
-            
-            var apiSettingsDict = new Dictionary<string, object>();
-            if (appSettings.TryGetProperty("ApiSettings", out var apiSettings))
+
+            var oidcDict = new Dictionary<string, object>
             {
-                foreach (var property in apiSettings.EnumerateObject())
-                {
-                    apiSettingsDict[property.Name] = property.Value;
-                }
-            }
-            apiSettingsDict["BaseAddress"] = ApiAddress;
+                ["ClientId"] = OidcClientId,
+                ["Authority"] = OidcAuthority,
+                ["ResponseType"] = OidcResponseType,
+                ["ResponseMode"] = OidcResponseMode,
+            };
+
+            var apiSettingsDict = new Dictionary<string, object>
+            {
+                ["BaseAddress"] = ApiAddress,
+                ["OIDC"] = oidcDict,
+            };
 
             var rootDict = new Dictionary<string, object>();
             foreach (var property in appSettings.EnumerateObject())
@@ -114,21 +141,25 @@ public partial class LoginWindowViewModel : ViewModelBase
                 }
             }
 
-            var newJson = JsonSerializer.Serialize(rootDict, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-            
+            var newJson = JsonSerializer.Serialize(
+                rootDict,
+                new JsonSerializerOptions { WriteIndented = true }
+            );
+
             File.WriteAllText(appSettingsPath, newJson);
-            CanLogin = !string.IsNullOrWhiteSpace(ApiAddress);
-            
-            _logger.LogInformation("API 地址已保存到 appsettings.json: {ApiAddress}", ApiAddress);
-            
+            UpdateCanLogin();
+
+            _logger.LogInformation(
+                "配置已保存 - API: {ApiAddress}, OIDC Authority: {Authority}",
+                ApiAddress,
+                OidcAuthority
+            );
+
             ShowRestartPrompt?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "保存 API 地址失败");
+            _logger.LogError(ex, "保存配置失败");
         }
     }
 
@@ -153,15 +184,15 @@ public partial class LoginWindowViewModel : ViewModelBase
         if (_logoClickCount >= 5)
         {
             _logoClickCount = 0;
-            _logger.LogInformation("触发 API 地址配置对话框");
-            ShowApiAddressDialog?.Invoke(this, EventArgs.Empty);
+            _logger.LogInformation("触发配置对话框");
+            ShowConfigurationDialog?.Invoke(this, EventArgs.Empty);
         }
     }
 
     /// <summary>
-    /// 显示 API 地址对话框事件
+    /// 显示配置对话框事件
     /// </summary>
-    public event EventHandler? ShowApiAddressDialog;
+    public event EventHandler? ShowConfigurationDialog;
 
     /// <summary>
     /// 显示重启提示事件
@@ -169,69 +200,71 @@ public partial class LoginWindowViewModel : ViewModelBase
     public event EventHandler? ShowRestartPrompt;
 
     /// <summary>
-    /// 更新 API 地址
+    /// 更新配置
     /// </summary>
-    public void UpdateApiAddress(string newAddress)
+    public void UpdateConfiguration(
+        string apiAddress,
+        string clientId,
+        string authority,
+        string responseType,
+        string responseMode
+    )
     {
-        if (string.IsNullOrWhiteSpace(newAddress))
+        if (string.IsNullOrWhiteSpace(apiAddress))
         {
             ErrorMessage = "API 地址不能为空";
             return;
         }
 
-        ApiAddress = newAddress;
-        SaveApiAddress();
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(authority))
+        {
+            ErrorMessage = "OIDC 配置不完整";
+            return;
+        }
+
+        ApiAddress = apiAddress;
+        OidcClientId = clientId;
+        OidcAuthority = authority;
+        OidcResponseType = responseType;
+        OidcResponseMode = responseMode;
+
+        SaveConfiguration();
         ErrorMessage = string.Empty;
     }
 
     /// <summary>
-    /// 登录命令
+    /// OIDC 登录命令
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanLogin))]
     private async Task LoginAsync()
     {
         ErrorMessage = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(Username))
-        {
-            ErrorMessage = "请输入用户名";
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(Password))
-        {
-            ErrorMessage = "请输入密码";
-            return;
-        }
-
         IsLoading = true;
 
         try
         {
-            _logger.LogInformation("用户 {Username} 尝试登录到 {ApiAddress}", Username, ApiAddress);
+            _logger.LogInformation(
+                "开始 OIDC 登录 - Authority: {Authority}, ClientId: {ClientId}",
+                OidcAuthority,
+                OidcClientId
+            );
 
-            // 模拟登录验证（实际项目中应该调用 API）
+            // TODO: 实现 OIDC 登录流程
+            // 1. 构建授权 URL
+            // 2. 打开浏览器进行授权
+            // 3. 监听回调
+            // 4. 获取 token
+
             await Task.Delay(1500);
 
-            // TODO: 调用实际的登录 API
-            // var result = await _accountService.LoginAsync(Username, Password, TwoFactorCode);
-
-            // 临时验证逻辑
-            if (Username == "admin" && Password == "123456")
-            {
-                _logger.LogInformation("用户 {Username} 登录成功", Username);
-                LoginSucceeded?.Invoke(this, EventArgs.Empty);
-            }
-            else
-            {
-                ErrorMessage = "用户名或密码错误";
-                _logger.LogWarning("用户 {Username} 登录失败", Username);
-            }
+            // 临时：直接模拟登录成功
+            _logger.LogInformation("OIDC 登录成功");
+            LoginSucceeded?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {
-            ErrorMessage = "登录失败，请稍后重试";
-            _logger.LogError(ex, "登录过程发生异常");
+            ErrorMessage = "OIDC 登录失败，请检查配置";
+            _logger.LogError(ex, "OIDC 登录过程发生异常");
         }
         finally
         {
@@ -251,7 +284,31 @@ public partial class LoginWindowViewModel : ViewModelBase
 
     partial void OnApiAddressChanged(string value)
     {
-        CanLogin = !string.IsNullOrWhiteSpace(value);
+        UpdateCanLogin();
+        LoginCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnOidcClientIdChanged(string value)
+    {
+        UpdateCanLogin();
+        LoginCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnOidcAuthorityChanged(string value)
+    {
+        UpdateCanLogin();
+        LoginCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnOidcResponseTypeChanged(string value)
+    {
+        UpdateCanLogin();
+        LoginCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnOidcResponseModeChanged(string value)
+    {
+        UpdateCanLogin();
         LoginCommand.NotifyCanExecuteChanged();
     }
 }
