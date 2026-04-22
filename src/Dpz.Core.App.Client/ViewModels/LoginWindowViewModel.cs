@@ -13,8 +13,6 @@ public partial class LoginWindowViewModel : ViewModelBase
 {
     private readonly ILogger<LoginWindowViewModel> _logger;
     private readonly IConfiguration _configuration;
-    private int _logoClickCount;
-    private DateTime _lastLogoClickTime = DateTime.MinValue;
     private const string AppSettingsFile = "appsettings.json";
 
     [ObservableProperty]
@@ -164,29 +162,13 @@ public partial class LoginWindowViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Logo 点击命令
+    /// 显示设置命令
     /// </summary>
     [RelayCommand]
-    private void LogoClick()
+    private void ShowSettings()
     {
-        var now = DateTime.Now;
-
-        if ((now - _lastLogoClickTime).TotalSeconds > 2)
-        {
-            _logoClickCount = 0;
-        }
-
-        _logoClickCount++;
-        _lastLogoClickTime = now;
-
-        _logger.LogInformation("Logo 点击次数: {Count}/5", _logoClickCount);
-
-        if (_logoClickCount >= 5)
-        {
-            _logoClickCount = 0;
-            _logger.LogInformation("触发配置对话框");
-            ShowConfigurationDialog?.Invoke(this, EventArgs.Empty);
-        }
+        _logger.LogInformation("显示配置对话框");
+        ShowConfigurationDialog?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

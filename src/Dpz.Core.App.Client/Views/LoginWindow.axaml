@@ -82,25 +82,16 @@
                 
                 <!-- Logo 和标题区域 -->
                 <StackPanel Spacing="15" HorizontalAlignment="Center">
-                    <!-- Logo 圆形 (可点击) -->
-                    <Button Background="Transparent" 
-                            BorderThickness="0" 
-                            Padding="0"
-                            Cursor="Hand"
-                            IsHitTestVisible="True"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            Command="{Binding LogoClickCommand}">
-                        <Border Width="80" Height="80" 
-                                CornerRadius="40"
-                                Background="#764ba2"
-                                BoxShadow="0 4 15 0 #40000000">
-                            <Image Source="/Assets/logo.png" 
-                                   Width="50" Height="50"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                        </Border>
-                    </Button>
+                    <!-- Logo 圆形 -->
+                    <Border Width="80" Height="80" 
+                            CornerRadius="40"
+                            Background="#764ba2"
+                            BoxShadow="0 4 15 0 #40000000">
+                        <Image Source="/Assets/logo.png" 
+                               Width="50" Height="50"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                    </Border>
                     
                     <!-- 标题 -->
                     <TextBlock Text="Dpz Core 管理平台" 
@@ -145,27 +136,43 @@
                                    IsVisible="{Binding IsLoading}"/>
                     </StackPanel>
                 </Button>
-
-                <!-- 配置提示 -->
-                <TextBlock Text="连续点击 Logo 5次可配置 API 和 OIDC 设置" 
-                           FontSize="12"
-                           Foreground="#A0FFFFFF"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           Margin="0,30,0,0"/>
             </StackPanel>
         </Border>
 
-        <!-- 关闭按钮 -->
-        <Button Classes="CloseButton"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
-                Margin="20"
-                Command="{Binding CancelCommand}">
-            <TextBlock Text="&#xf00d;" 
-                       FontFamily="{StaticResource FontAwesomeSolid}"
-                       FontSize="16"/>
-        </Button>
+        <!-- 右上角按钮组 -->
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Spacing="10"
+                    Margin="20">
+            
+            <!-- 设置按钮 -->
+            <Button Width="40" Height="40"
+                    Background="#20FFFFFF"
+                    BorderThickness="0"
+                    CornerRadius="20"
+                    Command="{Binding ShowSettingsCommand}"
+                    Cursor="Hand">
+                <Button.Styles>
+                    <Style Selector="Button:pointerover">
+                        <Setter Property="Background" Value="#30FFFFFF"/>
+                    </Style>
+                </Button.Styles>
+                <TextBlock Text="&#xf013;" 
+                           FontFamily="{StaticResource FontAwesomeSolid}"
+                           FontSize="16"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Button>
+            
+                <!-- 关闭按钮 -->
+            <Button Classes="CloseButton"
+                    Command="{Binding CancelCommand}">
+                <TextBlock Text="&#xf00d;" 
+                           FontFamily="{StaticResource FontAwesomeSolid}"
+                           FontSize="16"/>
+            </Button>
+        </StackPanel>
     </Panel>
 </Window>

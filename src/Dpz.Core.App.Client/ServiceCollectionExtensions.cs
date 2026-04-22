@@ -38,10 +38,12 @@ public static class ServiceCollectionExtensions
         // 注册 ViewModels
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<LoginWindowViewModel>();
+        services.AddTransient<ConfigurationWindowViewModel>();
 
         // 注册 Views
         services.AddTransient<MainWindow>();
         services.AddTransient<LoginWindow>();
+        services.AddTransient<ConfigurationWindow>();
 
         return services;
     }

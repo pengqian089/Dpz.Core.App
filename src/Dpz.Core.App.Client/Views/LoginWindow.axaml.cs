@@ -1,22 +1,25 @@
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Dpz.Core.App.Client.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Dpz.Core.App.Client.Views;
 
 public partial class LoginWindow : Window
 {
     private readonly LoginWindowViewModel? _viewModel;
+    private readonly IServiceProvider? _serviceProvider;
 
     public LoginWindow()
     {
         InitializeComponent();
     }
 
-    public LoginWindow(LoginWindowViewModel viewModel)
+    public LoginWindow(LoginWindowViewModel viewModel, IServiceProvider serviceProvider)
         : this()
     {
         _viewModel = viewModel;
+        _serviceProvider = serviceProvider;
         DataContext = viewModel;
 
         // 订阅显示配置对话框事件
@@ -31,163 +34,34 @@ public partial class LoginWindow : Window
     /// </summary>
     private async Task ShowConfigurationDialogAsync()
     {
-        if (_viewModel == null)
+        if (_viewModel == null || _serviceProvider == null)
         {
             return;
         }
 
-        var dialog = new Window
-        {
-            Title = "配置 API 和 OIDC",
-            Width = 550,
-            Height = 450,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            CanResize = false,
-            Icon = this.Icon,
-        };
+        var configViewModel = _serviceProvider.GetRequiredService<ConfigurationWindowViewModel>();
+        configViewModel.Initialize(
+            _viewModel.ApiAddress,
+            _viewModel.OidcClientId,
+            _viewModel.OidcAuthority,
+            _viewModel.OidcResponseType,
+            _viewModel.OidcResponseMode
+        );
 
-        var stackPanel = new StackPanel { Margin = new Avalonia.Thickness(30), Spacing = 18 };
+        var configWindow = new ConfigurationWindow(configViewModel);
 
-        var titleText = new TextBlock
-        {
-            Text = "API 和 OIDC 配置",
-            FontSize = 18,
-            FontWeight = Avalonia.Media.FontWeight.Bold,
-        };
+        var result = await configWindow.ShowDialog<bool>(this);
 
-        // API 地址
-        var apiLabel = new TextBlock
-        {
-            Text = "API 服务器地址",
-            FontSize = 14,
-            Margin = new Avalonia.Thickness(0, 5, 0, 5),
-        };
-        var apiTextBox = new TextBox
-        {
-            Text = _viewModel.ApiAddress,
-            PlaceholderText = "https://api.example.com",
-            Height = 36,
-            Padding = new Avalonia.Thickness(10, 0),
-        };
-
-        // OIDC ClientId
-        var clientIdLabel = new TextBlock
-        {
-            Text = "OIDC Client ID",
-            FontSize = 14,
-            Margin = new Avalonia.Thickness(0, 5, 0, 5),
-        };
-        var clientIdTextBox = new TextBox
-        {
-            Text = _viewModel.OidcClientId,
-            PlaceholderText = "manage-client",
-            Height = 36,
-            Padding = new Avalonia.Thickness(10, 0),
-        };
-
-        // OIDC Authority
-        var authorityLabel = new TextBlock
-        {
-            Text = "OIDC Authority",
-            FontSize = 14,
-            Margin = new Avalonia.Thickness(0, 5, 0, 5),
-        };
-        var authorityTextBox = new TextBox
-        {
-            Text = _viewModel.OidcAuthority,
-            PlaceholderText = "https://localhost:7183",
-            Height = 36,
-            Padding = new Avalonia.Thickness(10, 0),
-        };
-
-        // OIDC ResponseType
-        var responseTypeLabel = new TextBlock
-        {
-            Text = "OIDC Response Type",
-            FontSize = 14,
-            Margin = new Avalonia.Thickness(0, 5, 0, 5),
-        };
-        var responseTypeTextBox = new TextBox
-        {
-            Text = _viewModel.OidcResponseType,
-            PlaceholderText = "code",
-            Height = 36,
-            Padding = new Avalonia.Thickness(10, 0),
-        };
-
-        // OIDC ResponseMode
-        var responseModeLabel = new TextBlock
-        {
-            Text = "OIDC Response Mode",
-            FontSize = 14,
-            Margin = new Avalonia.Thickness(0, 5, 0, 5),
-        };
-        var responseModeTextBox = new TextBox
-        {
-            Text = _viewModel.OidcResponseMode,
-            PlaceholderText = "query",
-            Height = 36,
-            Padding = new Avalonia.Thickness(10, 0),
-        };
-
-        var buttonPanel = new StackPanel
-        {
-            Orientation = Avalonia.Layout.Orientation.Horizontal,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
-            Spacing = 12,
-            Margin = new Avalonia.Thickness(0, 10, 0, 0),
-        };
-
-        var okButton = new Button
-        {
-            Content = "确定",
-            Width = 100,
-            Height = 35,
-        };
-
-        var cancelButton = new Button
-        {
-            Content = "取消",
-            Width = 100,
-            Height = 35,
-        };
-
-        okButton.Click += (s, e) =>
+        if (result && configWindow.ViewModel != null)
         {
             _viewModel.UpdateConfiguration(
-                apiTextBox.Text ?? string.Empty,
-                clientIdTextBox.Text ?? string.Empty,
-                authorityTextBox.Text ?? string.Empty,
-                responseTypeTextBox.Text ?? string.Empty,
-                responseModeTextBox.Text ?? string.Empty
+                configWindow.ViewModel.ApiAddress,
+                configWindow.ViewModel.OidcClientId,
+                configWindow.ViewModel.OidcAuthority,
+                configWindow.ViewModel.OidcResponseType,
+                configWindow.ViewModel.OidcResponseMode
             );
-            dialog.Close();
-        };
-
-        cancelButton.Click += (s, e) =>
-        {
-            dialog.Close();
-        };
-
-        buttonPanel.Children.Add(okButton);
-        buttonPanel.Children.Add(cancelButton);
-
-        stackPanel.Children.Add(titleText);
-        stackPanel.Children.Add(apiLabel);
-        stackPanel.Children.Add(apiTextBox);
-        stackPanel.Children.Add(clientIdLabel);
-        stackPanel.Children.Add(clientIdTextBox);
-        stackPanel.Children.Add(authorityLabel);
-        stackPanel.Children.Add(authorityTextBox);
-        stackPanel.Children.Add(responseTypeLabel);
-        stackPanel.Children.Add(responseTypeTextBox);
-        stackPanel.Children.Add(responseModeLabel);
-        stackPanel.Children.Add(responseModeTextBox);
-        stackPanel.Children.Add(buttonPanel);
-
-        dialog.Content = stackPanel;
-
-        await dialog.ShowDialog(this);
+        }
     }
 
     /// <summary>
