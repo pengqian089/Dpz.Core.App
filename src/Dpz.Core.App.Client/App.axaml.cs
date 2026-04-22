@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Dpz.Core.App.Client.ViewModels;
 using Dpz.Core.App.Client.Views;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,8 +24,24 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // 从服务容器获取 MainWindow
-            desktop.MainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            // 显示登录界面
+            var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
+            var loginViewModel = _serviceProvider.GetRequiredService<LoginWindowViewModel>();
+            loginWindow.DataContext = loginViewModel;
+
+            // 监听登录成功事件
+            loginViewModel.LoginSucceeded += (sender, args) =>
+            {
+                // 创建主窗口
+                var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+                desktop.MainWindow = mainWindow;
+                mainWindow.Show();
+
+                // 关闭登录窗口
+                loginWindow.Close();
+            };
+
+            desktop.MainWindow = loginWindow;
         }
 
         base.OnFrameworkInitializationCompleted();

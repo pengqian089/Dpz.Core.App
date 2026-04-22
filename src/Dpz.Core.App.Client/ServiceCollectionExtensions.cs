@@ -29,7 +29,7 @@ public static class ServiceCollectionExtensions
         var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
-        // 从配置文件读取 API 地址
+        // 从配置文件读取 API 地址（可选）
         var baseAddress = configuration["ApiSettings:BaseAddress"] ?? "https://api.example.com";
 
         // 注册 API 服务（从 Service 项目）
@@ -37,9 +37,11 @@ public static class ServiceCollectionExtensions
 
         // 注册 ViewModels
         services.AddTransient<MainWindowViewModel>();
+        services.AddTransient<LoginWindowViewModel>();
 
         // 注册 Views
         services.AddTransient<MainWindow>();
+        services.AddTransient<LoginWindow>();
 
         return services;
     }

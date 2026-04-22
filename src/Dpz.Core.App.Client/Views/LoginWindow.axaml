@@ -1,0 +1,246 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Dpz.Core.App.Client.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+        x:Class="Dpz.Core.App.Client.Views.LoginWindow"
+        x:DataType="vm:LoginWindowViewModel"
+        Title="Dpz Core 管理平台 - 登录"
+        Icon="/Assets/logo.ico"
+        Width="1000" Height="600"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        WindowDecorations="None"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True">
+
+    <Window.Styles>
+        <StyleInclude Source="/Styles/LoginStyles.axaml"/>
+    </Window.Styles>
+
+    <!-- 渐变背景 -->
+    <Panel>
+        <!-- 动态渐变背景 -->
+        <Border>
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#667eea" Offset="0"/>
+                    <GradientStop Color="#764ba2" Offset="0.5"/>
+                    <GradientStop Color="#f093fb" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+
+        <!-- 装饰圆圈 -->
+        <Canvas>
+            <!-- 左上角大圆 -->
+            <Ellipse Width="300" Height="300" 
+                     Canvas.Left="-100" Canvas.Top="-100"
+                     Opacity="0.1">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="White" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            
+            <!-- 右下角大圆 -->
+            <Ellipse Width="400" Height="400" 
+                     Canvas.Right="-150" Canvas.Bottom="-150"
+                     Opacity="0.1">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="White" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <!-- 中间小圆 -->
+            <Ellipse Width="150" Height="150" 
+                     Canvas.Left="200" Canvas.Top="100"
+                     Opacity="0.08">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="White" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+        </Canvas>
+
+        <!-- 主登录卡片 -->
+        <Border Classes="LoginCard"
+                Width="450" Height="550"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            
+            <StackPanel Spacing="25" Margin="50,40">
+                
+                <!-- Logo 和标题区域 -->
+                <StackPanel Spacing="15" HorizontalAlignment="Center">
+                    <!-- Logo 圆形 (可点击) -->
+                    <Button Background="Transparent" 
+                            BorderThickness="0" 
+                            Padding="0"
+                            Cursor="Hand"
+                            IsHitTestVisible="True"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Command="{Binding LogoClickCommand}">
+                        <Border Width="80" Height="80" 
+                                CornerRadius="40"
+                                Background="#764ba2"
+                                BoxShadow="0 4 15 0 #40000000">
+                            <Image Source="/Assets/logo.png" 
+                                   Width="50" Height="50"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                        </Border>
+                    </Button>
+                    
+                    <!-- 标题 -->
+                    <TextBlock Text="Dpz Core 管理平台" 
+                               FontSize="28"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               HorizontalAlignment="Center"/>
+                    
+                    <TextBlock Text="欢迎回来，请登录您的账户" 
+                               FontSize="14"
+                               Foreground="#E0FFFFFF"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- 输入区域 -->
+                <StackPanel Spacing="20">
+                    
+                    <!-- 用户名输入框 -->
+                    <Border Classes="InputWrapper">
+                        <Grid ColumnDefinitions="40,*">
+                            <TextBlock Grid.Column="0"
+                                       Text="&#xf007;" 
+                                       FontFamily="{StaticResource FontAwesomeSolid}"
+                                       FontSize="16"
+                                       Foreground="#B0FFFFFF"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1"
+                                     Classes="LoginInput"
+                                     PlaceholderText="用户名"
+                                     Text="{Binding Username}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 密码输入框 -->
+                    <Border Classes="InputWrapper">
+                        <Grid ColumnDefinitions="40,*">
+                            <TextBlock Grid.Column="0"
+                                       Text="&#xf023;" 
+                                       FontFamily="{StaticResource FontAwesomeSolid}"
+                                       FontSize="16"
+                                       Foreground="#B0FFFFFF"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1"
+                                     Classes="LoginInput"
+                                     PlaceholderText="密码"
+                                     PasswordChar="●"
+                                     Text="{Binding Password}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 2FA 验证码输入框 (选填) -->
+                    <Border Classes="InputWrapper">
+                        <Grid ColumnDefinitions="40,*">
+                            <TextBlock Grid.Column="0"
+                                       Text="&#xf084;" 
+                                       FontFamily="{StaticResource FontAwesomeSolid}"
+                                       FontSize="16"
+                                       Foreground="#B0FFFFFF"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="1"
+                                     Classes="LoginInput"
+                                     PlaceholderText="2FA 验证码 (选填)"
+                                     Text="{Binding TwoFactorCode}"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 记住密码 -->
+                    <CheckBox Content="记住密码" 
+                              Foreground="White"
+                              IsChecked="{Binding RememberPassword}"/>
+
+                    <!-- 错误提示 -->
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="#FF6B6B"
+                               FontSize="13"
+                               TextAlignment="Center"
+                               IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                </StackPanel>
+
+                <!-- 按钮区域 -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <!-- 登录按钮 -->
+                    <Button Grid.Column="0"
+                            Classes="LoginButton"
+                            Command="{Binding LoginCommand}"
+                            IsEnabled="{Binding CanLogin}">
+                        <StackPanel Orientation="Horizontal" 
+                                    Spacing="10"
+                                    HorizontalAlignment="Center">
+                            <TextBlock Text="&#xf2f6;" 
+                                       FontFamily="{StaticResource FontAwesomeSolid}"
+                                       FontSize="16"
+                                       IsVisible="{Binding !IsLoading}"/>
+                            <TextBlock Text="登录" 
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       IsVisible="{Binding !IsLoading}"/>
+                            <TextBlock Text="登录中..." 
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       IsVisible="{Binding IsLoading}"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- 取消按钮 -->
+                    <Button Grid.Column="1"
+                            Classes="CancelButton"
+                            Command="{Binding CancelCommand}">
+                        <StackPanel Orientation="Horizontal" 
+                                    Spacing="8"
+                                    HorizontalAlignment="Center">
+                            <TextBlock Text="&#xf00d;" 
+                                       FontFamily="{StaticResource FontAwesomeSolid}"
+                                       FontSize="14"/>
+                            <TextBlock Text="取消" FontSize="14"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <!-- 底部提示 -->
+                <TextBlock Text="默认账号：admin / 123456" 
+                           FontSize="12"
+                           Foreground="#A0FFFFFF"
+                           HorizontalAlignment="Center"
+                           Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 关闭按钮 -->
+        <Button Classes="CloseButton"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="20"
+                Command="{Binding CancelCommand}">
+            <TextBlock Text="&#xf00d;" 
+                       FontFamily="{StaticResource FontAwesomeSolid}"
+                       FontSize="16"/>
+        </Button>
+    </Panel>
+</Window>

@@ -7,6 +7,7 @@
         x:Class="Dpz.Core.App.Client.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="对有程屋" 
+        Icon="/Assets/logo.ico"
         Width="1400" Height="900"
         Background="#0F172A">
 
@@ -26,7 +27,9 @@
                 <!-- Logo区域 -->
                 <Border Padding="20" Margin="0,0,0,20">
                     <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Ellipse Width="32" Height="32" Fill="#3B82F6"/>
+                        <Border Width="32" Height="32" CornerRadius="16" ClipToBounds="True">
+                            <Image Source="/Assets/logo.png" Stretch="UniformToFill"/>
+                        </Border>
                         <TextBlock Text="对有程屋" FontSize="18" FontWeight="Bold" 
                                    Foreground="White" VerticalAlignment="Center"/>
                     </StackPanel>
