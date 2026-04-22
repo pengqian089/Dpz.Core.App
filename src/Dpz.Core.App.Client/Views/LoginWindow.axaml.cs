@@ -20,6 +20,9 @@ public partial class LoginWindow : Window
 
         // 订阅显示API地址对话框事件
         viewModel.ShowApiAddressDialog += async (s, e) => await ShowApiAddressDialogAsync();
+        
+        // 订阅显示重启提示事件
+        viewModel.ShowRestartPrompt += async (s, e) => await ShowRestartPromptAsync();
     }
 
     /// <summary>
@@ -105,5 +108,91 @@ public partial class LoginWindow : Window
         dialog.Content = stackPanel;
 
         await dialog.ShowDialog(this);
+    }
+
+    /// <summary>
+    /// 显示重启提示对话框
+    /// </summary>
+    private async Task ShowRestartPromptAsync()
+    {
+        var dialog = new Window
+        {
+            Title = "需要重启应用",
+            Width = 400,
+            Height = 180,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            CanResize = false,
+            Icon = this.Icon
+        };
+
+        var stackPanel = new StackPanel
+        {
+            Margin = new Avalonia.Thickness(20),
+            Spacing = 20,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+        };
+
+        var messageText = new TextBlock
+        {
+            Text = "API 地址已更新，需要重启应用程序才能生效。\n\n是否立即重启？",
+            FontSize = 14,
+            TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+            TextAlignment = Avalonia.Media.TextAlignment.Center
+        };
+
+        var buttonPanel = new StackPanel
+        {
+            Orientation = Avalonia.Layout.Orientation.Horizontal,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            Spacing = 15
+        };
+
+        var restartButton = new Button
+        {
+            Content = "立即重启",
+            Width = 120,
+            Height = 35
+        };
+
+        var laterButton = new Button
+        {
+            Content = "稍后重启",
+            Width = 120,
+            Height = 35
+        };
+
+        restartButton.Click += (s, e) =>
+        {
+            dialog.Close();
+            RestartApplication();
+        };
+
+        laterButton.Click += (s, e) =>
+        {
+            dialog.Close();
+        };
+
+        buttonPanel.Children.Add(restartButton);
+        buttonPanel.Children.Add(laterButton);
+
+        stackPanel.Children.Add(messageText);
+        stackPanel.Children.Add(buttonPanel);
+
+        dialog.Content = stackPanel;
+
+        await dialog.ShowDialog(this);
+    }
+
+    /// <summary>
+    /// 重启应用程序
+    /// </summary>
+    private void RestartApplication()
+    {
+        var exePath = Environment.ProcessPath;
+        if (!string.IsNullOrEmpty(exePath))
+        {
+            System.Diagnostics.Process.Start(exePath);
+        }
+        Environment.Exit(0);
     }
 }

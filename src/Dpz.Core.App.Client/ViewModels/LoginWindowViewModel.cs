@@ -1,8 +1,4 @@
-using System;
-using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +15,7 @@ public partial class LoginWindowViewModel : ViewModelBase
     private readonly IConfiguration _configuration;
     private int _logoClickCount;
     private DateTime _lastLogoClickTime = DateTime.MinValue;
-    private const string ApiSettingsFile = "api-settings.json";
+    private const string AppSettingsFile = "appsettings.json";
 
     [ObservableProperty]
     private string _username = string.Empty;
@@ -50,11 +46,6 @@ public partial class LoginWindowViewModel : ViewModelBase
     /// </summary>
     public event EventHandler? LoginSucceeded;
 
-    /// <summary>
-    /// API地址改变事件
-    /// </summary>
-    public event EventHandler<string>? ApiAddressChanged;
-
     public LoginWindowViewModel(ILogger<LoginWindowViewModel> logger, IConfiguration configuration)
     {
         _logger = logger;
@@ -70,28 +61,9 @@ public partial class LoginWindowViewModel : ViewModelBase
     {
         try
         {
-            // 优先从本地配置文件加载
-            if (File.Exists(ApiSettingsFile))
-            {
-                var json = File.ReadAllText(ApiSettingsFile);
-                var settings = JsonSerializer.Deserialize<ApiSettings>(json);
-                ApiAddress = settings?.BaseAddress ?? string.Empty;
-                _logger.LogInformation("API 地址从本地文件加载: {ApiAddress}", ApiAddress);
-            }
-            else
-            {
-                // 如果本地文件不存在，从 appsettings.json 加载默认值
-                ApiAddress = _configuration["ApiSettings:BaseAddress"] ?? string.Empty;
-                _logger.LogInformation("API 地址从 appsettings.json 加载: {ApiAddress}", ApiAddress);
-                
-                // 如果有默认值，保存到本地文件
-                if (!string.IsNullOrWhiteSpace(ApiAddress))
-                {
-                    SaveApiAddress();
-                }
-            }
-
+            ApiAddress = _configuration["ApiSettings:BaseAddress"] ?? string.Empty;
             CanLogin = !string.IsNullOrWhiteSpace(ApiAddress);
+            _logger.LogInformation("API 地址已加载: {ApiAddress}", ApiAddress);
         }
         catch (Exception ex)
         {
@@ -102,20 +74,57 @@ public partial class LoginWindowViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// 保存 API 地址
+    /// 保存 API 地址到 appsettings.json
     /// </summary>
     private void SaveApiAddress()
     {
         try
         {
-            var settings = new ApiSettings { BaseAddress = ApiAddress };
-            var json = JsonSerializer.Serialize(
-                settings,
-                new JsonSerializerOptions { WriteIndented = true }
-            );
-            File.WriteAllText(ApiSettingsFile, json);
+            var appSettingsPath = Path.Combine(AppContext.BaseDirectory, AppSettingsFile);
+            
+            if (!File.Exists(appSettingsPath))
+            {
+                _logger.LogError("配置文件不存在: {Path}", appSettingsPath);
+                return;
+            }
+
+            var json = File.ReadAllText(appSettingsPath);
+            var appSettings = JsonSerializer.Deserialize<JsonElement>(json);
+            
+            var apiSettingsDict = new Dictionary<string, object>();
+            if (appSettings.TryGetProperty("ApiSettings", out var apiSettings))
+            {
+                foreach (var property in apiSettings.EnumerateObject())
+                {
+                    apiSettingsDict[property.Name] = property.Value;
+                }
+            }
+            apiSettingsDict["BaseAddress"] = ApiAddress;
+
+            var rootDict = new Dictionary<string, object>();
+            foreach (var property in appSettings.EnumerateObject())
+            {
+                if (property.Name == "ApiSettings")
+                {
+                    rootDict["ApiSettings"] = apiSettingsDict;
+                }
+                else
+                {
+                    rootDict[property.Name] = property.Value;
+                }
+            }
+
+            var newJson = JsonSerializer.Serialize(rootDict, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            
+            File.WriteAllText(appSettingsPath, newJson);
             CanLogin = !string.IsNullOrWhiteSpace(ApiAddress);
-            _logger.LogInformation("API 地址已保存: {ApiAddress}", ApiAddress);
+            
+            _logger.LogInformation("API 地址已保存到 appsettings.json: {ApiAddress}", ApiAddress);
+            
+            ShowRestartPrompt?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {
@@ -155,6 +164,11 @@ public partial class LoginWindowViewModel : ViewModelBase
     public event EventHandler? ShowApiAddressDialog;
 
     /// <summary>
+    /// 显示重启提示事件
+    /// </summary>
+    public event EventHandler? ShowRestartPrompt;
+
+    /// <summary>
     /// 更新 API 地址
     /// </summary>
     public void UpdateApiAddress(string newAddress)
@@ -167,7 +181,6 @@ public partial class LoginWindowViewModel : ViewModelBase
 
         ApiAddress = newAddress;
         SaveApiAddress();
-        ApiAddressChanged?.Invoke(this, newAddress);
         ErrorMessage = string.Empty;
     }
 
@@ -241,12 +254,4 @@ public partial class LoginWindowViewModel : ViewModelBase
         CanLogin = !string.IsNullOrWhiteSpace(value);
         LoginCommand.NotifyCanExecuteChanged();
     }
-}
-
-/// <summary>
-/// API 设置
-/// </summary>
-public class ApiSettings
-{
-    public string BaseAddress { get; set; } = string.Empty;
 }

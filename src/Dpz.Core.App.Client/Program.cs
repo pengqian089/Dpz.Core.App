@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Avalonia;
+﻿using Avalonia;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
