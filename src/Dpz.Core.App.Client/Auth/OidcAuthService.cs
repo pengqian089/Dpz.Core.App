@@ -15,6 +15,7 @@ public sealed class OidcAuthService(
 ) : IOidcAuthService
 {
     private static readonly TimeSpan RefreshSkew = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan ReauthDebounce = TimeSpan.FromSeconds(8);
 
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
     private readonly object _stateLock = new();
@@ -22,6 +23,8 @@ public sealed class OidcAuthService(
     private TokenCache? _tokenCache;
     private AuthState _state = AuthState.Unauthenticated;
     private string _statusMessage = "未登录";
+    private DateTimeOffset _lastReauthRaisedAt = DateTimeOffset.MinValue;
+    private string _lastReauthMessage = string.Empty;
 
     public AuthState CurrentState
     {
@@ -49,13 +52,21 @@ public sealed class OidcAuthService(
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("开始初始化认证状态");
         var cached = await tokenStore.LoadAsync(cancellationToken).ConfigureAwait(false);
 
         if (cached == null)
         {
             TransitionTo(AuthState.Unauthenticated, "未登录");
+            logger.LogInformation("未检测到本地 token 缓存");
             return;
         }
+
+        logger.LogInformation(
+            "检测到本地 token 缓存 - AccessTokenExpiresAtUtc: {AccessTokenExpiresAtUtc}, RefreshTokenExpiresAtUtc: {RefreshTokenExpiresAtUtc}",
+            cached.ExpiresAtUtc,
+            cached.RefreshTokenExpiresAtUtc
+        );
 
         if (cached.IsAccessTokenValid(DateTimeOffset.UtcNow, RefreshSkew))
         {
@@ -69,7 +80,8 @@ public sealed class OidcAuthService(
 
         if (!refreshed)
         {
-            await LogoutAsync(cancellationToken).ConfigureAwait(false);
+            await RaiseReauthenticationRequiredAsync("登录状态已失效，请重新登录", cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 
@@ -84,6 +96,15 @@ public sealed class OidcAuthService(
                 .ConfigureAwait(false);
             ValidateConfig(config);
 
+            logger.LogInformation(
+                "OIDC 配置加载完成 - Authority: {Authority}, AuthorizationEndpoint: {AuthorizationEndpoint}, TokenEndpoint: {TokenEndpoint}, Scope: {Scope}, RedirectUri: {RedirectUri}",
+                config.Authority,
+                config.AuthorizationEndpoint,
+                config.TokenEndpoint,
+                config.Scope,
+                config.RedirectUri
+            );
+
             var state = GenerateRandomBase64Url(32);
             var verifier = GenerateRandomBase64Url(64);
             var challenge = ComputeCodeChallenge(verifier);
@@ -96,7 +117,7 @@ public sealed class OidcAuthService(
                 .WaitForCallbackAsync(TimeSpan.FromMinutes(3), cancellationToken)
                 .ConfigureAwait(false);
 
-            var code = ExtractAuthorizationCode(callbackUri, state);
+            var code = ExtractAuthorizationCode(callbackUri, state, config);
 
             var tokenResponse = await ExchangeCodeForTokenAsync(
                     config,
@@ -140,6 +161,11 @@ public sealed class OidcAuthService(
             return cache.AccessToken;
         }
 
+        logger.LogInformation(
+            "AccessToken 已过期或即将过期，准备刷新 - ExpiresAtUtc: {ExpiresAtUtc}",
+            cache.ExpiresAtUtc
+        );
+
         var refreshed = await TryRefreshAsync(cancellationToken).ConfigureAwait(false);
         return refreshed ? _tokenCache?.AccessToken : null;
     }
@@ -156,6 +182,12 @@ public sealed class OidcAuthService(
                 return false;
             }
 
+            logger.LogInformation(
+                "开始刷新 token - AccessTokenExpiresAtUtc: {AccessTokenExpiresAtUtc}, RefreshTokenExpiresAtUtc: {RefreshTokenExpiresAtUtc}",
+                cache.ExpiresAtUtc,
+                cache.RefreshTokenExpiresAtUtc
+            );
+
             if (cache.IsAccessTokenValid(DateTimeOffset.UtcNow, RefreshSkew))
             {
                 return true;
@@ -163,7 +195,9 @@ public sealed class OidcAuthService(
 
             if (!cache.CanRefresh(DateTimeOffset.UtcNow, RefreshSkew))
             {
-                TransitionTo(AuthState.ReauthenticationRequired, "登录已过期，请重新登录");
+                logger.LogWarning("RefreshToken 不可用或已过期，无法刷新");
+                await RaiseReauthenticationRequiredAsync("登录已过期，请重新登录", cancellationToken)
+                    .ConfigureAwait(false);
                 return false;
             }
 
@@ -178,16 +212,20 @@ public sealed class OidcAuthService(
             _tokenCache = refreshed;
             await tokenStore.SaveAsync(refreshed, cancellationToken).ConfigureAwait(false);
 
+            logger.LogInformation(
+                "刷新 token 成功 - NewAccessTokenExpiresAtUtc: {NewAccessTokenExpiresAtUtc}, NewRefreshTokenExpiresAtUtc: {NewRefreshTokenExpiresAtUtc}",
+                refreshed.ExpiresAtUtc,
+                refreshed.RefreshTokenExpiresAtUtc
+            );
+
             TransitionTo(AuthState.Authenticated, "身份验证已更新");
             return true;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "刷新 access token 失败");
-            await tokenStore.ClearAsync(cancellationToken).ConfigureAwait(false);
-            _tokenCache = null;
-            TransitionTo(AuthState.ReauthenticationRequired, "身份验证已失效，请重新登录");
-            TransitionTo(AuthState.Unauthenticated, "未登录");
+            await RaiseReauthenticationRequiredAsync("身份验证已失效，请重新登录", cancellationToken)
+                .ConfigureAwait(false);
             return false;
         }
         finally
@@ -198,6 +236,7 @@ public sealed class OidcAuthService(
 
     public async Task LogoutAsync(CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("执行登出，清理本地 token 缓存");
         _tokenCache = null;
         await tokenStore.ClearAsync(cancellationToken).ConfigureAwait(false);
         TransitionTo(AuthState.Unauthenticated, "未登录");
@@ -205,11 +244,26 @@ public sealed class OidcAuthService(
 
     private void TransitionTo(AuthState state, string statusMessage)
     {
+        AuthState previousState;
+
         lock (_stateLock)
         {
+            if (_state == state && string.Equals(_statusMessage, statusMessage, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            previousState = _state;
             _state = state;
             _statusMessage = statusMessage;
         }
+
+        logger.LogInformation(
+            "认证状态变更 - From: {FromState}, To: {ToState}, Message: {Message}",
+            previousState,
+            state,
+            statusMessage
+        );
 
         AuthStateChanged?.Invoke(this, state);
     }
@@ -253,9 +307,25 @@ public sealed class OidcAuthService(
         Process.Start(new ProcessStartInfo { FileName = uri, UseShellExecute = true });
     }
 
-    private static string ExtractAuthorizationCode(string callbackUri, string expectedState)
+    private static string ExtractAuthorizationCode(
+        string callbackUri,
+        string expectedState,
+        OidcClientConfig config
+    )
     {
         var uri = new Uri(callbackUri);
+        var expectedRedirectUri = new Uri(config.RedirectUri);
+
+        if (!string.Equals(uri.Scheme, expectedRedirectUri.Scheme, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("OIDC 回调 scheme 不匹配。");
+        }
+
+        if (!string.Equals(uri.Host, expectedRedirectUri.Host, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("OIDC 回调 host 不匹配。");
+        }
+
         var parsed = ParseQueryString(uri.Query);
 
         if (parsed.TryGetValue("error", out var error))
@@ -263,7 +333,25 @@ public sealed class OidcAuthService(
             var description = parsed.TryGetValue("error_description", out var errorDescription)
                 ? errorDescription
                 : string.Empty;
-            throw new InvalidOperationException($"OIDC 回调失败: {error} {description}".Trim());
+            var errorUri = parsed.TryGetValue("error_uri", out var rawErrorUri)
+                ? rawErrorUri
+                : string.Empty;
+            throw new InvalidOperationException(
+                $"OIDC 回调失败: error={error}, description={description}, error_uri={errorUri}".Trim()
+            );
+        }
+
+        if (!parsed.TryGetValue("iss", out var issuer) || string.IsNullOrWhiteSpace(issuer))
+        {
+            throw new InvalidOperationException("OIDC 回调缺少 iss 参数。");
+        }
+
+        var expectedIssuer = config.Authority.TrimEnd('/') + "/";
+        if (!string.Equals(issuer, expectedIssuer, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"OIDC 回调 iss 校验失败。expected={expectedIssuer}, actual={issuer}"
+            );
         }
 
         if (
@@ -372,6 +460,11 @@ public sealed class OidcAuthService(
         var root = json.RootElement;
 
         var accessToken = root.GetProperty("access_token").GetString() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(accessToken))
+        {
+            throw new InvalidOperationException("Token 响应缺少 access_token。");
+        }
+
         var refreshToken = root.TryGetProperty("refresh_token", out var refreshElement)
             ? (refreshElement.GetString() ?? string.Empty)
             : (fallbackRefreshToken ?? string.Empty);
@@ -403,6 +496,29 @@ public sealed class OidcAuthService(
             TokenType = tokenType,
             Scope = scope,
         };
+    }
+
+    private async Task RaiseReauthenticationRequiredAsync(
+        string message,
+        CancellationToken cancellationToken
+    )
+    {
+        var now = DateTimeOffset.UtcNow;
+        var shouldDebounce =
+            string.Equals(_lastReauthMessage, message, StringComparison.Ordinal)
+            && now - _lastReauthRaisedAt < ReauthDebounce;
+
+        _tokenCache = null;
+        await tokenStore.ClearAsync(cancellationToken).ConfigureAwait(false);
+
+        if (!shouldDebounce)
+        {
+            _lastReauthRaisedAt = now;
+            _lastReauthMessage = message;
+            TransitionTo(AuthState.ReauthenticationRequired, message);
+        }
+
+        TransitionTo(AuthState.Unauthenticated, "未登录");
     }
 
     private static string GenerateRandomBase64Url(int bytes)

@@ -8,4 +8,9 @@ public sealed class AuthTokenProvider(IOidcAuthService authService) : ITokenProv
     {
         return authService.GetValidAccessTokenAsync(cancellationToken);
     }
+
+    public Task<bool> TryRefreshTokenAsync(CancellationToken cancellationToken = default)
+    {
+        return authService.TryRefreshAsync(cancellationToken);
+    }
 }

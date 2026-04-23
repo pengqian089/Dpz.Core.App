@@ -6,4 +6,9 @@
 public interface ITokenProvider
 {
     Task<string?> GetAccessTokenAsync(CancellationToken cancellationToken = default);
+
+    Task<bool> TryRefreshTokenAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(false);
+    }
 }
