@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Dpz.Core.App.Client.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,8 +71,8 @@ public partial class LoginWindow : Window
         var dialog = new Window
         {
             Title = "需要重启应用",
-            Width = 400,
-            Height = 180,
+            Width = 420,
+            Height = 220,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
             CanResize = false,
             Icon = this.Icon,
@@ -88,7 +87,10 @@ public partial class LoginWindow : Window
 
         var messageText = new TextBlock
         {
-            Text = "API 地址已更新，需要重启应用程序才能生效。\n\n是否立即重启？",
+            Text =
+                "配置已保存（API 地址和 OIDC 参数）。\n"
+                + "为确保网络请求与登录流程使用最新配置，需要重启应用。\n\n"
+                + "是否立即重启？",
             FontSize = 14,
             TextWrapping = Avalonia.Media.TextWrapping.Wrap,
             TextAlignment = Avalonia.Media.TextAlignment.Center,
@@ -106,6 +108,9 @@ public partial class LoginWindow : Window
             Content = "立即重启",
             Width = 120,
             Height = 35,
+            Padding = new Avalonia.Thickness(12, 6),
+            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Center,
         };
 
         var laterButton = new Button
@@ -113,6 +118,9 @@ public partial class LoginWindow : Window
             Content = "稍后重启",
             Width = 120,
             Height = 35,
+            Padding = new Avalonia.Thickness(12, 6),
+            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            VerticalContentAlignment = Avalonia.Layout.VerticalAlignment.Center,
         };
 
         restartButton.Click += (s, e) =>

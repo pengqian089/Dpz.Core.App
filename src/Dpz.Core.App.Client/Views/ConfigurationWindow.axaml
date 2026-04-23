@@ -14,107 +14,115 @@
         Background="#0F172A">
 
     <Border Padding="40">
-        <StackPanel Spacing="20">
-            
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="20">
             <!-- 标题 -->
-            <TextBlock Text="API 和 OIDC 配置"
+            <TextBlock Grid.Row="0"
+                       Text="API 和 OIDC 配置"
                        FontSize="24"
                        FontWeight="Bold"
                        Foreground="White"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,10"/>
+                       HorizontalAlignment="Center"/>
 
-            <!-- API 地址 -->
-            <StackPanel Spacing="8">
-                <TextBlock Text="API 服务器地址"
-                           FontSize="14"
-                           Foreground="#94A3B8"/>
-                <TextBox Text="{Binding ApiAddress}"
-                         PlaceholderText="https://api.example.com"
-                         Height="40"
-                         Padding="12,8"
-                         VerticalContentAlignment="Center"
-                         Background="#1E293B"
-                         Foreground="White"
-                         BorderBrush="#334155"
-                         BorderThickness="1"
-                         CornerRadius="6"/>
-            </StackPanel>
+            <!-- 可滚动表单区域 -->
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="16">
+                    <!-- API 地址 -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="API 服务器地址"
+                                   FontSize="14"
+                                   Foreground="#94A3B8"/>
+                        <TextBox Text="{Binding ApiAddress}"
+                                 PlaceholderText="https://api.example.com"
+                                 Height="40"
+                                 Padding="12,8"
+                                 VerticalContentAlignment="Center"
+                                 Background="#1E293B"
+                                 Foreground="White"
+                                 BorderBrush="#334155"
+                                 BorderThickness="1"
+                                 CornerRadius="6"/>
+                    </StackPanel>
 
-            <!-- OIDC Client ID -->
-            <StackPanel Spacing="8">
-                <TextBlock Text="OIDC Client ID"
-                           FontSize="14"
-                           Foreground="#94A3B8"/>
-                <TextBox Text="{Binding OidcClientId}"
-                         PlaceholderText="manage-client"
-                         Height="40"
-                         Padding="12,8"
-                         VerticalContentAlignment="Center"
-                         Background="#1E293B"
-                         Foreground="White"
-                         BorderBrush="#334155"
-                         BorderThickness="1"
-                         CornerRadius="6"/>
-            </StackPanel>
+                    <!-- OIDC Client ID -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="OIDC Client ID"
+                                   FontSize="14"
+                                   Foreground="#94A3B8"/>
+                        <TextBox Text="{Binding OidcClientId}"
+                                 PlaceholderText="manage-client"
+                                 Height="40"
+                                 Padding="12,8"
+                                 VerticalContentAlignment="Center"
+                                 Background="#1E293B"
+                                 Foreground="White"
+                                 BorderBrush="#334155"
+                                 BorderThickness="1"
+                                 CornerRadius="6"/>
+                    </StackPanel>
 
-            <!-- OIDC Authority -->
-            <StackPanel Spacing="8">
-                <TextBlock Text="OIDC Authority"
-                           FontSize="14"
-                           Foreground="#94A3B8"/>
-                <TextBox Text="{Binding OidcAuthority}"
-                         PlaceholderText="https://localhost:7183"
-                         Height="40"
-                         Padding="12,8"
-                         VerticalContentAlignment="Center"
-                         Background="#1E293B"
-                         Foreground="White"
-                         BorderBrush="#334155"
-                         BorderThickness="1"
-                         CornerRadius="6"/>
-            </StackPanel>
+                    <!-- OIDC Authority -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="OIDC Authority"
+                                   FontSize="14"
+                                   Foreground="#94A3B8"/>
+                        <TextBox Text="{Binding OidcAuthority}"
+                                 PlaceholderText="https://localhost:7183"
+                                 Height="40"
+                                 Padding="12,8"
+                                 VerticalContentAlignment="Center"
+                                 Background="#1E293B"
+                                 Foreground="White"
+                                 BorderBrush="#334155"
+                                 BorderThickness="1"
+                                 CornerRadius="6"/>
+                    </StackPanel>
 
-            <!-- OIDC Response Type -->
-            <StackPanel Spacing="8">
-                <TextBlock Text="OIDC Response Type"
-                           FontSize="14"
-                           Foreground="#94A3B8"/>
-                <TextBox Text="{Binding OidcResponseType}"
-                         PlaceholderText="code"
-                         Height="40"
-                         Padding="12,8"
-                         VerticalContentAlignment="Center"
-                         Background="#1E293B"
-                         Foreground="White"
-                         BorderBrush="#334155"
-                         BorderThickness="1"
-                         CornerRadius="6"/>
-            </StackPanel>
+                    <!-- OIDC Response Type -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="OIDC Response Type"
+                                   FontSize="14"
+                                   Foreground="#94A3B8"/>
+                        <TextBox Text="{Binding OidcResponseType}"
+                                 PlaceholderText="code"
+                                 Height="40"
+                                 Padding="12,8"
+                                 VerticalContentAlignment="Center"
+                                 Background="#1E293B"
+                                 Foreground="White"
+                                 BorderBrush="#334155"
+                                 BorderThickness="1"
+                                 CornerRadius="6"/>
+                    </StackPanel>
 
-            <!-- OIDC Response Mode -->
-            <StackPanel Spacing="8">
-                <TextBlock Text="OIDC Response Mode"
-                           FontSize="14"
-                           Foreground="#94A3B8"/>
-                <TextBox Text="{Binding OidcResponseMode}"
-                         PlaceholderText="query"
-                         Height="40"
-                         Padding="12,8"
-                         VerticalContentAlignment="Center"
-                         Background="#1E293B"
-                         Foreground="White"
-                         BorderBrush="#334155"
-                         BorderThickness="1"
-                         CornerRadius="6"/>
-            </StackPanel>
+                    <!-- OIDC Response Mode -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="OIDC Response Mode"
+                                   FontSize="14"
+                                   Foreground="#94A3B8"/>
+                        <TextBox Text="{Binding OidcResponseMode}"
+                                 PlaceholderText="query"
+                                 Height="40"
+                                 Padding="12,8"
+                                 VerticalContentAlignment="Center"
+                                 Background="#1E293B"
+                                 Foreground="White"
+                                 BorderBrush="#334155"
+                                 BorderThickness="1"
+                                 CornerRadius="6"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
 
-            <!-- 按钮区域 -->
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="15" Margin="0,20,0,0">
+            <!-- 固定底部按钮区域 -->
+            <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="15">
                 <!-- 确定按钮 -->
                 <Button Grid.Column="0"
                         Height="45"
                         HorizontalAlignment="Stretch"
+                    VerticalContentAlignment="Center"
+                    HorizontalContentAlignment="Center"
                         Command="{Binding ConfirmCommand}">
                     <Button.Background>
                         <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
@@ -122,16 +130,21 @@
                             <GradientStop Color="#764ba2" Offset="1"/>
                         </LinearGradientBrush>
                     </Button.Background>
-                    <StackPanel Orientation="Horizontal" 
+                    <StackPanel Orientation="Horizontal"
                                 Spacing="8"
+                                VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
-                        <TextBlock Text="&#xf00c;" 
+                        <TextBlock Text="&#xf00c;"
                                    FontFamily="{StaticResource FontAwesomeSolid}"
                                    FontSize="14"
+                                   LineHeight="14"
+                                   VerticalAlignment="Center"
                                    Foreground="White"/>
-                        <TextBlock Text="确定" 
+                        <TextBlock Text="确定"
                                    FontSize="15"
                                    FontWeight="SemiBold"
+                                   LineHeight="15"
+                                   VerticalAlignment="Center"
                                    Foreground="White"/>
                     </StackPanel>
                 </Button>
@@ -140,22 +153,29 @@
                 <Button Grid.Column="1"
                         Height="45"
                         HorizontalAlignment="Stretch"
+                    VerticalContentAlignment="Center"
+                    HorizontalContentAlignment="Center"
                         Background="#334155"
                         Command="{Binding CancelCommand}">
-                    <StackPanel Orientation="Horizontal" 
+                    <StackPanel Orientation="Horizontal"
                                 Spacing="8"
+                        VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
-                        <TextBlock Text="&#xf00d;" 
+                        <TextBlock Text="&#xf00d;"
                                    FontFamily="{StaticResource FontAwesomeSolid}"
                                    FontSize="14"
+                           LineHeight="14"
+                           VerticalAlignment="Center"
                                    Foreground="White"/>
-                        <TextBlock Text="取消" 
+                        <TextBlock Text="取消"
                                    FontSize="15"
                                    FontWeight="SemiBold"
+                           LineHeight="15"
+                           VerticalAlignment="Center"
                                    Foreground="White"/>
                     </StackPanel>
                 </Button>
             </Grid>
-        </StackPanel>
+        </Grid>
     </Border>
 </Window>
