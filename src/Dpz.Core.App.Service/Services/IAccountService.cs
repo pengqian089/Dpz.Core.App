@@ -10,7 +10,11 @@ public interface IAccountService
     /// <summary>
     /// 获取账号列表
     /// </summary>
-    Task<IEnumerable<VmUserInfo>> GetAccountsAsync(string? account = null, int pageSize = 0, int pageIndex = 0);
+    Task<IEnumerable<VmUserInfo>> GetAccountsAsync(
+        string? account = null,
+        int pageSize = 0,
+        int pageIndex = 0
+    );
 
     /// <summary>
     /// 创建账号
@@ -47,7 +51,8 @@ public interface IAccountService
         DateTime? startTime = null,
         DateTime? endTime = null,
         int pageIndex = 0,
-        int pageSize = 0);
+        int pageSize = 0
+    );
 
     /// <summary>
     /// 获取更改过的属性
@@ -63,7 +68,8 @@ public interface IAccountService
         DateTime? changeTimeEnd = null,
         string? changeProperty = null,
         int pageIndex = 0,
-        int pageSize = 0);
+        int pageSize = 0
+    );
 }
 
 /// <summary>

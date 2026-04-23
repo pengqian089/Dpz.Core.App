@@ -40,20 +40,26 @@
                               IsEnabled="{Binding IsApiOperationsEnabled}">
                     <StackPanel>
                         <!-- 文章管理 -->
-                        <Button Classes="MenuItem">
+                        <Button Classes="MenuItem"
+                            Background="{Binding DashboardMenuBackground}"
+                            Foreground="{Binding DashboardMenuForeground}"
+                                Command="{Binding ShowDashboardCommand}">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <TextBlock Text="&#xf15c;" FontFamily="{StaticResource FontAwesomeSolid}" 
                                            FontSize="16" VerticalAlignment="Center"/>
-                                <TextBlock Text="文章管理" VerticalAlignment="Center"/>
+                                <TextBlock Text="仪表板" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         
                         <!-- 账号管理 -->
-                        <Button Classes="MenuItem">
+                        <Button Classes="MenuItem"
+                            Background="{Binding AccountsMenuBackground}"
+                            Foreground="{Binding AccountsMenuForeground}"
+                                Command="{Binding ShowAccountsCommand}">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <TextBlock Text="&#xf4fe;" FontFamily="{StaticResource FontAwesomeSolid}" 
                                            FontSize="16" VerticalAlignment="Center"/>
-                                <TextBlock Text="账号管理" VerticalAlignment="Center"/>
+                                <TextBlock Text="账号列表" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                         
@@ -177,7 +183,7 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                        <TextBlock Text="仪表板" FontSize="24"
+                        <TextBlock Text="{Binding ContentHeaderTitle}" FontSize="24"
                                    FontWeight="Bold" Foreground="White"
                                    VerticalAlignment="Center"/>
                         <Border Background="#1D4ED8" CornerRadius="10" Padding="10,4"
@@ -225,7 +231,8 @@
 
             <!-- 主内容滚动区域 -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                          IsEnabled="{Binding IsApiOperationsEnabled}">
+                          IsEnabled="{Binding IsApiOperationsEnabled}"
+                          IsVisible="{Binding IsDashboardVisible}">
                 <Border Padding="20">
                     <StackPanel Spacing="20">
                     
@@ -479,6 +486,225 @@
                     </Grid>
 
                 </StackPanel>
+                </Border>
+            </ScrollViewer>
+
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          IsEnabled="{Binding IsApiOperationsEnabled}"
+                          IsVisible="{Binding IsAccountListVisible}">
+                <Border Padding="20">
+                    <StackPanel Spacing="16">
+                        <Border Classes="ContentCard"
+                                Padding="18"
+                                Background="#1B2642"
+                                BorderBrush="#334155"
+                                BorderThickness="1">
+                            <Grid ColumnDefinitions="*,Auto,Auto"
+                                  RowDefinitions="Auto,Auto"
+                                  ColumnSpacing="12"
+                                  RowSpacing="10">
+                                <TextBlock Grid.Row="0"
+                                           Grid.Column="0"
+                                           Text="账号总览"
+                                           Classes="CardTitle"
+                                           Margin="0"/>
+                                <TextBlock Grid.Row="1"
+                                           Grid.Column="0"
+                                           Text="{Binding AccountSummaryText}"
+                                           Foreground="#93C5FD"
+                                           FontSize="13"/>
+
+                                <TextBox Grid.Row="0"
+                                         Grid.RowSpan="2"
+                                         Grid.Column="1"
+                                         Width="260"
+                                         Watermark="搜索账号 / 昵称"
+                                         Text="{Binding AccountSearchKeyword}"
+                                         VerticalContentAlignment="Center"
+                                         Background="#0F172A"
+                                         BorderBrush="#334155"
+                                         BorderThickness="1"
+                                         Padding="12,8"/>
+
+                                <StackPanel Grid.Row="0"
+                                            Grid.RowSpan="2"
+                                            Grid.Column="2"
+                                            Orientation="Horizontal"
+                                            Spacing="10"
+                                            VerticalAlignment="Center">
+                                    <Button Classes="ActionButton"
+                                            Content="搜索"
+                                            Command="{Binding SearchAccountsCommand}"
+                                            Padding="16,8"
+                                            MinWidth="92"/>
+                                    <Button Classes="ActionButton"
+                                            Content="刷新"
+                                            Command="{Binding RefreshAccountsCommand}"
+                                            Padding="16,8"
+                                            MinWidth="92"
+                                            Background="#1D4ED8"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Border Classes="ContentCard"
+                                Padding="14">
+                            <StackPanel Spacing="10">
+                                <Border Background="#0F172A"
+                                        CornerRadius="10"
+                                        Padding="14,12"
+                                        BorderBrush="#243447"
+                                        BorderThickness="1">
+                                    <Grid ColumnDefinitions="Auto,2*,2*,Auto,Auto,Auto"
+                                          ColumnSpacing="12">
+                                        <TextBlock Grid.Column="0"
+                                                   Text="用户"
+                                                   Foreground="#94A3B8"
+                                                   FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="账号 / 邮箱"
+                                                   Foreground="#94A3B8"
+                                                   FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="2"
+                                                   Text="最近访问"
+                                                   Foreground="#94A3B8"
+                                                   FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="3"
+                                                   Text="性别"
+                                                   Foreground="#94A3B8"
+                                                   FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="4"
+                                                   Text="权限"
+                                                   Foreground="#94A3B8"
+                                                   FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="5"
+                                                   Text="状态"
+                                                   Foreground="#94A3B8"
+                                                   FontWeight="SemiBold"/>
+                                    </Grid>
+                                </Border>
+
+                                <Border IsVisible="{Binding IsAccountListLoading}"
+                                        Background="#101A2E"
+                                        CornerRadius="12"
+                                        Padding="18"
+                                        BorderBrush="#25354D"
+                                        BorderThickness="1">
+                                    <StackPanel Orientation="Horizontal"
+                                                Spacing="8"
+                                                HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xf110;"
+                                                   FontFamily="{StaticResource FontAwesomeSolid}"
+                                                   Foreground="#93C5FD"/>
+                                        <TextBlock Text="正在加载账号列表..."
+                                                   Foreground="#BFDBFE"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border IsVisible="{Binding HasAccountListError}"
+                                        Background="#2B1620"
+                                        BorderBrush="#7F1D1D"
+                                        BorderThickness="1"
+                                        CornerRadius="10"
+                                        Padding="12,10">
+                                    <TextBlock Text="{Binding AccountListErrorMessage}"
+                                               Foreground="#FECACA"/>
+                                </Border>
+
+                                <ItemsControl ItemsSource="{Binding AccountList}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#121F35"
+                                                    BorderBrush="#263B59"
+                                                    BorderThickness="1"
+                                                    CornerRadius="12"
+                                                    Padding="14,12"
+                                                    Margin="0,3">
+                                                <Grid ColumnDefinitions="Auto,2*,2*,Auto,Auto,Auto"
+                                                      ColumnSpacing="12">
+                                                    <Border Grid.Column="0"
+                                                            Width="42"
+                                                            Height="42"
+                                                            CornerRadius="21"
+                                                            Background="#1D4ED8"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding AvatarText}"
+                                                                   Foreground="White"
+                                                                   FontWeight="Bold"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
+
+                                                    <StackPanel Grid.Column="1"
+                                                                Spacing="2"
+                                                                VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}"
+                                                                   FontSize="14"
+                                                                   Foreground="#F8FAFC"
+                                                                   FontWeight="SemiBold"/>
+                                                        <TextBlock Foreground="#94A3B8"
+                                                                   FontSize="12">
+                                                            <Run Text="{Binding Account}"/>
+                                                            <Run Text="  ·  "/>
+                                                            <Run Text="{Binding Email}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <TextBlock Grid.Column="2"
+                                                               Text="{Binding LastAccessTimeText}"
+                                                               Foreground="#CBD5E1"
+                                                               VerticalAlignment="Center"/>
+
+                                                    <Border Grid.Column="3"
+                                                            Background="#172554"
+                                                            CornerRadius="7"
+                                                            Padding="10,4"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding SexText}"
+                                                                   Foreground="#BFDBFE"
+                                                                   FontSize="12"/>
+                                                    </Border>
+
+                                                    <Border Grid.Column="4"
+                                                            Background="#13363B"
+                                                            CornerRadius="7"
+                                                            Padding="10,4"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding PermissionText}"
+                                                                   Foreground="#99F6E4"
+                                                                   FontSize="12"/>
+                                                    </Border>
+
+                                                    <Border Grid.Column="5"
+                                                            Background="{Binding StatusBackground}"
+                                                            CornerRadius="7"
+                                                            Padding="10,4"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding StatusText}"
+                                                                   Foreground="{Binding StatusForeground}"
+                                                                   FontSize="12"
+                                                                   FontWeight="SemiBold"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Border IsVisible="{Binding IsAccountListEmpty}"
+                                        Background="#101A2E"
+                                        CornerRadius="12"
+                                        Padding="18"
+                                        BorderBrush="#25354D"
+                                        BorderThickness="1">
+                                    <TextBlock Text="暂无账号数据"
+                                               Foreground="#94A3B8"
+                                               HorizontalAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </Border>
             </ScrollViewer>
         </Grid>

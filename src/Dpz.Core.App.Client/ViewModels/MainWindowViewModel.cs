@@ -1,9 +1,12 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Dpz.Core.App.Client.Auth;
 using Dpz.Core.App.Client.Models;
+using Dpz.Core.App.Models.Account;
+using Dpz.Core.App.Service.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Dpz.Core.App.Client.ViewModels;
@@ -12,6 +15,7 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly ILogger<MainWindowViewModel> _logger;
     private readonly IOidcAuthService _authService;
+    private readonly IAccountService _accountService;
     private readonly Random _random = new();
 
     [ObservableProperty]
@@ -22,6 +26,24 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _isApiOperationsEnabled = true;
+
+    [ObservableProperty]
+    private bool _isDashboardVisible = true;
+
+    [ObservableProperty]
+    private bool _isAccountListVisible;
+
+    [ObservableProperty]
+    private bool _isAccountListLoading;
+
+    [ObservableProperty]
+    private string _accountSearchKeyword = string.Empty;
+
+    [ObservableProperty]
+    private string _accountListErrorMessage = string.Empty;
+
+    [ObservableProperty]
+    private string _activeMenuKey = "Dashboard";
 
     /// <summary>
     /// 统计卡片数据
@@ -54,14 +76,24 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<SoftwareItemInfo> SoftwareDecryptList { get; } = [];
 
     /// <summary>
+    /// 账号列表
+    /// </summary>
+    public ObservableCollection<AccountListItemModel> AccountList { get; } = [];
+
+    /// <summary>
     /// 请求确认登出
     /// </summary>
     public event Func<Task<bool>>? LogoutConfirmationRequested;
 
-    public MainWindowViewModel(ILogger<MainWindowViewModel> logger, IOidcAuthService authService)
+    public MainWindowViewModel(
+        ILogger<MainWindowViewModel> logger,
+        IOidcAuthService authService,
+        IAccountService accountService
+    )
     {
         _logger = logger;
         _authService = authService;
+        _accountService = accountService;
         _logger.LogInformation("初始化仪表板数据");
 
         authService.AuthStateChanged += (_, state) =>
@@ -77,6 +109,24 @@ public partial class MainWindowViewModel : ViewModelBase
         AuthStatusMessage = authService.StatusMessage;
         InitializeMockData();
     }
+
+    public string AccountSummaryText => $"共 {AccountList.Count} 个账号";
+
+    public string ContentHeaderTitle => IsAccountListVisible ? "账号管理" : "仪表板";
+
+    public bool HasAccountListError => !string.IsNullOrWhiteSpace(AccountListErrorMessage);
+
+    public bool IsAccountListEmpty =>
+        !IsAccountListLoading && !HasAccountListError && AccountList.Count == 0;
+
+    public string DashboardMenuBackground =>
+        ActiveMenuKey == "Dashboard" ? "#334155" : "Transparent";
+
+    public string DashboardMenuForeground => ActiveMenuKey == "Dashboard" ? "#F1F5F9" : "#94A3B8";
+
+    public string AccountsMenuBackground => ActiveMenuKey == "Accounts" ? "#334155" : "Transparent";
+
+    public string AccountsMenuForeground => ActiveMenuKey == "Accounts" ? "#F1F5F9" : "#94A3B8";
 
     private void InitializeMockData()
     {
@@ -270,5 +320,144 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             _logger.LogError(ex, "登出失败");
         }
+    }
+
+    [RelayCommand]
+    private void ShowDashboard()
+    {
+        ActiveMenuKey = "Dashboard";
+        IsDashboardVisible = true;
+        IsAccountListVisible = false;
+        OnPropertyChanged(nameof(ContentHeaderTitle));
+    }
+
+    [RelayCommand]
+    private async Task ShowAccountsAsync()
+    {
+        ActiveMenuKey = "Accounts";
+        IsDashboardVisible = false;
+        IsAccountListVisible = true;
+        OnPropertyChanged(nameof(ContentHeaderTitle));
+
+        if (AccountList.Count == 0)
+        {
+            await LoadAccountsAsync();
+        }
+    }
+
+    [RelayCommand]
+    private async Task RefreshAccountsAsync()
+    {
+        await LoadAccountsAsync();
+    }
+
+    [RelayCommand]
+    private async Task SearchAccountsAsync()
+    {
+        await LoadAccountsAsync();
+    }
+
+    partial void OnAccountSearchKeywordChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            _ = LoadAccountsAsync();
+        }
+    }
+
+    partial void OnAccountListErrorMessageChanged(string value)
+    {
+        OnPropertyChanged(nameof(HasAccountListError));
+        OnPropertyChanged(nameof(IsAccountListEmpty));
+    }
+
+    partial void OnIsAccountListLoadingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsAccountListEmpty));
+    }
+
+    partial void OnActiveMenuKeyChanged(string value)
+    {
+        OnPropertyChanged(nameof(DashboardMenuBackground));
+        OnPropertyChanged(nameof(DashboardMenuForeground));
+        OnPropertyChanged(nameof(AccountsMenuBackground));
+        OnPropertyChanged(nameof(AccountsMenuForeground));
+    }
+
+    private async Task LoadAccountsAsync()
+    {
+        if (IsAccountListLoading)
+        {
+            return;
+        }
+
+        try
+        {
+            IsAccountListLoading = true;
+            AccountListErrorMessage = string.Empty;
+
+            var keyword = string.IsNullOrWhiteSpace(AccountSearchKeyword)
+                ? null
+                : AccountSearchKeyword.Trim();
+
+            var accounts = await _accountService.GetAccountsAsync(keyword);
+            var orderedAccounts = accounts
+                .OrderByDescending(static x => x.LastAccessTime ?? DateTime.MinValue)
+                .Select(static x => MapAccount(x))
+                .ToList();
+
+            AccountList.Clear();
+            foreach (var account in orderedAccounts)
+            {
+                AccountList.Add(account);
+            }
+
+            OnPropertyChanged(nameof(AccountSummaryText));
+            OnPropertyChanged(nameof(IsAccountListEmpty));
+            _logger.LogInformation("账号列表加载完成，总数: {Count}", AccountList.Count);
+        }
+        catch (Exception ex)
+        {
+            AccountListErrorMessage = "账号列表加载失败，请稍后重试";
+            _logger.LogError(ex, "加载账号列表失败");
+        }
+        finally
+        {
+            IsAccountListLoading = false;
+        }
+    }
+
+    private static AccountListItemModel MapAccount(VmUserInfo user)
+    {
+        var displayName = string.IsNullOrWhiteSpace(user.Name) ? "未命名用户" : user.Name;
+        var account = string.IsNullOrWhiteSpace(user.Id) ? "-" : user.Id;
+        var email = string.IsNullOrWhiteSpace(user.Email) ? "未设置邮箱" : user.Email;
+
+        var statusText = user.Enable == true ? "启用" : "停用";
+        var statusBackground = user.Enable == true ? "#0F3A2E" : "#3A1523";
+        var statusForeground = user.Enable == true ? "#86EFAC" : "#FDA4AF";
+
+        var permissionText = user.Permissions?.ToString() ?? "普通用户";
+        var sexText = user.Sex.ToString();
+
+        var lastAccessTimeText = user.LastAccessTime.HasValue
+            ? user.LastAccessTime.Value.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)
+            : "暂无记录";
+
+        return new AccountListItemModel
+        {
+            Name = displayName,
+            Account = account,
+            Email = email,
+            StatusText = statusText,
+            StatusBackground = statusBackground,
+            StatusForeground = statusForeground,
+            PermissionText = permissionText,
+            SexText = sexText,
+            LastAccessTimeText = lastAccessTimeText,
+            AvatarText = string.IsNullOrWhiteSpace(displayName)
+                ? "?"
+                : displayName[..1].ToUpperInvariant(),
+        };
     }
 }
