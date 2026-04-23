@@ -26,8 +26,11 @@ public partial class App : Application
         {
             // 显示登录界面
             var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
-            var loginViewModel = _serviceProvider.GetRequiredService<LoginWindowViewModel>();
-            loginWindow.DataContext = loginViewModel;
+
+            if (loginWindow.DataContext is not LoginWindowViewModel loginViewModel)
+            {
+                throw new InvalidOperationException("LoginWindow 的 DataContext 未正确初始化");
+            }
 
             // 监听登录成功事件
             loginViewModel.LoginSucceeded += (sender, args) =>
