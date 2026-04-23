@@ -29,8 +29,15 @@ public partial class App : Application
         {
             var authService = _serviceProvider.GetRequiredService<IOidcAuthService>();
             var callbackPipeServer = _serviceProvider.GetRequiredService<AuthCallbackPipeServer>();
+            var callbackDispatcher = _serviceProvider.GetRequiredService<IAuthCallbackDispatcher>();
 
             callbackPipeServer.Start();
+
+            var pendingCallback = Program.ConsumePendingProtocolCallback();
+            if (!string.IsNullOrWhiteSpace(pendingCallback))
+            {
+                callbackDispatcher.PublishCallback(pendingCallback);
+            }
 
             authService.AuthStateChanged += (_, state) =>
             {

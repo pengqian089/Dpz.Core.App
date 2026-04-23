@@ -190,6 +190,15 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="15">
+                        <!-- 登出按钮 -->
+                        <Button Background="Transparent"
+                                BorderThickness="0"
+                                Padding="8"
+                                Command="{Binding LogoutCommand}">
+                            <TextBlock Text="&#xf2f5;" FontFamily="{StaticResource FontAwesomeSolid}"
+                                       FontSize="18" Foreground="#FCA5A5"/>
+                        </Button>
+
                         <!-- 通知按钮 -->
                         <Button Background="Transparent" BorderThickness="0" Padding="8">
                             <TextBlock Text="&#xf0f3;" FontFamily="{StaticResource FontAwesomeSolid}" 

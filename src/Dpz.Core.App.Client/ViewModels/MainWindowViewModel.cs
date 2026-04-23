@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Dpz.Core.App.Client.Auth;
 using Dpz.Core.App.Client.Models;
 using Microsoft.Extensions.Logging;
@@ -9,6 +11,7 @@ namespace Dpz.Core.App.Client.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly ILogger<MainWindowViewModel> _logger;
+    private readonly IOidcAuthService _authService;
     private readonly Random _random = new();
 
     [ObservableProperty]
@@ -50,16 +53,25 @@ public partial class MainWindowViewModel : ViewModelBase
     /// </summary>
     public ObservableCollection<SoftwareItemInfo> SoftwareDecryptList { get; } = [];
 
+    /// <summary>
+    /// 请求确认登出
+    /// </summary>
+    public event Func<Task<bool>>? LogoutConfirmationRequested;
+
     public MainWindowViewModel(ILogger<MainWindowViewModel> logger, IOidcAuthService authService)
     {
         _logger = logger;
+        _authService = authService;
         _logger.LogInformation("初始化仪表板数据");
 
         authService.AuthStateChanged += (_, state) =>
         {
-            IsAuthBusy = state is AuthState.Authenticating or AuthState.Refreshing;
-            IsApiOperationsEnabled = !IsAuthBusy;
-            AuthStatusMessage = authService.StatusMessage;
+            Dispatcher.UIThread.Post(() =>
+            {
+                IsAuthBusy = state is AuthState.Authenticating or AuthState.Refreshing;
+                IsApiOperationsEnabled = !IsAuthBusy;
+                AuthStatusMessage = authService.StatusMessage;
+            });
         };
 
         AuthStatusMessage = authService.StatusMessage;
@@ -133,10 +145,10 @@ public partial class MainWindowViewModel : ViewModelBase
             ("废币", "#3B82F6"),
         };
 
-        double totalSize = 104.5;
+        var totalSize = 104.5;
         var sizes = new[] { 35.6, 47.2, 12.8, 8.4 };
 
-        for (int i = 0; i < modules.Length; i++)
+        for (var i = 0; i < modules.Length; i++)
         {
             StorageModules.Add(
                 new StorageModuleData
@@ -233,5 +245,30 @@ public partial class MainWindowViewModel : ViewModelBase
         );
 
         _logger.LogInformation("仪表板模拟数据初始化完成");
+    }
+
+    [RelayCommand]
+    private async Task LogoutAsync()
+    {
+        try
+        {
+            var confirmationHandler = LogoutConfirmationRequested;
+            if (confirmationHandler != null)
+            {
+                var shouldLogout = await confirmationHandler();
+                if (!shouldLogout)
+                {
+                    _logger.LogInformation("用户取消登出");
+                    return;
+                }
+            }
+
+            _logger.LogInformation("用户触发登出");
+            await _authService.LogoutAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "登出失败");
+        }
     }
 }

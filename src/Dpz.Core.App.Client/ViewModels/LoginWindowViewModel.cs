@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Dpz.Core.App.Client.Auth;
@@ -62,9 +63,12 @@ public partial class LoginWindowViewModel : ViewModelBase
 
         _authService.AuthStateChanged += (_, state) =>
         {
-            AuthStatusMessage = _authService.StatusMessage;
-            IsLoading = state is AuthState.Authenticating or AuthState.Refreshing;
-            LoginCommand.NotifyCanExecuteChanged();
+            Dispatcher.UIThread.Post(() =>
+            {
+                AuthStatusMessage = _authService.StatusMessage;
+                IsLoading = state is AuthState.Authenticating or AuthState.Refreshing;
+                LoginCommand.NotifyCanExecuteChanged();
+            });
         };
 
         AuthStatusMessage = _authService.StatusMessage;

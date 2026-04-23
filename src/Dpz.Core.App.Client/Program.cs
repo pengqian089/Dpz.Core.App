@@ -4,12 +4,16 @@ using Avalonia;
 using Dpz.Core.App.Client.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 using Serilog;
 
 namespace Dpz.Core.App.Client;
 
 sealed class Program
 {
+    private static readonly object PendingCallbackLock = new();
+    private static string? _pendingProtocolCallback;
+
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
@@ -20,6 +24,8 @@ sealed class Program
         {
             return;
         }
+
+        EnsureProtocolHandlerRegistered();
 
         ConfigureLogger();
 
@@ -84,6 +90,16 @@ sealed class Program
             .WithInterFont()
             .LogToTrace();
 
+    public static string? ConsumePendingProtocolCallback()
+    {
+        lock (PendingCallbackLock)
+        {
+            var value = _pendingProtocolCallback;
+            _pendingProtocolCallback = null;
+            return value;
+        }
+    }
+
     private static bool TryForwardProtocolCallback(string[] args)
     {
         if (args.Length == 0)
@@ -92,7 +108,7 @@ sealed class Program
         }
 
         var firstArg = args[0];
-        if (!firstArg.StartsWith("dpz_client://", StringComparison.OrdinalIgnoreCase))
+        if (!firstArg.StartsWith("dpz-client://", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
@@ -115,7 +131,51 @@ sealed class Program
         }
         catch
         {
+            lock (PendingCallbackLock)
+            {
+                _pendingProtocolCallback = firstArg;
+            }
+
             return false;
+        }
+    }
+
+    private static void EnsureProtocolHandlerRegistered()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        try
+        {
+            var exePath = Environment.ProcessPath;
+            if (string.IsNullOrWhiteSpace(exePath))
+            {
+                return;
+            }
+
+            const string scheme = "dpz-client";
+            var commandValue = $"\"{exePath}\" \"%1\"";
+
+            using var schemeKey = Registry.CurrentUser.CreateSubKey($"Software\\Classes\\{scheme}");
+            if (schemeKey == null)
+            {
+                return;
+            }
+
+            schemeKey.SetValue(string.Empty, "URL:dpz-client Protocol");
+            schemeKey.SetValue("URL Protocol", string.Empty);
+
+            using var defaultIcon = schemeKey.CreateSubKey("DefaultIcon");
+            defaultIcon?.SetValue(string.Empty, $"\"{exePath}\",1");
+
+            using var commandKey = schemeKey.CreateSubKey("shell\\open\\command");
+            commandKey?.SetValue(string.Empty, commandValue);
+        }
+        catch
+        {
+            // 注册失败时不阻塞应用启动；登录阶段会在日志中体现回调失败。
         }
     }
 }
