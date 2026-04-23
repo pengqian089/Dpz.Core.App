@@ -113,6 +113,12 @@
                            TextAlignment="Center"
                            IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 
+                <TextBlock Text="{Binding AuthStatusMessage}"
+                           Foreground="#E0FFFFFF"
+                           FontSize="13"
+                           TextAlignment="Center"
+                           IsVisible="{Binding AuthStatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
                 <!-- 登录按钮 -->
                 <Button Classes="LoginButton"
                         Command="{Binding LoginCommand}"

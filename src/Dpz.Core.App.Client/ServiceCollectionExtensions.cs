@@ -1,6 +1,8 @@
+using Dpz.Core.App.Client.Auth;
 using Dpz.Core.App.Client.ViewModels;
 using Dpz.Core.App.Client.Views;
 using Dpz.Core.App.Service.Extensions;
+using Dpz.Core.App.Service.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -31,6 +33,13 @@ public static class ServiceCollectionExtensions
 
         // 从配置文件读取 API 地址（可选）
         var baseAddress = configuration["ApiSettings:BaseAddress"] ?? "https://api.example.com";
+
+        services.AddSingleton<IAuthCallbackDispatcher, AuthCallbackDispatcher>();
+        services.AddSingleton<AuthCallbackPipeServer>();
+        services.AddSingleton<ITokenStore, PlatformTokenStore>();
+        services.AddSingleton<IOidcConfigProvider, OidcRemoteConfigProvider>();
+        services.AddSingleton<IOidcAuthService, OidcAuthService>();
+        services.AddSingleton<ITokenProvider, AuthTokenProvider>();
 
         // 注册 API 服务（从 Service 项目）
         services.AddApiServices(baseAddress);

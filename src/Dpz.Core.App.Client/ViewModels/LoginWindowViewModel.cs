@@ -1,6 +1,7 @@
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Dpz.Core.App.Client.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -13,6 +14,7 @@ public partial class LoginWindowViewModel : ViewModelBase
 {
     private readonly ILogger<LoginWindowViewModel> _logger;
     private readonly IConfiguration _configuration;
+    private readonly IOidcAuthService _authService;
     private const string AppSettingsFile = "appsettings.json";
 
     [ObservableProperty]
@@ -39,16 +41,33 @@ public partial class LoginWindowViewModel : ViewModelBase
     [ObservableProperty]
     private bool _canLogin;
 
+    [ObservableProperty]
+    private string _authStatusMessage = "未登录";
+
     /// <summary>
     /// 登录成功事件
     /// </summary>
     public event EventHandler? LoginSucceeded;
 
-    public LoginWindowViewModel(ILogger<LoginWindowViewModel> logger, IConfiguration configuration)
+    public LoginWindowViewModel(
+        ILogger<LoginWindowViewModel> logger,
+        IConfiguration configuration,
+        IOidcAuthService authService
+    )
     {
         _logger = logger;
         _configuration = configuration;
+        _authService = authService;
         _logger.LogInformation("登录界面初始化");
+
+        _authService.AuthStateChanged += (_, state) =>
+        {
+            AuthStatusMessage = _authService.StatusMessage;
+            IsLoading = state is AuthState.Authenticating or AuthState.Refreshing;
+            LoginCommand.NotifyCanExecuteChanged();
+        };
+
+        AuthStatusMessage = _authService.StatusMessage;
         LoadConfiguration();
     }
 
@@ -91,7 +110,8 @@ public partial class LoginWindowViewModel : ViewModelBase
             && !string.IsNullOrWhiteSpace(OidcClientId)
             && !string.IsNullOrWhiteSpace(OidcAuthority)
             && !string.IsNullOrWhiteSpace(OidcResponseType)
-            && !string.IsNullOrWhiteSpace(OidcResponseMode);
+            && !string.IsNullOrWhiteSpace(OidcResponseMode)
+            && !IsLoading;
     }
 
     /// <summary>
@@ -231,15 +251,15 @@ public partial class LoginWindowViewModel : ViewModelBase
                 OidcClientId
             );
 
-            // TODO: 实现 OIDC 登录流程
-            // 1. 构建授权 URL
-            // 2. 打开浏览器进行授权
-            // 3. 监听回调
-            // 4. 获取 token
+            var success = await _authService.LoginAsync();
 
-            await Task.Delay(1500);
+            if (!success)
+            {
+                ErrorMessage = "OIDC 登录失败，请检查配置或稍后重试";
+                return;
+            }
 
-            // 临时：直接模拟登录成功
+            ErrorMessage = string.Empty;
             _logger.LogInformation("OIDC 登录成功");
             LoginSucceeded?.Invoke(this, EventArgs.Empty);
         }
@@ -289,6 +309,12 @@ public partial class LoginWindowViewModel : ViewModelBase
     }
 
     partial void OnOidcResponseModeChanged(string value)
+    {
+        UpdateCanLogin();
+        LoginCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnIsLoadingChanged(bool value)
     {
         UpdateCanLogin();
         LoginCommand.NotifyCanExecuteChanged();

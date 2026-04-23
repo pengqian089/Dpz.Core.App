@@ -36,7 +36,8 @@
                 </Border>
 
                 <!-- 菜单项 -->
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              IsEnabled="{Binding IsApiOperationsEnabled}">
                     <StackPanel>
                         <!-- 文章管理 -->
                         <Button Classes="MenuItem">
@@ -175,9 +176,18 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="仪表板" FontSize="24" 
-                               FontWeight="Bold" Foreground="White" 
-                               VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Text="仪表板" FontSize="24"
+                                   FontWeight="Bold" Foreground="White"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="#1D4ED8" CornerRadius="10" Padding="10,4"
+                                IsVisible="{Binding IsAuthBusy}">
+                            <TextBlock Text="{Binding AuthStatusMessage}"
+                                       Foreground="White"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="15">
                         <!-- 通知按钮 -->
@@ -205,7 +215,8 @@
             </Border>
 
             <!-- 主内容滚动区域 -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          IsEnabled="{Binding IsApiOperationsEnabled}">
                 <Border Padding="20">
                     <StackPanel Spacing="20">
                     

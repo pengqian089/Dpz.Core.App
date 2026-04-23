@@ -45,19 +45,26 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddHttpService(this IServiceCollection services, string? baseAddress = null)
     {
         if (_isHttpServiceRegistered)
-            return services;
-
-        if (!string.IsNullOrEmpty(baseAddress))
         {
-            services.AddHttpClient(
+            return services;
+        }
+
+        services.AddTransient<OidcAuthorizationHandler>();
+
+        services
+            .AddHttpClient(
                 "ServerAPI",
                 client =>
                 {
-                    client.BaseAddress = new Uri(baseAddress);
+                    if (!string.IsNullOrWhiteSpace(baseAddress))
+                    {
+                        client.BaseAddress = new Uri(baseAddress);
+                    }
+
                     client.DefaultRequestHeaders.Add("Accept", "application/json");
                 }
-            );
-        }
+            )
+            .AddHttpMessageHandler<OidcAuthorizationHandler>();
 
         services.AddScoped<IHttpService, HttpService>(sp =>
         {

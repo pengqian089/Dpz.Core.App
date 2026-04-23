@@ -1,4 +1,7 @@
-﻿using Avalonia;
+﻿using System.IO.Pipes;
+using System.Text;
+using Avalonia;
+using Dpz.Core.App.Client.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -13,6 +16,11 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        if (TryForwardProtocolCallback(args))
+        {
+            return;
+        }
+
         ConfigureLogger();
 
         try
@@ -75,4 +83,39 @@ sealed class Program
 #endif
             .WithInterFont()
             .LogToTrace();
+
+    private static bool TryForwardProtocolCallback(string[] args)
+    {
+        if (args.Length == 0)
+        {
+            return false;
+        }
+
+        var firstArg = args[0];
+        if (!firstArg.StartsWith("dpz_client://", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        try
+        {
+            using var client = new NamedPipeClientStream(
+                ".",
+                AuthCallbackPipeServer.PipeName,
+                PipeDirection.Out
+            );
+
+            client.Connect(1000);
+
+            using var writer = new StreamWriter(client, Encoding.UTF8, leaveOpen: true);
+            writer.Write(firstArg);
+            writer.Flush();
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Dpz.Core.App.Client.Auth;
 using Dpz.Core.App.Client.Models;
 using Microsoft.Extensions.Logging;
 
@@ -8,6 +10,15 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly ILogger<MainWindowViewModel> _logger;
     private readonly Random _random = new();
+
+    [ObservableProperty]
+    private bool _isAuthBusy;
+
+    [ObservableProperty]
+    private string _authStatusMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool _isApiOperationsEnabled = true;
 
     /// <summary>
     /// 统计卡片数据
@@ -39,10 +50,19 @@ public partial class MainWindowViewModel : ViewModelBase
     /// </summary>
     public ObservableCollection<SoftwareItemInfo> SoftwareDecryptList { get; } = [];
 
-    public MainWindowViewModel(ILogger<MainWindowViewModel> logger)
+    public MainWindowViewModel(ILogger<MainWindowViewModel> logger, IOidcAuthService authService)
     {
         _logger = logger;
         _logger.LogInformation("初始化仪表板数据");
+
+        authService.AuthStateChanged += (_, state) =>
+        {
+            IsAuthBusy = state is AuthState.Authenticating or AuthState.Refreshing;
+            IsApiOperationsEnabled = !IsAuthBusy;
+            AuthStatusMessage = authService.StatusMessage;
+        };
+
+        AuthStatusMessage = authService.StatusMessage;
         InitializeMockData();
     }
 
